@@ -4,4 +4,7 @@ java_binary(
   name = "main",
   srcs = glob(['*.java']),
   main_class = "polyglot.Main",
+  deps = [
+    "//third_party/grpc",
+  ]
 )
