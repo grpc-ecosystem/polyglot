@@ -1,6 +1,7 @@
 package polyglot;
 
 import polyglot.HelloProto.Hello;
+import polyglot.HelloServiceGrpc;
 
 import java.io.IOException;
 
@@ -19,6 +20,7 @@ public class Main {
   public static void main(String[] args) throws IOException {
     logger.info("Greeting: " + GREETING);
     ServerBuilder.forPort(SERVER_PORT)
+        .addService(HelloServiceGrpc.bindService(null))  // TODO(dino); Add proper implementation.
         .build()
         .start();
   }

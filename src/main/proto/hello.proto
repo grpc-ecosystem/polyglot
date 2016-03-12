@@ -7,3 +7,13 @@ option java_outer_classname = "HelloProto";
 message Hello {
   string message = 1;
 }
+
+message HelloRequest {
+}
+
+message HelloResponse {
+}
+
+service HelloService {
+  rpc Foo (HelloRequest) returns (HelloResponse) {}
+}

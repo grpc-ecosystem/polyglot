@@ -1,5 +1,5 @@
 // Bazel stuff.
-bazel*
+bazel-*
 
 // Vim stuff.
 *swp
