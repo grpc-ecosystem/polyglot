@@ -6,7 +6,9 @@ java_binary(
   main_class = "polyglot.Main",
   deps = [
     "//third_party/grpc",
+    "//third_party/guava",
     "//third_party/logging:logging-api",
     "//third_party/logging:logging-impl-stdout",
+    "//third_party/netty",
   ]
 )

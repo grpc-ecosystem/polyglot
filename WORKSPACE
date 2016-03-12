@@ -1,6 +1,6 @@
 maven_jar(
   name = "grpc_artifact",
-  artifact = "io.grpc:grpc-all:0.7.0",
+  artifact = "io.grpc:grpc-all:0.13.1",
 )
 
 maven_jar(
@@ -11,6 +11,11 @@ maven_jar(
 maven_jar(
   name = "junit_artifact",
   artifact = "junit:junit:4.10",
+)
+
+maven_jar(
+  name = "netty_artifact",
+  artifact = "io.netty:netty-all:4.1.0.CR3",
 )
 
 maven_jar(
