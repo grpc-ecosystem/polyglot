@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package polyglot;
+
+option java_outer_classname = "HelloProto";
+
+message Hello {
+  string message = 1;
+}

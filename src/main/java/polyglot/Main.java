@@ -1,5 +1,7 @@
 package polyglot;
 
+import polyglot.HelloProto.Hello;
+
 import java.io.IOException;
 
 import org.slf4j.Logger;
@@ -10,9 +12,12 @@ import io.grpc.ServerBuilder;
 public class Main {
   private static final Logger logger = LoggerFactory.getLogger(Main.class);
   private static final int SERVER_PORT = 12345;
+  private static final Hello GREETING = Hello.newBuilder()
+      .setMessage("Hello, polyglot")
+      .build();
 
   public static void main(String[] args) throws IOException {
-    logger.info("Hello polyglot");
+    logger.info("Greeting: " + GREETING);
     ServerBuilder.forPort(SERVER_PORT)
         .build()
         .start();
