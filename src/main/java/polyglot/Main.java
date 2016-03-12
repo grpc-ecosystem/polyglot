@@ -15,11 +15,14 @@ public class Main {
       .setMessage("Hello, polyglot")
       .build();
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws IOException, InterruptedException {
     logger.info("Greeting: " + GREETING);
+
+    logger.info("Starting grpc server on port: " + SERVER_PORT);
     ServerBuilder.forPort(SERVER_PORT)
-        .addService(HelloServiceGrpc.bindService(null))  // TODO(dino); Add proper implementation.
+        .addService(HelloServiceGrpc.bindService(new HelloServiceImpl()))
         .build()
-        .start();
+        .start()
+        .awaitTermination();
   }
 }
