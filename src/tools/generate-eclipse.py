@@ -6,6 +6,7 @@ from xml.etree.ElementTree import Element, SubElement, tostring
 
 LIBRARY_JAR_ROOT = os.path.join('bazel-genfiles', 'external')
 BUILD_EVERYTHING_COMMAND = ['bazel', 'build', 'src/...']
+PROTO_JAR_ROOT = os.path.join('bazel-bin', 'src', 'main', 'proto')
 
 def main():
     # Using relative paths for certain things makes our lives much easier, but
@@ -43,10 +44,13 @@ def jar_entry(jar_path):
 
 def discover_jars(root):
     jar_paths = []
-    for root, _, files in os.walk(LIBRARY_JAR_ROOT):
-        for file in files:
-            if os.path.splitext(file)[1] == '.jar':
-                jar_paths.append(os.path.abspath(os.path.join(root, file)))
+
+    trees = [LIBRARY_JAR_ROOT, PROTO_JAR_ROOT]
+    for tree in trees:
+        for root, _, files in os.walk(tree):
+            for file in files:
+                if os.path.splitext(file)[1] == '.jar':
+                    jar_paths.append(os.path.abspath(os.path.join(root, file)))
     return jar_paths
 
 CLASSPATH_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>

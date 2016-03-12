@@ -1,14 +1,12 @@
 package polyglot;
 
-import polyglot.HelloProto.Hello;
-import polyglot.HelloServiceGrpc;
-
 import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.grpc.ServerBuilder;
+import polyglot.HelloProto.Hello;
 
 public class Main {
   private static final Logger logger = LoggerFactory.getLogger(Main.class);
