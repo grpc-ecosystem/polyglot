@@ -19,6 +19,11 @@ maven_jar(
 )
 
 maven_jar(
+  name = "protobuf_java_artifact",
+  artifact = "com.google.protobuf:protobuf-java:3.0.0-beta-2"
+)
+
+maven_jar(
   name = "slf4j_api_artifact",
   artifact= "org.slf4j:slf4j-api:1.7.13",
 )

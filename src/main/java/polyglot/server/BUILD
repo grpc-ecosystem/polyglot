@@ -3,7 +3,7 @@ package(default_visibility = ["//visibility:public"])
 java_binary(
   name = "main",
   srcs = glob(['*.java']),
-  main_class = "polyglot.Main",
+  main_class = "polyglot.server.Main",
   deps = [
     "//src/main/proto:hello_proto",
     "//third_party/grpc",
@@ -11,6 +11,5 @@ java_binary(
     "//third_party/logging:logging-api",
     "//third_party/logging:logging-impl-stdout",
     "//third_party/netty",
-    "//third_party/protobuf",
   ]
 )

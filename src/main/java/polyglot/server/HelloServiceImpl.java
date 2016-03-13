@@ -1,4 +1,4 @@
-package polyglot;
+package polyglot.server;
 
 import io.grpc.stub.StreamObserver;
 import polyglot.HelloProto.HelloRequest;
