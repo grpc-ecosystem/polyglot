@@ -15,7 +15,7 @@ maven_jar(
 
 maven_jar(
   name = "netty_artifact",
-  artifact = "io.netty:netty-all:4.1.0.CR3",
+  artifact = "io.netty:netty-all:4.1.0.CR1",
 )
 
 maven_jar(
