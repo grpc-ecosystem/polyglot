@@ -25,7 +25,7 @@ def gensrcjar_impl(ctx):
   proto_compiler_command_parts = [proto_compiler.path, "--java_out=" + proto_output, ctx.file.src.path]
   if ctx.attr.gen_grpc:
     proto_compiler_command_parts += [
-      "--plugin=protoc-gen-java_rpc=" + ctx.file._grpc_java_compiler_plugin.path,
+      "--plugin=protoc-gen-java_rpc=" + ctx.file._gen_java_grpc.path,
       "--java_rpc_out=" + proto_output
     ] 
 
@@ -37,7 +37,7 @@ def gensrcjar_impl(ctx):
     ctx.file._jar.path + " cMf " + out.path + " -C " + proto_output + " .",
   ]
 
-  inp = ctx.files.deps + [ctx.file.src, proto_compiler, ctx.file._jar] + ctx.files._jdk + [ctx.file._grpc_java_compiler_plugin]
+  inp = ctx.files.deps + [ctx.file.src, proto_compiler, ctx.file._jar] + ctx.files._jdk + [ctx.file._gen_java_grpc]
 
   ctx.action(
     command=" && ".join(sub_commands),
@@ -58,8 +58,8 @@ gensrcjar = rule(
           default=Label("@bazel_tools//third_party:protoc"),
           allow_files=True,
           single_file=True),
-      "_grpc_java_compiler_plugin": attr.label(
-          default=Label("//third_party/grpc-java-compiler:protoc-gen-grpc-java"),
+      "_gen_java_grpc": attr.label(
+          default=Label("//third_party/grpc-java-compiler:gen_java_grpc"),
           allow_files=True,
           single_file=True),
       "_jar": attr.label(

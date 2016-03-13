@@ -1,3 +1,9 @@
+http_file(
+  name = "gen_java_grpc",
+  url = "https://repo1.maven.org/maven2/io/grpc/protoc-gen-grpc-java/0.13.1/protoc-gen-grpc-java-0.13.1-linux-x86_64.exe",
+  sha256 = "188fe7e975f75af6931dd36427dca1b5f7b43797dc406ef8d852b31df846f1d6",
+)
+
 maven_jar(
   name = "grpc_artifact",
   artifact = "io.grpc:grpc-all:0.13.1",
