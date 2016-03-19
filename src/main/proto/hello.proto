@@ -4,14 +4,12 @@ package polyglot;
 
 option java_outer_classname = "HelloProto";
 
-message Hello {
-  string message = 1;
-}
-
 message HelloRequest {
+  string recipient = 1;
 }
 
 message HelloResponse {
+  string message = 1;
 }
 
 service HelloService {

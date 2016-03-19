@@ -20,16 +20,12 @@ import io.grpc.MethodDescriptor;
 import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.StreamObserver;
-import polyglot.HelloProto.Hello;
 import polyglot.HelloProto.HelloRequest;
 import polyglot.HelloProto.HelloResponse;
-import polyglot.HelloServiceGrpc.HelloServiceStub;
+import polyglot.HelloServiceGrpc.HelloServiceBlockingStub;
 
 public class Main {
   private static final Logger logger = LoggerFactory.getLogger(Main.class);
-  private static final Hello GREETING = Hello.newBuilder()
-      .setMessage("Hello, polyglot")
-      .build();
 
   private static final int REMOTE_PORT = 12345;
   private static final String REMOTE_HOST = "localhost";
@@ -41,7 +37,7 @@ public class Main {
       ClassNotFoundException,
       IllegalArgumentException,
       IllegalAccessException, NoSuchMethodException, SecurityException, InvocationTargetException {
-    logger.info("Greeting: " + GREETING);
+    logger.info("Starting grpc client to [" + REMOTE_HOST + ":" + REMOTE_PORT + "]");
 
     // Create a reusable channel.
     Channel channel = NettyChannelBuilder.forAddress(REMOTE_HOST, REMOTE_PORT)
@@ -49,28 +45,13 @@ public class Main {
         .build();
 
     // Opening stubs the conventional way.
-    HelloServiceStub helloStub = HelloServiceGrpc.newStub(channel);
-    helloStub.sayHello(HelloRequest.getDefaultInstance(),
-        new StreamObserver<HelloProto.HelloResponse>() {
-          @Override
-          public void onCompleted() {
-            logger.info("Completed rpc");
-          }
-
-          @Override
-          public void onError(Throwable t) {
-            logger.error("Got error for rpc", t);
-          }
-
-          @Override
-          public void onNext(HelloResponse response) {
-            logger.info("Got rpc response: " + response);
-          }
-        });
-
+    HelloServiceBlockingStub helloStub = HelloServiceGrpc.newBlockingStub(channel);
+    HelloResponse helloResponse = helloStub.sayHello(HelloRequest.newBuilder()
+        .setRecipient("Polyglot")
+        .build());
+    logger.info("Got response: " + helloResponse);
 
     // ********** Scratch space below *************
-
 
     String className = "polyglot.HelloServiceGrpc";
     String serviceName = "polyglot.HelloService";
