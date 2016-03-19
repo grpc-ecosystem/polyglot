@@ -7,3 +7,9 @@ proto_java_library(
   src = "hello.proto",
   gen_grpc = True,
 )
+
+proto_java_library(
+  name = "test_proto",
+  src = "test.proto",
+  gen_grpc = True,
+)

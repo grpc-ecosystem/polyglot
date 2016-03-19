@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package foo;
+
+message BarRequest {
+  string recipient = 1;
+}
+
+message BarResponse {
+  string message = 1;
+}
+
+service BazService {
+  rpc doBar (BarRequest) returns (BarRequest) {}
+}

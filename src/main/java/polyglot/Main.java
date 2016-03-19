@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.protobuf.DescriptorProtos.FileDescriptorProto;
+import com.google.protobuf.Descriptors.FileDescriptor;
 import com.google.protobuf.GeneratedMessage;
 import com.google.protobuf.Message;
 import com.google.protobuf.TextFormat;
@@ -23,8 +25,10 @@ public class Main {
     String serviceName = "polyglot.HelloService";
     String methodName = "SayHello";
     String generatedMethodName = "sayHello";
-
     String textFormatRequest = "recipient: \"Polyglot\"";
+
+    testStringResolution("foo.Test", "BazService");
+    testServiceResolution(HelloProto.getDescriptor().toProto(), "Hello");
 
     // Parse the request type.
     Class<? extends GeneratedMessage> requestType = HelloRequest.class;
@@ -33,8 +37,8 @@ public class Main {
     TextFormat.getParser().merge(textFormatRequest, builder);
     Message requestMessage = builder.build();
 
-    logger.info("Creating grpc client");
     Class<?> grpcClass = Main.class.getClassLoader().loadClass(className);
+    logger.info("Creating grpc client");
     GrpcClient client =
         GrpcClient.forGrpcClass(grpcClass, generatedMethodName, REMOTE_HOST, REMOTE_PORT);
     logger.info("Making generic call");
@@ -44,5 +48,17 @@ public class Main {
     } catch (ExecutionException e) {
       logger.error("Failed to make rpc", e);
     }
+  }
+
+  static void testStringResolution(String javaOuterClass, String serviceName) throws Exception {
+    Class<?> outerClass = Main.class.getClassLoader().loadClass(javaOuterClass);
+    FileDescriptor fileDescriptor =
+        (FileDescriptor) outerClass.getMethod("getDescriptor").invoke(null /* obj */);
+    testServiceResolution(fileDescriptor.toProto(), serviceName);
+  }
+
+  static void testServiceResolution(FileDescriptorProto fileDescriptorProto, String serviceName) {
+    logger.info("Service name: " + serviceName);
+    logger.info("File descriptor proto: \n" + fileDescriptorProto);
   }
 }
