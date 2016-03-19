@@ -9,5 +9,6 @@ public class HelloServiceImpl implements HelloService {
   @Override
   public void sayHello(HelloRequest request, StreamObserver<HelloResponse> responseStream) {
     responseStream.onNext(HelloResponse.getDefaultInstance());
+    responseStream.onCompleted();
   }
 }
