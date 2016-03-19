@@ -6,10 +6,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.GeneratedMessage;
 import com.google.protobuf.GeneratedMessage.Builder;
 import com.google.protobuf.Message;
@@ -23,12 +25,19 @@ import io.grpc.stub.StreamObserver;
 import polyglot.HelloProto.HelloRequest;
 import polyglot.HelloProto.HelloResponse;
 import polyglot.HelloServiceGrpc.HelloServiceBlockingStub;
+import polyglot.HelloServiceGrpc.HelloServiceFutureStub;
 
 public class Main {
   private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
   private static final int REMOTE_PORT = 12345;
   private static final String REMOTE_HOST = "localhost";
+
+  private static Channel newChannel() {
+    return NettyChannelBuilder.forAddress(REMOTE_HOST, REMOTE_PORT)
+        .negotiationType(NegotiationType.PLAINTEXT)
+        .build();
+  }
 
   @SuppressWarnings("unchecked")  // Casting the proto request types.
   public static void main(String[] args) throws
@@ -39,17 +48,24 @@ public class Main {
       IllegalAccessException, NoSuchMethodException, SecurityException, InvocationTargetException {
     logger.info("Starting grpc client to [" + REMOTE_HOST + ":" + REMOTE_PORT + "]");
 
-    // Create a reusable channel.
-    Channel channel = NettyChannelBuilder.forAddress(REMOTE_HOST, REMOTE_PORT)
-        .negotiationType(NegotiationType.PLAINTEXT)
-        .build();
-
-    // Opening stubs the conventional way.
-    HelloServiceBlockingStub helloStub = HelloServiceGrpc.newBlockingStub(channel);
+    // Open a regular stub..
+    HelloServiceBlockingStub helloStub = HelloServiceGrpc.newBlockingStub(newChannel());
     HelloResponse helloResponse = helloStub.sayHello(HelloRequest.newBuilder()
         .setRecipient("Polyglot")
         .build());
-    logger.info("Got response: " + helloResponse);
+    logger.info("Got response from blocking: " + helloResponse);
+
+    // Open a future stub.
+    HelloServiceFutureStub helloFutureStub = HelloServiceGrpc.newFutureStub(newChannel());
+    ListenableFuture<HelloResponse> responseFuture =
+        helloFutureStub.sayHello(HelloRequest.newBuilder()
+            .setRecipient("Polyglot")
+            .build());
+    try {
+      logger.info("Got response with future: " + responseFuture.get());
+    } catch (ExecutionException e) {
+      logger.error("Failed to make rpc", e);
+    }
 
     // ********** Scratch space below *************
 
@@ -93,7 +109,7 @@ public class Main {
     // Opening stubs.
     Object reflectiveHelloStub = helloServiceGrpcClass
         .getMethod("newStub", io.grpc.Channel.class)
-        .invoke(null /* obj */, channel);
+        .invoke(null /* obj */, newChannel());
     Method sayHelloMethod = reflectiveHelloStub.getClass()
         .getMethod(generatedMethodName, requestType, StreamObserver.class);
     //sayHelloMethod.invoke(reflectiveHelloStub, requestMessage);
