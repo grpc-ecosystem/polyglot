@@ -32,3 +32,13 @@ maven_jar(
   name = "slf4j_simple_artifact",
   artifact = "org.slf4j:slf4j-simple:1.7.13",
 )
+
+maven_jar(
+  name = "mockito_artifact",
+  artifact = "org.mockito:mockito-all:1.10.19",
+)
+
+maven_jar(
+  name = "truth_artifact",
+  artifact = "com.google.truth:truth:0.28",
+)

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package polyglot.test;
+
+option java_outer_classname = "TestProto";
+
+message TestRequest {
+}
+
+message TestResponse {
+}
+
+service TestService {
+  rpc TestMethod (TestRequest) returns (TestResponse) {}
+}
