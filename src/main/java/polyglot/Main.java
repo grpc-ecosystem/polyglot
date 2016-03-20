@@ -10,11 +10,7 @@ import com.google.protobuf.Descriptors.FileDescriptor;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.Descriptors.ServiceDescriptor;
 import com.google.protobuf.DynamicMessage;
-import com.google.protobuf.GeneratedMessage;
-import com.google.protobuf.Message;
 import com.google.protobuf.TextFormat;
-
-import polyglot.HelloProto.HelloRequest;
 
 public class Main {
   private static final Logger logger = LoggerFactory.getLogger(Main.class);
@@ -23,20 +19,21 @@ public class Main {
   private static final String REMOTE_HOST = "localhost";
 
   public static void main(String[] args) throws Exception {
-    String className = "polyglot.HelloServiceGrpc";
-    String generatedMethodName = "sayHello";
     String textFormatRequest = "recipient: \"Polyglot\"";
+    String protoFileClass = "polyglot.HelloProto";
+    String protoServiceName = "HelloService";
+    String protoMethodName = "SayHello";
 
     // Fetch the service and the method descriptor.
-    Class<?> serviceClass = Main.class.getClassLoader().loadClass("polyglot.HelloProto");
+    Class<?> serviceClass = Main.class.getClassLoader().loadClass(protoFileClass);
     FileDescriptor fileDescriptor =
         (FileDescriptor) serviceClass.getMethod("getDescriptor").invoke(null /* obj */);
-    ServiceDescriptor protobufService = fileDescriptor.findServiceByName("HelloService");
+    ServiceDescriptor protobufService = fileDescriptor.findServiceByName(protoServiceName);
     if (protobufService == null) {
       logger.error("Service is null");
     }
 
-    MethodDescriptor protobufMethod = protobufService.findMethodByName("SayHello");
+    MethodDescriptor protobufMethod = protobufService.findMethodByName(protoMethodName);
     if (protobufMethod == null) {
       logger.error("Protobufmethod is null");
       for (MethodDescriptor methodDescriptor : protobufService.getMethods()) {
@@ -51,25 +48,6 @@ public class Main {
     ListenableFuture<DynamicMessage> callFuture = dynamicClient.call(requestMessageBuilder.build());
     try {
       logger.info("Got dynamic response: " + callFuture.get());
-    } catch (ExecutionException e) {
-      logger.error("Failed to make rpc", e);
-    }
-
-    // Parse the request type.
-    Class<? extends GeneratedMessage> requestType = HelloRequest.class;
-    GeneratedMessage.Builder<?> builder =
-        (GeneratedMessage.Builder<?>) requestType.getMethod("newBuilder").invoke(null /* obj */);
-    TextFormat.getParser().merge(textFormatRequest, builder);
-    Message requestMessage = builder.build();
-
-    Class<?> grpcClass = Main.class.getClassLoader().loadClass(className);
-    logger.info("Creating grpc client");
-    GrpcClient client =
-        GrpcClient.forGrpcClass(grpcClass, generatedMethodName, REMOTE_HOST, REMOTE_PORT);
-    logger.info("Making generic call");
-    ListenableFuture<Message> genericResponseFuture = client.call(requestMessage);
-    try {
-      logger.info("Got response with future: " + genericResponseFuture.get());
     } catch (ExecutionException e) {
       logger.error("Failed to make rpc", e);
     }
