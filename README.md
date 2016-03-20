@@ -1,6 +1,6 @@
 # Polyglot - a universal grpc client
 
-Polyglot is a grpc client which can talk to any grpc server. in order to make a call, the following are required:
+Polyglot is a grpc client which can talk to any grpc server. In order to make a call, the following are required:
 * A compiled Polyglot binary, 
 * a .proto file for the service *or* a compiled proto class on the classpath,
 * and a request proto instance
