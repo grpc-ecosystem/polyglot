@@ -18,6 +18,7 @@ public class Main {
   private static final String REMOTE_HOST = "localhost";
 
   public static void main(String[] args) throws Exception {
+    // TODO(dino): Add a flags library and make these configurable ;-)
     String textFormatRequest = "recipient: \"Polyglot\"";
     String protoFileClass = "polyglot.HelloProto";
     String protoServiceName = "HelloService";

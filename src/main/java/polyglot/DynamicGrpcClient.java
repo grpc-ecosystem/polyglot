@@ -16,6 +16,7 @@ public class DynamicGrpcClient {
   private final MethodDescriptor protoMethodDescriptor;
   private final Channel channel;
 
+  /** Creates a client for the supplied method, talking to the supplied endpoint. */
   public static DynamicGrpcClient create(MethodDescriptor protoMethod, String host, int port) {
     Channel channel = NettyChannelBuilder.forAddress(host, port)
         .negotiationType(NegotiationType.PLAINTEXT)
@@ -23,11 +24,12 @@ public class DynamicGrpcClient {
     return new DynamicGrpcClient(protoMethod, channel);
   }
 
-  public DynamicGrpcClient(MethodDescriptor protoMethodDescriptor, Channel channel) {
+  private DynamicGrpcClient(MethodDescriptor protoMethodDescriptor, Channel channel) {
     this.protoMethodDescriptor = protoMethodDescriptor;
     this.channel = channel;
   }
 
+  /** Makes an rpc to the remote endpoint and returns the remote response. */
   public ListenableFuture<DynamicMessage> call(DynamicMessage request) {
     return ClientCalls.futureUnaryCall(
         channel.newCall(grpcMethodDescriptor(), CallOptions.DEFAULT),
