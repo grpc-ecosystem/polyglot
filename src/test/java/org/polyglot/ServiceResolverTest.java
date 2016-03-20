@@ -18,8 +18,6 @@ public class ServiceResolverTest {
 
   @Before
   public void setUp() throws Throwable {
-    polyglot.test.TestProto p = null;
-
     FileDescriptor[] dependencies = new FileDescriptor[0];
     FileDescriptor fileDescriptor = FileDescriptor.buildFrom(FILE_DESCRIPTOR, dependencies);
     serviceResolver = ServiceResolver.fromFileDescriptors(fileDescriptor);
