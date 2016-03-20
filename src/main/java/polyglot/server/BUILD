@@ -5,7 +5,7 @@ java_binary(
   srcs = glob(['*.java']),
   main_class = "polyglot.server.Main",
   deps = [
-    "//src/main/proto:hello_proto",
+    "//src/main/proto:hello_proto_grpc",
     "//third_party/grpc",
     "//third_party/guava",
     "//third_party/logging:logging-api",

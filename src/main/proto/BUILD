@@ -3,13 +3,13 @@ load("//third_party/bazel:genproto.bzl", "proto_java_library")
 package(default_visibility = ["//visibility:public"])
 
 proto_java_library(
-  name = "hello_proto",
+  name = "hello_proto_grpc",
   src = "hello.proto",
   gen_grpc = True,
 )
 
 proto_java_library(
-  name = "test_proto",
-  src = "test.proto",
-  gen_grpc = True,
+  name = "hello_proto",
+  src = "hello.proto",
+  gen_grpc = False,
 )
