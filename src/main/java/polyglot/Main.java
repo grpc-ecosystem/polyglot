@@ -3,6 +3,8 @@ package polyglot;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
@@ -12,6 +14,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.io.CharStreams;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
 import com.google.protobuf.Descriptors.FileDescriptor;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.DynamicMessage;
@@ -21,7 +24,17 @@ public class Main {
   private static final Logger logger = LoggerFactory.getLogger(Main.class);
   private static final String USAGE = "polyglot call <host> <port> <protoclass> <service> <method>";
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) throws Throwable {
+    // Temporary scratch space for executing protoc.
+    if (args[0].equals("protoc")) {
+      if (args.length != 2) {
+        throw new IllegalArgumentException("Expected 2 arguments, args: " + Arrays.toString(args));
+      }
+      FileDescriptorSet fileDescriptorSet = new ProtocInvoker().invoke(Paths.get(args[1]));
+      logger.info("Generate file descriptor set: " + fileDescriptorSet);
+      return;
+    }
+
     Arguments arguments = Arguments.parse(args);
     String textFormatRequest = getTextProtoFromStdin();
 

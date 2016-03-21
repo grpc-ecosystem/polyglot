@@ -11,7 +11,7 @@ maven_jar(
 
 maven_jar(
   name = "guava_artifact",
-  artifact = "com.google.guava:guava:18.0",
+  artifact = "com.google.guava:guava:19.0",
 )
 
 maven_jar(
@@ -47,4 +47,9 @@ maven_jar(
 maven_jar(
   name = "truth_artifact",
   artifact = "com.google.truth:truth:0.28",
+)
+
+maven_jar(
+  name = "protoc_jar_artifact",
+  artifact = "com.github.os72:protoc-jar:3.0.0-b2.1",
 )
