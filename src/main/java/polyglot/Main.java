@@ -24,7 +24,7 @@ public class Main {
   private static final Logger logger = LoggerFactory.getLogger(Main.class);
   private static final String USAGE = "polyglot call <host> <port> <protoclass> <service> <method>";
 
-  public static void main(String[] args) throws Throwable {
+  public static void main(String[] args) throws Exception {
     // Temporary scratch space for executing protoc.
     if (args[0].equals("protoc")) {
       if (args.length != 2) {
