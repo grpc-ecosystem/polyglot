@@ -7,6 +7,10 @@ Polyglot is a grpc client which can talk to any grpc server. In order to make a 
 
 In particular, it is not necessary to generate grpc classes or to compile the protos into the Polyglot binary.
 
+## Status
+
+Polyglot is currently very much *work in progress*. At the time of writing, the project is still very rough around the edges, but improvements to usability are on their way.
+
 ## Build requirements
 
 We do not yet have a binary distribution, so right now it is required to build the binary from source in order to use it. The build requirements are:
