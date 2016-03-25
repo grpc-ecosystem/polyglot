@@ -4,6 +4,9 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
+import com.google.protobuf.DescriptorProtos.FileDescriptorProto;
+import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
+import com.google.protobuf.Descriptors.DescriptorValidationException;
 import com.google.protobuf.Descriptors.FileDescriptor;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.Descriptors.ServiceDescriptor;
@@ -15,6 +18,20 @@ public class ServiceResolver {
   /** Creates a resolver which searches the supplied file descriptors. */
   public static ServiceResolver fromFileDescriptors(FileDescriptor... descriptors) {
     return new ServiceResolver(Arrays.asList(descriptors));
+  }
+
+  public static ServiceResolver fromFileDescriptorSet(FileDescriptorSet descriptorSet) {
+    ImmutableList.Builder<FileDescriptor> descriptors = ImmutableList.builder();
+    for (FileDescriptorProto descriptorProto : descriptorSet.getFileList()) {
+      try {
+        descriptors.add(FileDescriptor.buildFrom(descriptorProto, new FileDescriptor[0]));
+      } catch (DescriptorValidationException e) {
+        // Skip the invalid descriptor.
+        // TODO(dino): Log something.
+        continue;
+      }
+    }
+    return new ServiceResolver(descriptors.build());
   }
 
   private ServiceResolver(Iterable<FileDescriptor> fileDescriptors) {

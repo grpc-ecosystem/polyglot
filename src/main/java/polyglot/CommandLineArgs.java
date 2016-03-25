@@ -6,17 +6,12 @@ import java.nio.file.Paths;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.net.HostAndPort;
 
 /** Provides easy access to the arguments passed on the commmand line. */
 public class CommandLineArgs {
-  private static final Logger logger = LoggerFactory.getLogger(CommandLineArgs.class);
-  private static final String USAGE = "polyglot call <host> <port> <protoclass> <service> <method>";
-
   @Option(name = "--proto_class")
   private String protoClassArg;
 

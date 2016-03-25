@@ -17,7 +17,6 @@ java_library(
   name = "polyglot",
   srcs = glob(['*.java'], exclude = ["Main.java"]),
   deps = [
-    "//src/main/proto:hello_proto",
     "//third_party/args4j",
     "//third_party/grpc",
     "//third_party/guava",
