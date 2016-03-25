@@ -12,9 +12,6 @@ import com.google.common.net.HostAndPort;
 
 /** Provides easy access to the arguments passed on the commmand line. */
 public class CommandLineArgs {
-  @Option(name = "--proto_class")
-  private String protoClassArg;
-
   @Option(name = "--full_method")
   private String fullMethodArg;
 
@@ -43,8 +40,9 @@ public class CommandLineArgs {
   }
 
   private void initialize() {
-    Preconditions.checkNotNull(endpointArg);
-    Preconditions.checkNotNull(fullMethodArg);
+    Preconditions.checkNotNull(endpointArg, "The --endpoint argument is required");
+    Preconditions.checkNotNull(fullMethodArg, "The --full_method argument is required");
+    Preconditions.checkNotNull(protoRootArg, "The --proto_root argument is required");
 
     hostAndPort = HostAndPort.fromString(endpointArg);
     grpcMethodName = ProtoMethodName.parseFullGrpcMethodName(fullMethodArg);
@@ -56,14 +54,6 @@ public class CommandLineArgs {
 
   public int port() {
     return hostAndPort.getPort();
-  }
-
-  public String protoClass() {
-    return protoClassArg;
-  }
-
-  public String fullMethod() {
-    return fullMethodArg;
   }
 
   public Path protoRoot() {
