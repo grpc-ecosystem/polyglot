@@ -2,10 +2,10 @@
 
 Polyglot is a grpc client which can talk to any grpc server. In order to make a call, the following are required:
 * A compiled Polyglot binary, 
-* a .proto file for the service *or* a compiled proto class on the classpath,
-* and a request proto instance
+* the .proto files for the service,
+* and a request proto instance in text format.
 
-In particular, it is not necessary to generate grpc classes or to compile the protos into the Polyglot binary.
+In particular, it is not necessary to generate grpc classes for the service or to compile the protos into the Polyglot binary.
 
 ## Status
 
@@ -37,5 +37,5 @@ Then, in a different terminal, run the client example:
 * TLS support
 * Streamed responses
 * OAuth integration for authenticated requests
-* Integration for running the protoc compiler
 * Binary distribution
+* Building on Mac and Windows
