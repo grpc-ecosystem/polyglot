@@ -1,5 +1,8 @@
 package polyglot;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.DynamicMessage;
@@ -13,6 +16,7 @@ import io.grpc.stub.ClientCalls;
 
 /** A grpc client which operates on dynamic messages. */
 public class DynamicGrpcClient {
+  private static final Logger logger = LoggerFactory.getLogger(DynamicGrpcClient.class);
   private final MethodDescriptor protoMethodDescriptor;
   private final Channel channel;
 
@@ -27,21 +31,26 @@ public class DynamicGrpcClient {
   private DynamicGrpcClient(MethodDescriptor protoMethodDescriptor, Channel channel) {
     this.protoMethodDescriptor = protoMethodDescriptor;
     this.channel = channel;
+    logger.info("Created client for method: " + getFullMethodName());
   }
 
   /** Makes an rpc to the remote endpoint and returns the remote response. */
   public ListenableFuture<DynamicMessage> call(DynamicMessage request) {
     return ClientCalls.futureUnaryCall(
-        channel.newCall(grpcMethodDescriptor(), CallOptions.DEFAULT),
+        channel.newCall(createGrpcMethodDescriptor(), CallOptions.DEFAULT),
         request);
   }
 
-  private io.grpc.MethodDescriptor<DynamicMessage, DynamicMessage> grpcMethodDescriptor() {
+  private String getFullMethodName() {
     String serviceName = protoMethodDescriptor.getService().getFullName();
     String methodName = protoMethodDescriptor.getName();
+    return io.grpc.MethodDescriptor.generateFullMethodName(serviceName, methodName);
+  }
+
+  private io.grpc.MethodDescriptor<DynamicMessage, DynamicMessage> createGrpcMethodDescriptor() {
     return io.grpc.MethodDescriptor.<DynamicMessage, DynamicMessage>create(
         MethodType.UNARY,
-        io.grpc.MethodDescriptor.generateFullMethodName(serviceName, methodName),
+        getFullMethodName(),
         new DynamicMessageMarshaller(protoMethodDescriptor.getInputType()),
         new DynamicMessageMarshaller(protoMethodDescriptor.getOutputType()));
   }
