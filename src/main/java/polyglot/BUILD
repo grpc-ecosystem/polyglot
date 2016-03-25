@@ -18,8 +18,10 @@ java_library(
   srcs = glob(['*.java'], exclude = ["Main.java"]),
   deps = [
     "//src/main/proto:hello_proto",
+    "//third_party/args4j",
     "//third_party/grpc",
     "//third_party/guava",
+    "//third_party/logging:logging-api",
     "//third_party/netty",
     "//third_party/protobuf",
     "//third_party/protoc-jar",

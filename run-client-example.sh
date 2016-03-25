@@ -1,1 +1,1 @@
-echo 'recipient: "Polyglot"' | ./run-client.sh localhost 12345 polyglot.HelloProto HelloService SayHello
+echo 'recipient: "Polyglot"' | ./run-client.sh --host=localhost --port=12345 --proto_class=polyglot.HelloProto --service=HelloService --method=SayHello

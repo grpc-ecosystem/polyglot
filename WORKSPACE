@@ -53,3 +53,8 @@ maven_jar(
   name = "protoc_jar_artifact",
   artifact = "com.github.os72:protoc-jar:3.0.0-b2.1",
 )
+
+maven_jar(
+  name = "args4j_artifact",
+  artifact = "args4j:args4j:2.32",
+)
