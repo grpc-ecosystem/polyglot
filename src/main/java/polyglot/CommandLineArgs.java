@@ -20,12 +20,6 @@ public class CommandLineArgs {
   @Option(name = "--proto_class")
   private String protoClassArg;
 
-  @Option(name = "--service")
-  private String serviceArg;
-
-  @Option(name = "--method")
-  private String methodArg;
-
   @Option(name = "--full_method")
   private String fullMethodArg;
 
@@ -67,14 +61,6 @@ public class CommandLineArgs {
 
   public int port() {
     return hostAndPort.getPort();
-  }
-
-  public String service() {
-    return serviceArg;
-  }
-
-  public String method() {
-    return methodArg;
   }
 
   public String protoClass() {

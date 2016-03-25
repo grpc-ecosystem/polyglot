@@ -36,7 +36,7 @@ public class Main {
     FileDescriptor fileDescriptor = fileDescriptorFromClass(arguments.protoClass());
     ServiceResolver serviceResolver = ServiceResolver.fromFileDescriptors(fileDescriptor);
     MethodDescriptor methodDescriptor =
-        serviceResolver.resolveServiceMethod(arguments.service(), arguments.method());
+        serviceResolver.resolveServiceMethod(arguments.grpcMethodName());
 
     DynamicGrpcClient dynamicClient =
         DynamicGrpcClient.create(methodDescriptor, arguments.host(), arguments.port());
