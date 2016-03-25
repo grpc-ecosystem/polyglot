@@ -5,7 +5,7 @@ java_test(
   srcs = glob(['*.java']),
   deps = [
     "//src/main/proto/testing:test_service_proto",
-    "//src/main/java/polyglot",
+    "//src/main/java/polyglot:polyglot-lib",
     "//third_party/protobuf",
     "//third_party/testing",
   ],

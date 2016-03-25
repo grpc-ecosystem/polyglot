@@ -38,8 +38,8 @@ public class ProtocInvoker {
         .addAll(protoFilePaths)
         .add("--descriptor_set_out=" + descriptorPath.toAbsolutePath().toString())
         .add("--proto_path=" + protoRoot.toAbsolutePath().toString())
-        .build();;
-        invokeBinary(protocArgs);
+        .build();
+    invokeBinary(protocArgs);
 
     try {
       return FileDescriptorSet.parseFrom(Files.readAllBytes(descriptorPath));
