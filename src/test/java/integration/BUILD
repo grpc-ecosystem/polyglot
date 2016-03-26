@@ -5,7 +5,7 @@ java_test(
   srcs = glob(['*.java']),
   size = "medium",
   data = [
-    "//src/main/proto/testing:test_service_files",
+    "//src/main/proto/testing:proto_files",
   ],
   deps = [
     "//src/main/proto/testing:test_service_proto_grpc",

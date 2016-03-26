@@ -31,7 +31,7 @@ public class Main {
     logger.info("Usage: " + CommandLineArgs.getUsage());
     CommandLineArgs arguments = CommandLineArgs.parse(args);
 
-    FileDescriptorSet fileDescriptorSet = getFileDescriptorSet(arguments.protoRoot());
+    FileDescriptorSet fileDescriptorSet = getFileDescriptorSet(arguments.protoRoot(), arguments.protocProtoPath());
     ServiceResolver serviceResolver = ServiceResolver.fromFileDescriptorSet(fileDescriptorSet);
     MethodDescriptor methodDescriptor =
         serviceResolver.resolveServiceMethod(arguments.grpcMethodName());
@@ -62,9 +62,10 @@ public class Main {
     }
   }
 
-  private static FileDescriptorSet getFileDescriptorSet(Path protoRoot) {
+  private static FileDescriptorSet getFileDescriptorSet(
+      Path protoRoot, Optional<Path> protocProtoPath) {
     try {
-      return new ProtocInvoker().invoke(protoRoot);
+      return new ProtocInvoker(protocProtoPath).invoke(protoRoot);
     } catch (ProtocInvocationException e) {
       throw new RuntimeException("Failed to invoke the protoc binary", e);
     }

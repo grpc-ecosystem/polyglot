@@ -147,7 +147,13 @@ public class ClientServerIntegrationTest {
         .add(makeArgument("endpoint", Joiner.on(':').join("localhost", port)))
         .add(makeArgument("proto_root", TEST_PROTO_ROOT.toString()))
         .add(makeArgument("full_method", "polyglot.test.TestService/TestMethod"))
+        .add(makeArgument("protoc_proto_path", getWorkspaceRoot().toString()))
         .build();
+  }
+
+  private static Path getWorkspaceRoot() {
+    // Bazel runs binaries with the workspace root as working directory.
+    return Paths.get(".").toAbsolutePath();
   }
 
   private static void setStdinContents(String contents) {

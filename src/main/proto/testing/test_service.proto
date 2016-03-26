@@ -4,8 +4,11 @@ package polyglot.test;
 
 option java_outer_classname = "TestProto";
 
+import "src/main/proto/testing/foo/foo.proto";
+
 message TestRequest {
   string message = 1;
+  foo.Foo foo = 2;
 }
 
 message TestResponse {

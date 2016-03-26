@@ -25,6 +25,9 @@ public class CommandLineArgs {
   @Option(name = "--proto_root", required = true, metaVar = "<path>")
   private String protoRootArg;
 
+  @Option(name = "--protoc_proto_path", metaVar = "<path>")
+  private String protocProtoPath;
+
   @Option(name = "--output", metaVar = "<path>")
   private String output;
 
@@ -84,18 +87,30 @@ public class CommandLineArgs {
     return hostAndPort.getPort();
   }
 
+  /** Returns the root of the directory tree in which to discover proto files. */
   public Path protoRoot() {
     return Paths.get(protoRootArg).toAbsolutePath();
   }
 
+  /** Returns the fully qualified name of the supplied proto method. */
   public ProtoMethodName grpcMethodName() {
     return grpcMethodName;
   }
 
+  /** Returns the location in which to store the response proto. */
   public Optional<Path> outputPath() {
-    if (output == null) {
+    return maybePath(output);
+  }
+
+  /** Returns a directory to use as --proto_path for calls to protoc. */
+  public Optional<Path> protocProtoPath() {
+    return maybePath(protocProtoPath);
+  }
+
+  private static Optional<Path> maybePath(String rawPath) {
+    if (rawPath == null) {
       return Optional.empty();
     }
-    return Optional.of(Paths.get(output));
+    return Optional.of(Paths.get(rawPath));
   }
 }

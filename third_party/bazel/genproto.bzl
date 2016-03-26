@@ -26,7 +26,7 @@ def gensrcjar_impl(ctx):
   if ctx.attr.gen_grpc:
     proto_compiler_command_parts += [
       "--plugin=protoc-gen-java_rpc=" + ctx.file._gen_java_grpc.path,
-      "--java_rpc_out=" + proto_output
+      "--java_rpc_out=" + proto_output,
     ] 
 
   sub_commands = [

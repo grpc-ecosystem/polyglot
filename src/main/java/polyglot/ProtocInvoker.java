@@ -5,6 +5,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.github.os72.protocjar.Protoc;
@@ -20,13 +21,21 @@ public class ProtocInvoker {
   private static final PathMatcher PROTO_MATCHER =
       FileSystems.getDefault().getPathMatcher("glob:**/*.proto");
 
+  private final Optional<Path> protocProtoPath;
+
+  /**
+   * Takes an optional path to pass to protoc as --proto_path. Uses the invocation-time proto root
+   * if none is passed.
+   */
+  public ProtocInvoker(Optional<Path> protocProtoPath) {
+    this.protocProtoPath = protocProtoPath;
+  }
+
   /**
    * Exectutes the protoc binary on all proto files in the directory tree rooted at the supplied
    * path and returns a {@link FileDescriptorSet} which describes the proto files found this way.
    */
   public FileDescriptorSet invoke(Path protoRoot) throws ProtocInvocationException {
-    ImmutableSet<String> protoFilePaths = scanProtoFiles(protoRoot);
-
     Path descriptorPath;
     try {
       descriptorPath = Files.createTempFile("descriptor", ".pb.bin");
@@ -34,12 +43,13 @@ public class ProtocInvoker {
       throw new ProtocInvocationException("Unable to create temporary file", e);
     }
 
-    ImmutableList<String> protocArgs = ImmutableList.<String>builder()
-        .addAll(protoFilePaths)
+    Path protoPath = protocProtoPath.orElse(protoRoot.toAbsolutePath());
+    ImmutableList.Builder<String> protocArgs = ImmutableList.<String>builder()
+        .addAll(scanProtoFiles(protoRoot))
         .add("--descriptor_set_out=" + descriptorPath.toAbsolutePath().toString())
-        .add("--proto_path=" + protoRoot.toAbsolutePath().toString())
-        .build();
-    invokeBinary(protocArgs);
+        .add("--proto_path=" + protoPath.toAbsolutePath().toString());
+
+    invokeBinary(protocArgs.build());
 
     try {
       return FileDescriptorSet.parseFrom(Files.readAllBytes(descriptorPath));
@@ -56,7 +66,8 @@ public class ProtocInvoker {
       throw new ProtocInvocationException("Unable to execute protoc binary", e);
     }
     if (status != 0) {
-      throw new ProtocInvocationException("Got non-zero status from protoc binary: " + status);
+      throw new ProtocInvocationException(
+          String.format("Got exit code [%d] from protoc with args [%s]", status, protocArgs));
     }
   }
 

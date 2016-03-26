@@ -3,25 +3,24 @@ package polyglot;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.protobuf.DescriptorProtos.FileDescriptorProto;
-import com.google.protobuf.Descriptors.FileDescriptor;
+import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
 
-import polyglot.ProtoMethodName;
-import polyglot.ServiceResolver;
 import polyglot.test.TestProto;
+import polyglot.test.foo.FooProto;
 
 
 /** Unit tests for {@link ServiceResolver}. */
 public class ServiceResolverTest {
-  private static FileDescriptorProto FILE_DESCRIPTOR = TestProto.getDescriptor().toProto();
+  private static FileDescriptorSet PROTO_FILE_DESCRIPTORS = FileDescriptorSet.newBuilder()
+      .addFile(TestProto.getDescriptor().toProto())
+      .addFile(FooProto.getDescriptor().toProto())
+      .build();
 
   private ServiceResolver serviceResolver;
 
   @Before
   public void setUp() throws Throwable {
-    FileDescriptor[] dependencies = new FileDescriptor[0];
-    FileDescriptor fileDescriptor = FileDescriptor.buildFrom(FILE_DESCRIPTOR, dependencies);
-    serviceResolver = ServiceResolver.fromFileDescriptors(fileDescriptor);
+    serviceResolver = ServiceResolver.fromFileDescriptorSet(PROTO_FILE_DESCRIPTORS);
   }
 
   @Test(expected = IllegalArgumentException.class)
