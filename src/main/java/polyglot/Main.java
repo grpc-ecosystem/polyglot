@@ -24,11 +24,9 @@ import polyglot.ProtocInvoker.ProtocInvocationException;
 
 public class Main {
   private static final Logger logger = LoggerFactory.getLogger(Main.class);
-  private static final String USAGE = "polyglot call --endpoint=<host>:<port>" +
-      " --service=foo.BarService/doBaz --proto_root=<path>";
 
   public static void main(String[] args) {
-    logger.info("Usage: " + USAGE);
+    logger.info("Usage: " + CommandLineArgs.getUsage());
     CommandLineArgs arguments = CommandLineArgs.parse(args);
 
     FileDescriptorSet fileDescriptorSet = getFileDescriptorSet(arguments.protoRoot());

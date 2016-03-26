@@ -1,5 +1,8 @@
 package polyglot;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -12,14 +15,17 @@ import com.google.common.net.HostAndPort;
 
 /** Provides easy access to the arguments passed on the commmand line. */
 public class CommandLineArgs {
-  @Option(name = "--full_method")
+  @Option(name = "--full_method", required = true, metaVar = "<some.package.Service/doSomething>")
   private String fullMethodArg;
 
-  @Option(name = "--endpoint")
+  @Option(name = "--endpoint", required = true, metaVar = "<host>:<port>")
   private String endpointArg;
 
-  @Option(name = "--proto_root")
+  @Option(name = "--proto_root", required = true, metaVar = "<path>")
   private String protoRootArg;
+
+  @Option(name = "--output", metaVar = "<path>")
+  private String output;
 
   // Derived from the other fields.
   private HostAndPort hostAndPort;
@@ -47,6 +53,15 @@ public class CommandLineArgs {
     return result;
   }
 
+  /** Returns a single-line usage string explaining how to pass the command line arguments. */
+  public static String getUsage() {
+    CommandLineArgs result = new CommandLineArgs();
+    CmdLineParser parser = new CmdLineParser(result);
+    OutputStream stream = new ByteArrayOutputStream();
+    parser.printSingleLineUsage(stream);
+    return stream.toString();
+  }
+
   private CommandLineArgs() {
   }
 
@@ -54,6 +69,7 @@ public class CommandLineArgs {
     Preconditions.checkNotNull(endpointArg, "The --endpoint argument is required");
     Preconditions.checkNotNull(fullMethodArg, "The --full_method argument is required");
     Preconditions.checkNotNull(protoRootArg, "The --proto_root argument is required");
+    Preconditions.checkArgument(Files.exists(Paths.get(protoRootArg)));
 
     hostAndPort = HostAndPort.fromString(endpointArg);
     grpcMethodName = ProtoMethodName.parseFullGrpcMethodName(fullMethodArg);

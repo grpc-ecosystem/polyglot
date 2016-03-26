@@ -30,7 +30,7 @@ Then, in a different terminal, run the client example:
 
 ## Build and run tests
 
-`$ bazel test src/...`
+`$ bazel test ...`
 
 ## Upcoming features
 
