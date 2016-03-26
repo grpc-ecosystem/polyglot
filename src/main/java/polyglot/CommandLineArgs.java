@@ -21,9 +21,14 @@ public class CommandLineArgs {
   @Option(name = "--proto_root")
   private String protoRootArg;
 
+  // Derived from the other fields.
   private HostAndPort hostAndPort;
   private ProtoMethodName grpcMethodName;
 
+  /**
+   * Parses the arguments from the supplied array. Throws {@link IllegalArgumentException} if the
+   * supplied array is malformed.
+   */
   public static CommandLineArgs parse(String[] args) {
     CommandLineArgs result = new CommandLineArgs();
     CmdLineParser parser = new CmdLineParser(result);
@@ -32,7 +37,13 @@ public class CommandLineArgs {
     } catch (CmdLineException e) {
       throw new IllegalArgumentException("Unable to parse command line flags", e);
     }
-    result.initialize();
+
+    try {
+      result.initialize();
+    } catch (NullPointerException e) {
+      throw new IllegalArgumentException("Unable to initialize command line arguments", e);
+    }
+
     return result;
   }
 

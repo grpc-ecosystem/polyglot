@@ -6,6 +6,7 @@ import org.junit.Test;
 import com.google.protobuf.DescriptorProtos.FileDescriptorProto;
 import com.google.protobuf.Descriptors.FileDescriptor;
 
+import polyglot.ProtoMethodName;
 import polyglot.ServiceResolver;
 import polyglot.test.TestProto;
 
@@ -25,16 +26,19 @@ public class ServiceResolverTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void resolveMissingService() {
-    serviceResolver.resolveServiceMethod("does not", "exist");
+    ProtoMethodName method = ProtoMethodName.parseFullGrpcMethodName("asdf/doesnotexist");
+    serviceResolver.resolveServiceMethod(method);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void resolveMissingMethod() {
-    serviceResolver.resolveServiceMethod("TestService", "some method");
+    ProtoMethodName method = ProtoMethodName.parseFullGrpcMethodName("TestService/doesnotexist");
+    serviceResolver.resolveServiceMethod(method);
   }
 
   @Test
   public void resolveHappyCase() {
-    serviceResolver.resolveServiceMethod("TestService", "TestMethod");
+    serviceResolver.resolveServiceMethod(
+        ProtoMethodName.parseFullGrpcMethodName("polyglot.test.TestService/TestMethod"));
   }
 }

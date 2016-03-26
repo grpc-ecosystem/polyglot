@@ -20,6 +20,7 @@ public class ServiceResolver {
     return new ServiceResolver(Arrays.asList(descriptors));
   }
 
+  /** Creates a resolver which searches the supplied {@link FileDescriptorSet}. */
   public static ServiceResolver fromFileDescriptorSet(FileDescriptorSet descriptorSet) {
     ImmutableList.Builder<FileDescriptor> descriptors = ImmutableList.builder();
     for (FileDescriptorProto descriptorProto : descriptorSet.getFileList()) {
@@ -36,14 +37,6 @@ public class ServiceResolver {
 
   private ServiceResolver(Iterable<FileDescriptor> fileDescriptors) {
     this.fileDescriptors = ImmutableList.copyOf(fileDescriptors);
-  }
-
-  /**
-   * Returns the descriptor of a protobuf method with the supplied service and method name. If the
-   * method cannot be found, this throws {@link IllegalArgumentException}.
-   */
-  public MethodDescriptor resolveServiceMethod(String serviceName, String methodName) {
-    return resolveServiceMethod(serviceName, methodName, Optional.empty() /* packageName */);
   }
 
   /**
