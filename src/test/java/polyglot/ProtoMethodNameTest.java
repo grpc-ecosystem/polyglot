@@ -1,4 +1,4 @@
-package org.polyglot;
+package polyglot;
 
 import static com.google.common.truth.Truth.assertThat;
 

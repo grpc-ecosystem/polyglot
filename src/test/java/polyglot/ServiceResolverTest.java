@@ -1,4 +1,4 @@
-package org.polyglot;
+package polyglot;
 
 import org.junit.Before;
 import org.junit.Test;
