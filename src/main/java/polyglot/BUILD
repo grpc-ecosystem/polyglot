@@ -2,20 +2,16 @@ package(default_visibility = ["//visibility:public"])
 
 java_binary(
   name = "polyglot",
-  srcs = ["Main.java"],
   main_class = "polyglot.Main",
-  deps = [
+  runtime_deps = [
     ":polyglot-lib",
-    "//third_party/guava",
-    "//third_party/logging:logging-api",
     "//third_party/logging:logging-impl-stdout",
-    "//third_party/protobuf",
   ]
 )
 
 java_library(
   name = "polyglot-lib",
-  srcs = glob(['*.java'], exclude = ["Main.java"]),
+  srcs = glob(['*.java']),
   deps = [
     "//third_party/args4j",
     "//third_party/grpc",

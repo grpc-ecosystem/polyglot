@@ -5,9 +5,11 @@ package polyglot.test;
 option java_outer_classname = "TestProto";
 
 message TestRequest {
+  string message = 1;
 }
 
 message TestResponse {
+  string message = 1;
 }
 
 service TestService {
