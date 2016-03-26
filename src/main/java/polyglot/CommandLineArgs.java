@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -89,5 +90,12 @@ public class CommandLineArgs {
 
   public ProtoMethodName grpcMethodName() {
     return grpcMethodName;
+  }
+
+  public Optional<Path> outputPath() {
+    if (output == null) {
+      return Optional.empty();
+    }
+    return Optional.of(Paths.get(output));
   }
 }

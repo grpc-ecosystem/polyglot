@@ -5,6 +5,7 @@ import static com.google.common.truth.Truth.assertThat;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import org.junit.Test;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.google.protobuf.TextFormat;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -64,18 +66,34 @@ public class ClientServerIntegrationTest {
 
   @Test
   public void makesRoundTrip() throws Throwable {
-    ImmutableList<String> arguments = ImmutableList.<String>builder()
-        .add(makeArgument("endpoint", Joiner.on(":").join("localhost", serverPort)))
-        .add(makeArgument("proto_root", TEST_PROTO_ROOT.toString()))
-        .add(makeArgument("full_method", "polyglot.test.TestService/TestMethod"))
+    ImmutableList<String> args = makeArgs(serverPort, TEST_PROTO_ROOT.toString(), TEST_METHOD);
+    setStdinContents(REQUEST.toString());
+
+    // Run the full client.
+    polyglot.Main.main(args.toArray(new String[0]));
+
+    // Make sure the server saw the requests.
+    assertThat(recordingTestService.numRequests()).isEqualTo(1);
+    assertThat(recordingTestService.getRequest(0)).isEqualTo(REQUEST);
+  }
+
+  @Test
+  public void writesResponseToFile() throws Throwable {
+    Path responseFilePath = Files.createTempFile("response", "pb.ascii");
+    ImmutableList<String> args = ImmutableList.<String>builder()
+        .addAll(makeArgs(serverPort, TEST_PROTO_ROOT.toString(), TEST_METHOD))
+        .add(makeArgument("output", responseFilePath.toString()))
         .build();
     setStdinContents(REQUEST.toString());
 
     // Run the full client.
-    polyglot.Main.main(arguments.toArray(new String[0]));
+    polyglot.Main.main(args.toArray(new String[0]));
 
-    assertThat(recordingTestService.numRequests()).isEqualTo(1);
-    assertThat(recordingTestService.getRequest(0)).isEqualTo(REQUEST);
+    // Make sure we can parse the response from the file.
+    String fileContent = Joiner.on("\n").join(Files.readAllLines(responseFilePath));
+    TestResponse.Builder responseBuilder = TestResponse.newBuilder();
+    TextFormat.getParser().merge(fileContent, responseBuilder);
+    assertThat(responseBuilder.build()).isEqualTo(SERVER_RESPONSE);
   }
 
   @Test(expected = RuntimeException.class)

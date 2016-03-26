@@ -12,6 +12,7 @@ java_test(
     "//src/main/java/polyglot:polyglot-lib",
     "//third_party/grpc",
     "//third_party/guava",
+    "//third_party/protobuf",
     "//third_party/testing",
   ],
 )

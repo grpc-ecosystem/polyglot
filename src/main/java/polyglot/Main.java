@@ -3,7 +3,9 @@ package polyglot;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
@@ -39,10 +41,24 @@ public class Main {
     DynamicMessage requestMessage = getProtoFromStdin(methodDescriptor.getInputType());
 
     ListenableFuture<DynamicMessage> callFuture = dynamicClient.call(requestMessage);
+    Optional<DynamicMessage> response = Optional.empty();
     try {
-      logger.info("Got dynamic response: " + callFuture.get());
+      response = Optional.of(callFuture.get());
+      logger.info("Got dynamic response: " + response.get());
     } catch (ExecutionException | InterruptedException e) {
       logger.error("Failed to make rpc", e);
+    }
+
+    if (response.isPresent() && arguments.outputPath().isPresent()) {
+      writeToFile(arguments.outputPath().get(), response.get().toString());
+    }
+  }
+
+  private static void writeToFile(Path path, String content) {
+    try {
+      Files.write(path, content.toString().getBytes(Charsets.UTF_8));
+    } catch (IOException e) {
+      throw new RuntimeException("Unable to write to file: " + path.toString(), e);
     }
   }
 
