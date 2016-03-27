@@ -28,18 +28,21 @@ public class Main {
   private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
   public static void main(String[] args) {
-    logger.info("Usage: " + CommandLineArgs.getUsage());
+    logger.info("Usage: polyglot " + CommandLineArgs.getUsage());
     CommandLineArgs arguments = CommandLineArgs.parse(args);
 
+    logger.info("Resolving method");
     FileDescriptorSet fileDescriptorSet = getFileDescriptorSet(arguments.protoRoot(), arguments.protocProtoPath());
     ServiceResolver serviceResolver = ServiceResolver.fromFileDescriptorSet(fileDescriptorSet);
     MethodDescriptor methodDescriptor =
         serviceResolver.resolveServiceMethod(arguments.grpcMethodName());
 
+    logger.info("Creating dynamic client");
     DynamicGrpcClient dynamicClient =
         DynamicGrpcClient.create(methodDescriptor, arguments.endpoint(), arguments.useTls());
     DynamicMessage requestMessage = getProtoFromStdin(methodDescriptor.getInputType());
 
+    logger.info("Making call");
     ListenableFuture<DynamicMessage> callFuture = dynamicClient.call(requestMessage);
     Optional<DynamicMessage> response = Optional.empty();
     try {
