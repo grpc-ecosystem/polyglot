@@ -58,3 +58,8 @@ maven_jar(
   name = "args4j_artifact",
   artifact = "args4j:args4j:2.32",
 )
+
+maven_jar(
+  name = "netty_tcnative_artifact",
+  artifact = "io.netty:netty-tcnative-boringssl-static:1.1.33.Fork14",
+)

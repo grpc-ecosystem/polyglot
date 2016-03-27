@@ -1,8 +1,11 @@
 package polyglot;
 
+import javax.net.ssl.SSLException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.net.HostAndPort;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.DynamicMessage;
@@ -13,6 +16,7 @@ import io.grpc.MethodDescriptor.MethodType;
 import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.ClientCalls;
+import io.netty.handler.ssl.SslContext;
 
 /** A grpc client which operates on dynamic messages. */
 public class DynamicGrpcClient {
@@ -21,10 +25,9 @@ public class DynamicGrpcClient {
   private final Channel channel;
 
   /** Creates a client for the supplied method, talking to the supplied endpoint. */
-  public static DynamicGrpcClient create(MethodDescriptor protoMethod, String host, int port) {
-    Channel channel = NettyChannelBuilder.forAddress(host, port)
-        .negotiationType(NegotiationType.PLAINTEXT)
-        .build();
+  public static DynamicGrpcClient create(
+      MethodDescriptor protoMethod, HostAndPort endpoint, boolean useTls) {
+    Channel channel = useTls ? createTlsChannel(endpoint) : createPlaintextChannel(endpoint);
     return new DynamicGrpcClient(protoMethod, channel);
   }
 
@@ -53,5 +56,25 @@ public class DynamicGrpcClient {
         getFullMethodName(),
         new DynamicMessageMarshaller(protoMethodDescriptor.getInputType()),
         new DynamicMessageMarshaller(protoMethodDescriptor.getOutputType()));
+  }
+
+  private static Channel createPlaintextChannel(HostAndPort endpoint) {
+    return NettyChannelBuilder.forAddress(endpoint.getHostText(), endpoint.getPort())
+        .negotiationType(NegotiationType.PLAINTEXT)
+        .build();
+  }
+
+  private static Channel createTlsChannel(HostAndPort endpoint) {
+    SslContext sslContext;
+    try {
+      sslContext = SslContext.newClientContext();
+    } catch (SSLException e) {
+      throw new RuntimeException("Failed to create ssl context", e);
+    }
+
+    return NettyChannelBuilder.forAddress(endpoint.getHostText(), endpoint.getPort())
+        .sslContext(sslContext)
+        .negotiationType(NegotiationType.TLS)
+        .build();
   }
 }

@@ -148,6 +148,7 @@ public class ClientServerIntegrationTest {
         .add(makeArgument("proto_root", TEST_PROTO_ROOT.toString()))
         .add(makeArgument("full_method", "polyglot.test.TestService/TestMethod"))
         .add(makeArgument("protoc_proto_path", getWorkspaceRoot().toString()))
+        .add(makeArgument("use_tls", "false"))
         .build();
   }
 

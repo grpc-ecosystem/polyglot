@@ -37,7 +37,7 @@ public class Main {
         serviceResolver.resolveServiceMethod(arguments.grpcMethodName());
 
     DynamicGrpcClient dynamicClient =
-        DynamicGrpcClient.create(methodDescriptor, arguments.host(), arguments.port());
+        DynamicGrpcClient.create(methodDescriptor, arguments.endpoint(), arguments.useTls());
     DynamicMessage requestMessage = getProtoFromStdin(methodDescriptor.getInputType());
 
     ListenableFuture<DynamicMessage> callFuture = dynamicClient.call(requestMessage);
