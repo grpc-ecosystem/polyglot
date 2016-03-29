@@ -1,15 +1,5 @@
 package polyglot;
 
-import javax.net.ssl.SSLException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.net.HostAndPort;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.protobuf.Descriptors.MethodDescriptor;
-import com.google.protobuf.DynamicMessage;
-
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientInterceptors;
@@ -24,10 +14,13 @@ import io.netty.handler.ssl.SslContext;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.net.ssl.SSLException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.auth.Credentials;
+import com.google.common.net.HostAndPort;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.DynamicMessage;
@@ -39,8 +32,10 @@ public class DynamicGrpcClient {
   private final Channel channel;
 
   /** Creates a client for the supplied method, talking to the supplied endpoint. */
-  public static DynamicGrpcClient create(MethodDescriptor protoMethod, String host, int port) {
-    return new DynamicGrpcClient(protoMethod, newChannel(host, port));
+  public static DynamicGrpcClient create(
+      MethodDescriptor protoMethod, HostAndPort endpoint, boolean useTls) {
+    Channel channel = useTls ? createTlsChannel(endpoint) : createPlaintextChannel(endpoint);
+    return new DynamicGrpcClient(protoMethod, channel);
   }
 
   /**
@@ -48,18 +43,23 @@ public class DynamicGrpcClient {
    * supplied credentials on every rpc call.
    */
   public static DynamicGrpcClient createWithCredentials(
-      MethodDescriptor protoMethod, HostAndPort endpoint, boolean useTls, Credentials credentials) {
+      MethodDescriptor protoMethod,
+      HostAndPort endpoint,
+      boolean useTls,
+      Credentials credentials) {
+    ExecutorService executor = Executors.newCachedThreadPool();
     Channel channel = useTls ? createTlsChannel(endpoint) : createPlaintextChannel(endpoint);
-    return new DynamicGrpcClient(protoMethod, channel);
+    return new DynamicGrpcClient(
+        protoMethod,
+        ClientInterceptors.intercept(channel, new ClientAuthInterceptor(credentials, executor)));
   }
 
   private DynamicGrpcClient(MethodDescriptor protoMethodDescriptor, Channel channel) {
     this.protoMethodDescriptor = protoMethodDescriptor;
     this.channel = channel;
-    logger.info("Created client for method: " + getFullMethodName());
   }
 
-  /** Makes an rpc to the remote endpoint and returns the remote response. */
+  /** Makes an rpc to the remote endpoint and returns the response. */
   public ListenableFuture<DynamicMessage> call(DynamicMessage request) {
     return ClientCalls.futureUnaryCall(
         channel.newCall(createGrpcMethodDescriptor(), CallOptions.DEFAULT),
@@ -78,12 +78,6 @@ public class DynamicGrpcClient {
         getFullMethodName(),
         new DynamicMessageMarshaller(protoMethodDescriptor.getInputType()),
         new DynamicMessageMarshaller(protoMethodDescriptor.getOutputType()));
-  }
-
-  private static Channel newChannel(String host, int port) {
-    return NettyChannelBuilder.forAddress(host, port)
-        .negotiationType(NegotiationType.PLAINTEXT)
-        .build();
   }
 
   private static Channel createPlaintextChannel(HostAndPort endpoint) {

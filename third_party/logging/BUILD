@@ -4,6 +4,7 @@ java_library(
   name = "logging-api",
   exports = [
     "@slf4j_api_artifact//jar",
+    "@jul_to_slf4j_artifact//jar",
   ],
   licenses = ["permissive"],
 )

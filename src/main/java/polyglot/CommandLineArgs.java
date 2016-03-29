@@ -1,6 +1,7 @@
 package polyglot;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,6 +12,9 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
+import polyglot.oauth2.OauthConfig;
+
+import com.google.api.client.util.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.net.HostAndPort;
 
@@ -39,6 +43,9 @@ public class CommandLineArgs {
 
   @Option(name = "--oauth2_refresh_token_path", metaVar = "<path>")
   private String oauth2RefreshTokenPath;
+
+  @Option(name = "--oauth2_token_endpoint")
+  private String oauth2TokenEndpoint;
 
   @Option(name = "--use_tls", metaVar = "true|false")
   private String useTls;
@@ -119,6 +126,21 @@ public class CommandLineArgs {
 
   public boolean useTls() {
     return Boolean.parseBoolean(useTls);
+  }
+
+  public Optional<OauthConfig> oauthConfig() {
+    if (oauth2ClientId == null || oauth2ClientSecret == null || oauth2TokenEndpoint == null) {
+      return Optional.empty();
+    }
+    return Optional.of(new OauthConfig(oauth2ClientId, oauth2ClientSecret, oauth2TokenEndpoint));
+  }
+
+  public String oauth2RefreshToken() {
+    try {
+      return new String(Files.readAllBytes(Paths.get(oauth2RefreshTokenPath)), Charsets.UTF_8);
+    } catch (IOException e) {
+      throw new RuntimeException("Unable ot get refresh token", e);
+    }
   }
 
   private static Optional<Path> maybePath(String rawPath) {

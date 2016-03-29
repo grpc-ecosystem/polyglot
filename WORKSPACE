@@ -46,6 +46,11 @@ maven_jar(
 )
 
 maven_jar(
+  name = "jul_to_slf4j_artifact",
+  artifact = "org.slf4j:jul-to-slf4j:1.7.13",
+)
+
+maven_jar(
   name = "mockito_artifact",
   artifact = "org.mockito:mockito-all:1.10.19",
 )
@@ -66,26 +71,31 @@ maven_jar(
 )
 
 maven_jar(
-  name = "google_oauth_client",
+  name = "google_oauth_client_artifact",
   artifact = "com.google.oauth-client:google-oauth-client:1.20.0",
 )
 
 maven_jar(
-  name = "google_oauth2_http",
+  name = "google_oauth2_http_artifact",
   artifact = "com.google.auth:google-auth-library-oauth2-http:0.3.1",
 )
 
 maven_jar(
-  name = "google_auth_credentials",
+  name = "google_auth_credentials_artifact",
   artifact = "com.google.auth:google-auth-library-credentials:0.3.1",
 )
 
 maven_jar(
-  name = "google_http_client",
+  name = "google_http_client_artifact",
   artifact = "com.google.http-client:google-http-client:1.20.0",
 )
 
 maven_jar(
-  name = "google_http_jackson2",
+  name = "google_http_jackson2_artifact",
   artifact = "com.google.http-client:google-http-client-jackson2:1.20.0",
+)
+
+maven_jar(
+  name = "jackson_core_artifact",
+  artifact = "com.fasterxml.jackson.core:jackson-core:2.6.3",
 )
