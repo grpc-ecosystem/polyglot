@@ -58,3 +58,18 @@ maven_jar(
   name = "args4j_artifact",
   artifact = "args4j:args4j:2.32",
 )
+
+maven_jar(
+  name = "google_oauth_client",
+  artifact = "com.google.oauth-client:google-oauth-client:1.20.0",
+)
+
+maven_jar(
+  name = "google_oauth2_http",
+  artifact = "com.google.auth:google-auth-library-oauth2-http:0.3.1",
+)
+
+maven_jar(
+  name = "google_auth_credentials",
+  artifact = "com.google.auth:google-auth-library-credentials:0.3.1",
+)

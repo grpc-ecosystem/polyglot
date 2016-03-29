@@ -3,6 +3,7 @@ package polyglot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.api.client.auth.oauth2.Credential;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.DynamicMessage;

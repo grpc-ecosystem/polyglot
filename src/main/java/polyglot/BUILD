@@ -13,6 +13,7 @@ java_library(
   name = "polyglot-lib",
   srcs = glob(['*.java']),
   deps = [
+    "//src/main/java/polyglot/oauth2",
     "//third_party/args4j",
     "//third_party/grpc",
     "//third_party/guava",
