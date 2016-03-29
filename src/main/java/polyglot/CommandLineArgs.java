@@ -40,6 +40,9 @@ public class CommandLineArgs {
   @Option(name = "--oauth2_refresh_token_path", metaVar = "<path>")
   private String oauth2RefreshTokenPath;
 
+  @Option(name = "--use_tls", metaVar = "true|false")
+  private String useTls;
+
   // Derived from the other fields.
   private HostAndPort hostAndPort;
   private ProtoMethodName grpcMethodName;
@@ -50,6 +53,8 @@ public class CommandLineArgs {
    */
   public static CommandLineArgs parse(String[] args) {
     CommandLineArgs result = new CommandLineArgs();
+    result.useTls = "true";
+
     CmdLineParser parser = new CmdLineParser(result);
     try {
       parser.parseArgument(args);
@@ -88,12 +93,8 @@ public class CommandLineArgs {
     grpcMethodName = ProtoMethodName.parseFullGrpcMethodName(fullMethodArg);
   }
 
-  public String host() {
-    return hostAndPort.getHostText();
-  }
-
-  public int port() {
-    return hostAndPort.getPort();
+  public HostAndPort endpoint() {
+    return hostAndPort;
   }
 
   /** Returns the root of the directory tree in which to discover proto files. */
@@ -114,6 +115,10 @@ public class CommandLineArgs {
   /** Returns a directory to use as --proto_path for calls to protoc. */
   public Optional<Path> protocProtoPath() {
     return maybePath(protocProtoPath);
+  }
+
+  public boolean useTls() {
+    return Boolean.parseBoolean(useTls);
   }
 
   private static Optional<Path> maybePath(String rawPath) {

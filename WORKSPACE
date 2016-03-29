@@ -1,12 +1,18 @@
 http_file(
   name = "gen_java_grpc",
-  url = "https://repo1.maven.org/maven2/io/grpc/protoc-gen-grpc-java/0.13.1/protoc-gen-grpc-java-0.13.1-linux-x86_64.exe",
+  url = "https://repo1.maven.org/maven2/io/grpc/protoc-gen-grpc-java/0.13.2/protoc-gen-grpc-java-0.13.2-linux-x86_64.exe",
   sha256 = "188fe7e975f75af6931dd36427dca1b5f7b43797dc406ef8d852b31df846f1d6",
+)
+
+http_file(
+  name = "tcnative_boringssl_static_linux_x86_64",
+  url = "http://search.maven.org/remotecontent?filepath=io/netty/netty-tcnative-boringssl-static/1.1.33.Fork14/netty-tcnative-boringssl-static-1.1.33.Fork14-linux-x86_64.jar",
+  sha256 = "dea9f7e6f540390d60641515a8d078db281bc4cced333dbf229c1525ba842b33",
 )
 
 maven_jar(
   name = "grpc_artifact",
-  artifact = "io.grpc:grpc-all:0.13.1",
+  artifact = "io.grpc:grpc-all:0.13.2",
 )
 
 maven_jar(
@@ -21,7 +27,7 @@ maven_jar(
 
 maven_jar(
   name = "netty_artifact",
-  artifact = "io.netty:netty-all:4.1.0.CR1",
+  artifact = "io.netty:netty-all:4.1.0.CR3",
 )
 
 maven_jar(
