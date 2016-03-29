@@ -73,3 +73,13 @@ maven_jar(
   name = "google_auth_credentials",
   artifact = "com.google.auth:google-auth-library-credentials:0.3.1",
 )
+
+maven_jar(
+  name = "google_http_client",
+  artifact = "com.google.http-client:google-http-client:1.20.0",
+)
+
+maven_jar(
+  name = "google_http_jackson2",
+  artifact = "com.google.http-client:google-http-client-jackson2:1.20.0",
+)
