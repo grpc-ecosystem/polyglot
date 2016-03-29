@@ -13,11 +13,11 @@ import com.google.protobuf.DynamicMessage;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.MethodDescriptor.MethodType;
+import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.ClientCalls;
 import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
 
 /** A grpc client which operates on dynamic messages. */
 public class DynamicGrpcClient {
@@ -68,7 +68,7 @@ public class DynamicGrpcClient {
   private static Channel createTlsChannel(HostAndPort endpoint) {
     SslContext sslContext;
     try {
-      sslContext = SslContextBuilder.forClient().build();
+      sslContext = GrpcSslContexts.forClient().build();
     } catch (SSLException e) {
       throw new RuntimeException("Failed to create ssl context", e);
     }
