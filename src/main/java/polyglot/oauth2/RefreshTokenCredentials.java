@@ -1,6 +1,9 @@
 package polyglot.oauth2;
 
 import java.io.IOException;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Date;
 
 import com.google.api.client.auth.oauth2.RefreshTokenRequest;
 import com.google.api.client.auth.oauth2.TokenResponse;
@@ -14,15 +17,15 @@ import com.google.auth.oauth2.OAuth2Credentials;
 public class RefreshTokenCredentials extends OAuth2Credentials {
   private final String refreshTokenSecret;
   private final String endpoint;
-  private final String oauthClient;
-  private final String oauthSecret;
+  private final ClientAuth clientAuth;
+  private final Clock clock;
 
   public RefreshTokenCredentials(
-      String endpoint, String refreshTokenSecret, String oauthClient, String oauthSecret) {
+      String endpoint, String refreshTokenSecret, ClientAuth clientAuth, Clock clock) {
     this.refreshTokenSecret = refreshTokenSecret;
     this.endpoint = endpoint;
-    this.oauthClient = oauthClient;
-    this.oauthSecret = oauthSecret;
+    this.clientAuth = clientAuth;
+    this.clock = clock;
   }
 
   @Override
@@ -32,8 +35,16 @@ public class RefreshTokenCredentials extends OAuth2Credentials {
         new JacksonFactory(),
         new GenericUrl(endpoint),
         refreshTokenSecret);
-    refreshRequest.setClientAuthentication(new BasicAuthentication(oauthClient, oauthSecret));
+    refreshRequest.setClientAuthentication(
+        new BasicAuthentication(clientAuth.getClientName(), clientAuth.getSecret()));
     TokenResponse refreshResponse = refreshRequest.execute();
-    return new AccessToken(refreshResponse.getAccessToken(), null);
+    return new AccessToken(
+        refreshResponse.getAccessToken(),
+        computeExpirtyDate(refreshResponse.getExpiresInSeconds()));
+  }
+
+  public Date computeExpirtyDate(long expiresInSeconds) {
+    Instant expiresAtSecond = clock.instant().plusSeconds(expiresInSeconds);
+    return Date.from(expiresAtSecond);
   }
 }

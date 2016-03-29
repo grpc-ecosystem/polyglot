@@ -15,6 +15,7 @@ java_library(
   deps = [
     "//src/main/java/polyglot/oauth2",
     "//third_party/args4j",
+    "//third_party/google-oauth",
     "//third_party/grpc",
     "//third_party/guava",
     "//third_party/logging:logging-api",

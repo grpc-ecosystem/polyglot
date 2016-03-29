@@ -31,6 +31,15 @@ public class CommandLineArgs {
   @Option(name = "--output", metaVar = "<path>")
   private String output;
 
+  @Option(name = "--oauth2_client_id")
+  private String oauth2ClientId;
+
+  @Option(name = "--oauth2_client_secret")
+  private String oauth2ClientSecret;
+
+  @Option(name = "--oauth2_refresh_token_path", metaVar = "<path>")
+  private String oauth2RefreshTokenPath;
+
   // Derived from the other fields.
   private HostAndPort hostAndPort;
   private ProtoMethodName grpcMethodName;
