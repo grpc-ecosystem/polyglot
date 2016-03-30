@@ -39,8 +39,13 @@ public class Main {
     disableStdout();
     setupJavaUtilLogging();
 
-    logger.info("Usage: polyglot " + CommandLineArgs.getUsage());
-    CommandLineArgs arguments = CommandLineArgs.parse(args);
+    final CommandLineArgs arguments;
+    try {
+      arguments = CommandLineArgs.parse(args);
+    } catch (RuntimeException e) {
+      logger.info("Usage: polyglot " + CommandLineArgs.getUsage());
+      return;
+    }
 
     logger.info("Loading proto file descriptors");
     FileDescriptorSet fileDescriptorSet = getFileDescriptorSet(arguments.protoRoot(), arguments.protocProtoPath());
