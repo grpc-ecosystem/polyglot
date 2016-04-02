@@ -1,10 +1,12 @@
-package polyglot;
+package polyglot.protobuf;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
 
+import polyglot.protobuf.ProtoMethodName;
+import polyglot.protobuf.ServiceResolver;
 import polyglot.test.TestProto;
 import polyglot.test.foo.FooProto;
 

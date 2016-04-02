@@ -15,6 +15,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.OAuth2Credentials;
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * Represents a refresh token in a specific oauth2 ecosystem. Swaps the refresh token for an access
@@ -32,8 +33,22 @@ public class RefreshTokenCredentials extends OAuth2Credentials {
   private final String refreshTokenSecret;
   private final OauthConfig oauthConfig;
   private final Clock clock;
+  private final RefreshRequestFactory requestFactory;
 
-  public RefreshTokenCredentials(String refreshTokenSecret, OauthConfig oauthConfig, Clock clock) {
+  /** Create a new set of credentials for the given refresh token and oauth configuration. */
+  public static RefreshTokenCredentials create(OauthConfig oauthConfig, String refreshTokenSecret) {
+    RefreshRequestFactory requestFactory = new RefreshRequestFactory();
+    Clock clock = Clock.systemDefaultZone();
+    return new RefreshTokenCredentials(requestFactory, refreshTokenSecret, oauthConfig, clock);
+  }
+
+  @VisibleForTesting
+  RefreshTokenCredentials(
+      RefreshRequestFactory requestFactory,
+      String refreshTokenSecret,
+      OauthConfig oauthConfig,
+      Clock clock) {
+    this.requestFactory = requestFactory;
     this.refreshTokenSecret = refreshTokenSecret;
     this.oauthConfig = oauthConfig;
     this.clock = clock;
@@ -41,24 +56,32 @@ public class RefreshTokenCredentials extends OAuth2Credentials {
 
   @Override
   public AccessToken refreshAccessToken() throws IOException {
-    RefreshTokenRequest refreshRequest = new RefreshTokenRequest(
-        new NetHttpTransport(),
-        new JacksonFactory(),
-        new GenericUrl(oauthConfig.getTokenEndpoint()),
-        refreshTokenSecret);
     logger.info("Exchanging refresh token for access token");
-    refreshRequest.setClientAuthentication(
-        new BasicAuthentication(oauthConfig.getClientName(), oauthConfig.getSecret()));
+    RefreshTokenRequest refreshRequest = requestFactory.newRequest(oauthConfig, refreshTokenSecret);
     TokenResponse refreshResponse = refreshRequest.execute();
 
-    logger.info("Success, got access token");
+    logger.info("Refresh successful, got access token");
     return new AccessToken(
         refreshResponse.getAccessToken(),
         computeExpirtyDate(refreshResponse.getExpiresInSeconds()));
   }
 
-  public Date computeExpirtyDate(long expiresInSeconds) {
+  private Date computeExpirtyDate(long expiresInSeconds) {
     long expiresInSecondsWithMargin = (long) (expiresInSeconds * ACCESS_TOKEN_EXPIRY_MARGIN);
     return Date.from(clock.instant().plusSeconds(expiresInSecondsWithMargin));
+  }
+
+  @VisibleForTesting
+  static class RefreshRequestFactory {
+    RefreshTokenRequest newRequest(OauthConfig oauthConfig, String refreshTokenSecret) {
+      RefreshTokenRequest result = new RefreshTokenRequest(
+          new NetHttpTransport(),
+          new JacksonFactory(),
+          new GenericUrl(oauthConfig.getTokenEndpoint()),
+          refreshTokenSecret);
+      result.setClientAuthentication(
+          new BasicAuthentication(oauthConfig.getClientName(), oauthConfig.getSecret()));
+      return result;
+    }
   }
 }
