@@ -27,3 +27,13 @@ java_library(
   ],
   licenses = ["permissive"],
 )
+
+native.genrule(
+    name = "grpc_source_jar",
+    srcs = [
+        "@grpc_sources//file",
+    ],
+    outs = ["grpc_source.jar"],
+    cmd = "cat $(locations @grpc_sources//file) > $@",
+    licenses=["permissive"],
+)

@@ -15,9 +15,21 @@ maven_jar(
   artifact = "io.grpc:grpc-all:0.13.2",
 )
 
+http_file(
+  name = "grpc_sources",
+  url = "http://search.maven.org/remotecontent?filepath=io/grpc/grpc-all/0.13.2/grpc-all-0.13.2-sources.jar",
+  sha256 = "a206dd5f5a88964b43ca0d2c17a67f708d61afd35f7dc9c9b778d319eb265f94",
+)
+
 maven_jar(
   name = "guava_artifact",
   artifact = "com.google.guava:guava:19.0",
+)
+
+http_file(
+  name = "guava_sources",
+  url = "http://search.maven.org/remotecontent?filepath=com/google/guava/guava/19.0/guava-19.0-sources.jar",
+  sha256 = "814e1ebf708d38c3b00155fbd484a401a6f771b512862e4bf58863c4f9563c6a",
 )
 
 maven_jar(
