@@ -98,7 +98,8 @@ public class CommandLineArgs {
     Preconditions.checkNotNull(fullMethodArg, "The --full_method argument is required");
     Preconditions.checkNotNull(protoRootArg, "The --proto_root argument is required");
     Preconditions.checkArgument(Files.exists(Paths.get(protoRootArg)));
-    Preconditions.checkState(oauth2AccessTokenPath == null || oauth2RefreshTokenPath == null, "--oauth2_access_token_path must not be used with --oauth2_refresh_token_path");
+    Preconditions.checkState(oauth2AccessTokenPath == null || oauth2RefreshTokenPath == null,
+        "--oauth2_access_token_path must not be used with --oauth2_refresh_token_path");
 
     hostAndPort = HostAndPort.fromString(endpointArg);
     grpcMethodName = ProtoMethodName.parseFullGrpcMethodName(fullMethodArg);
