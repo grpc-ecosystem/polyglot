@@ -8,10 +8,15 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
+import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.LogManager;
 
+import com.google.auth.oauth2.AccessToken;
+import com.google.auth.oauth2.OAuth2Credentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -56,12 +61,19 @@ public class Main {
     logger.info("Creating dynamic grpc client");
     DynamicGrpcClient dynamicClient;
     if (arguments.oauthConfig().isPresent()) {
-      Credentials credentials = new RefreshTokenCredentials(
-          arguments.oauth2RefreshToken(),
-          arguments.oauthConfig().get(),
-          Clock.systemDefaultZone());
-      dynamicClient = DynamicGrpcClient.createWithCredentials(
-          methodDescriptor, arguments.endpoint(), arguments.useTls(), credentials);
+      Credentials credentials;
+      if (arguments.oauth2AccessToken().isPresent()) {
+        logger.info("Using provided access token with 1 day expiry period");
+        credentials = new OAuth2Credentials(new AccessToken(arguments.oauth2AccessToken().get(),
+                Date.from(Clock.systemDefaultZone().instant().plus(1, ChronoUnit.DAYS))));
+      } else {
+        credentials = new RefreshTokenCredentials(
+                arguments.oauth2RefreshToken(),
+                arguments.oauthConfig().get(),
+                Clock.systemDefaultZone());
+      }
+        dynamicClient = DynamicGrpcClient.createWithCredentials(
+                methodDescriptor, arguments.endpoint(), arguments.useTls(), credentials);
     } else {
       dynamicClient =
           DynamicGrpcClient.create(methodDescriptor, arguments.endpoint(), arguments.useTls());

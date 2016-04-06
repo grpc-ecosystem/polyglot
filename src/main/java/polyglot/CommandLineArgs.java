@@ -47,6 +47,9 @@ public class CommandLineArgs {
   @Option(name = "--oauth2_token_endpoint")
   private String oauth2TokenEndpoint;
 
+  @Option(name = "--oauth2_access_token")
+  private String oauth2AccessToken;
+
   @Option(name = "--use_tls", metaVar = "true|false")
   private String useTls;
 
@@ -141,6 +144,10 @@ public class CommandLineArgs {
     } catch (IOException e) {
       throw new RuntimeException("Unable ot get refresh token", e);
     }
+  }
+
+  public Optional<String> oauth2AccessToken() {
+    return Optional.ofNullable(oauth2AccessToken);
   }
 
   private static Optional<Path> maybePath(String rawPath) {
