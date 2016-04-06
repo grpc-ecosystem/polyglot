@@ -63,17 +63,16 @@ public class Main {
     if (arguments.oauthConfig().isPresent()) {
       Credentials credentials;
       if (arguments.oauth2AccessToken().isPresent()) {
-        logger.info("Using provided access token with 1 day expiry period");
-        credentials = new OAuth2Credentials(new AccessToken(arguments.oauth2AccessToken().get(),
-                Date.from(Clock.systemDefaultZone().instant().plus(1, ChronoUnit.DAYS))));
+        logger.info("Using provided access token");
+        credentials = new OAuth2Credentials(new AccessToken(arguments.oauth2AccessToken().get(), null));
       } else {
         credentials = new RefreshTokenCredentials(
-                arguments.oauth2RefreshToken(),
-                arguments.oauthConfig().get(),
-                Clock.systemDefaultZone());
+            arguments.oauth2RefreshToken(),
+            arguments.oauthConfig().get(),
+            Clock.systemDefaultZone());
       }
-        dynamicClient = DynamicGrpcClient.createWithCredentials(
-                methodDescriptor, arguments.endpoint(), arguments.useTls(), credentials);
+      dynamicClient = DynamicGrpcClient.createWithCredentials(
+          methodDescriptor, arguments.endpoint(), arguments.useTls(), credentials);
     } else {
       dynamicClient =
           DynamicGrpcClient.create(methodDescriptor, arguments.endpoint(), arguments.useTls());
