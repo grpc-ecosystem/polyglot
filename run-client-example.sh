@@ -3,4 +3,5 @@ bazel build src/main/java/polyglot && echo '{"recipient": "Polyglot"}' | ./bazel
   --endpoint=localhost:12345 \
   --proto_discovery_root=./src/main/proto \
   --add_protoc_includes=. \
-  --config_set_path=config.pb.json
+  --config_set_path=config.pb.json \
+  --deadline_ms=3000

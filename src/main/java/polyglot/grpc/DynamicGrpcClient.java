@@ -1,21 +1,5 @@
 package polyglot.grpc;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-
-import javax.net.ssl.SSLException;
-
-import com.google.auth.Credentials;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.net.HostAndPort;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.google.protobuf.Descriptors.MethodDescriptor;
-import com.google.protobuf.DynamicMessage;
-
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientInterceptors;
@@ -27,7 +11,24 @@ import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.ClientCalls;
 import io.grpc.stub.StreamObserver;
 import io.netty.handler.ssl.SslContext;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+
+import javax.net.ssl.SSLException;
+
 import polyglot.protobuf.DynamicMessageMarshaller;
+
+import com.google.auth.Credentials;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.net.HostAndPort;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.protobuf.Descriptors.MethodDescriptor;
+import com.google.protobuf.DynamicMessage;
 
 /** A grpc client which operates on dynamic messages. */
 public class DynamicGrpcClient {
@@ -80,32 +81,47 @@ public class DynamicGrpcClient {
 
   /**
    * Makes an rpc to the remote endpoint and respects the supplied callback. Returns a future which
-   * can be waited on so that
+   * terminates once the call has ended.
    */
   public ListenableFuture<Void> call(
       DynamicMessage request, StreamObserver<DynamicMessage> streamObserver) {
+    return call(request, streamObserver, CallOptions.DEFAULT);
+  }
+
+  /**
+   * Makes an rpc to the remote endpoint and respects the supplied callback. Returns a future which
+   * terminates once the call has ended.
+   */
+  public ListenableFuture<Void> call(
+      DynamicMessage request,
+      StreamObserver<DynamicMessage> streamObserver,
+      CallOptions callOptions) {
     MethodType methodType = getMethodType();
     if (methodType == MethodType.UNARY) {
-      return callUnary(request, streamObserver);
+      return callUnary(request, streamObserver, callOptions);
     } else {
-      return callServerStreaming(request, streamObserver);
+      return callServerStreaming(request, streamObserver, callOptions);
     }
   }
 
   private ListenableFuture<Void> callServerStreaming(
-      DynamicMessage request, StreamObserver<DynamicMessage> streamObserver) {
+      DynamicMessage request,
+      StreamObserver<DynamicMessage> streamObserver,
+      CallOptions callOptions) {
     DoneObserver<DynamicMessage> doneObserver = new DoneObserver<>();
     ClientCalls.asyncServerStreamingCall(
-        channel.newCall(createGrpcMethodDescriptor(), CallOptions.DEFAULT),
+        channel.newCall(createGrpcMethodDescriptor(), callOptions),
         request,
         CompositeStreamObserver.of(streamObserver, doneObserver));
     return submitWaitTask(doneObserver);
   }
 
   private ListenableFuture<Void> callUnary(
-      DynamicMessage request, StreamObserver<DynamicMessage> streamObserver) {
+      DynamicMessage request,
+      StreamObserver<DynamicMessage> streamObserver,
+      CallOptions callOptions) {
     ListenableFuture<DynamicMessage> response = ClientCalls.futureUnaryCall(
-        channel.newCall(createGrpcMethodDescriptor(), CallOptions.DEFAULT),
+        channel.newCall(createGrpcMethodDescriptor(), callOptions),
         request);
 
     DoneObserver<DynamicMessage> doneObserver = new DoneObserver<>();

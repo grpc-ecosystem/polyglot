@@ -44,6 +44,9 @@ public class CommandLineArgs {
   @Option(name = "--proto_discovery_root", metaVar = "<path>")
   private String protoDiscoveryRootArg;
 
+  @Option(name = "--deadline_ms", metaVar = "<number>")
+  private long deadlineMs;
+
   // Derived from the other fields.
   private HostAndPort hostAndPort;
   private ProtoMethodName grpcMethodName;
@@ -54,6 +57,7 @@ public class CommandLineArgs {
    */
   public static CommandLineArgs parse(String[] args) {
     CommandLineArgs result = new CommandLineArgs();
+    result.deadlineMs = 2000;
 
     CmdLineParser parser = new CmdLineParser(result);
     try {
@@ -124,6 +128,7 @@ public class CommandLineArgs {
     return maybePath(configSetPathArg);
   }
 
+<<<<<<< ff87ae2f54291c09bd2668f2582236832c015d3b:src/main/java/polyglot/config/CommandLineArgs.java
   public Optional<String> configName() {
     return Optional.ofNullable(configNameArg);
   }
@@ -138,6 +143,15 @@ public class CommandLineArgs {
       Path includePath = Paths.get(pathString);
       Preconditions.checkArgument(Files.exists(includePath), "Invalid include: " + includePath);
       resultBuilder.add(includePath);
+=======
+  public long getRpcDeadline() {
+    return deadlineMs;
+  }
+
+  public Optional<OauthConfig> oauthConfig() {
+    if (oauth2ClientId == null || oauth2ClientSecret == null || oauth2TokenEndpoint == null) {
+      return Optional.empty();
+>>>>>>> Add deadlines.:src/main/java/polyglot/CommandLineArgs.java
     }
     return resultBuilder.build();
   }
