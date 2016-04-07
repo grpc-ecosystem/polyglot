@@ -1,4 +1,4 @@
-package polyglot;
+package polyglot.protobuf;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;

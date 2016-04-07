@@ -1,4 +1,4 @@
-package polyglot;
+package polyglot.protobuf;
 
 /** Represents a full grpc method, including package, service and method names. */
 public class ProtoMethodName {

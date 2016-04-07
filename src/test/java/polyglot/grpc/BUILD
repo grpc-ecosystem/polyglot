@@ -5,9 +5,10 @@ java_test(
   srcs = glob(['*.java']),
   size = "small",
   deps = [
-    "//src/main/proto/testing/foo:foo_proto",
     "//src/main/proto/testing:test_service_proto",
-    "//src/main/java/polyglot:polyglot-lib",
+    "//src/main/java/polyglot/grpc",
+    "//third_party/grpc",
+    "//third_party/guava",
     "//third_party/protobuf",
     "//third_party/testing",
   ],

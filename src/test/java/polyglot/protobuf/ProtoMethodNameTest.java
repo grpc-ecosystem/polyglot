@@ -1,10 +1,10 @@
-package polyglot;
+package polyglot.protobuf;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import org.junit.Test;
 
-import polyglot.ProtoMethodName;
+import polyglot.protobuf.ProtoMethodName;
 
 /** Unit tests for {@link ProtoMethodName}. */
 public class ProtoMethodNameTest {

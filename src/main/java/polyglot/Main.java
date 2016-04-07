@@ -1,5 +1,7 @@
 package polyglot;
 
+import io.grpc.stub.StreamObserver;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -7,10 +9,6 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Clock;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
-import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.LogManager;
@@ -21,14 +19,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import polyglot.ProtocInvoker.ProtocInvocationException;
+import polyglot.grpc.DynamicGrpcClient;
 import polyglot.oauth2.RefreshTokenCredentials;
+import polyglot.protobuf.ProtocInvoker;
+import polyglot.protobuf.ProtocInvoker.ProtocInvocationException;
+import polyglot.protobuf.ServiceResolver;
 
 import com.google.auth.Credentials;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.MethodDescriptor;
@@ -53,7 +54,8 @@ public class Main {
     }
 
     logger.info("Loading proto file descriptors");
-    FileDescriptorSet fileDescriptorSet = getFileDescriptorSet(arguments.protoRoot(), arguments.protocProtoPath());
+    FileDescriptorSet fileDescriptorSet =
+        getFileDescriptorSet(arguments.protoRoot(), arguments.protocProtoPath());
     ServiceResolver serviceResolver = ServiceResolver.fromFileDescriptorSet(fileDescriptorSet);
     MethodDescriptor methodDescriptor =
         serviceResolver.resolveServiceMethod(arguments.grpcMethodName());
@@ -66,10 +68,8 @@ public class Main {
         logger.info("Using provided access token");
         credentials = new OAuth2Credentials(new AccessToken(arguments.oauth2AccessToken().get(), null));
       } else {
-        credentials = new RefreshTokenCredentials(
-            arguments.oauth2RefreshToken(),
-            arguments.oauthConfig().get(),
-            Clock.systemDefaultZone());
+        credentials = RefreshTokenCredentials.create(
+            arguments.oauthConfig().get(), arguments.oauth2RefreshToken());
       }
       dynamicClient = DynamicGrpcClient.createWithCredentials(
           methodDescriptor, arguments.endpoint(), arguments.useTls(), credentials);
@@ -81,17 +81,41 @@ public class Main {
     DynamicMessage requestMessage = getProtoFromStdin(methodDescriptor.getInputType());
 
     logger.info("Making rpc call to endpoint: " + arguments.endpoint());
-    ListenableFuture<DynamicMessage> callFuture = dynamicClient.call(requestMessage);
-    Optional<DynamicMessage> response = Optional.empty();
+    ImmutableList.Builder<DynamicMessage> responsesBuilder = ImmutableList.builder();
+
+    StreamObserver<DynamicMessage> streamObserver = new StreamObserver<DynamicMessage>() {
+      @Override
+      public void onNext(DynamicMessage response) {
+        logger.info("Got rpc response: " + response);
+        responsesBuilder.add(response);
+      }
+
+      @Override
+      public void onError(Throwable t) {
+        logger.info("Got rpc error: ", t);
+      }
+
+      @Override
+      public void onCompleted() {
+        logger.info("Rpc completed successfully");
+      }
+    };
+
     try {
-      response = Optional.of(callFuture.get());
-      logger.info("Rpc succeeded, got response: " + response.get());
-    } catch (ExecutionException | InterruptedException e) {
-      logger.error("Rpc failed", e);
+      dynamicClient.call(requestMessage, streamObserver).get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new RuntimeException("Caught exeception while waiting for rpc", e);
     }
 
-    if (response.isPresent() && arguments.outputPath().isPresent()) {
-      writeToFile(arguments.outputPath().get(), response.get().toString());
+    ImmutableList<DynamicMessage> responses = responsesBuilder.build();
+
+    if (arguments.outputPath().isPresent()) {
+      if (responses.size() != 1) {
+        logger.warn(
+            "Got unexpected number of responses, skipping write to file: " + responses.size());
+      } else {
+        writeToFile(arguments.outputPath().get(), responses.get(0).toString());
+      }
     }
   }
 

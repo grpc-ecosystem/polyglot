@@ -1,9 +1,8 @@
-package polyglot;
+package polyglot.protobuf;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,11 +56,11 @@ public class ServiceResolver {
     return resolveServiceMethod(
         method.getServiceName(),
         method.getMethodName(),
-        Optional.of(method.getPackageName()));
+        method.getPackageName());
   }
 
   private MethodDescriptor resolveServiceMethod(
-      String serviceName, String methodName, Optional<String> packageName) {
+      String serviceName, String methodName, String packageName) {
     ServiceDescriptor service = findService(serviceName, packageName);
     MethodDescriptor method = service.findMethodByName(methodName);
     if (method == null) {
@@ -71,10 +70,10 @@ public class ServiceResolver {
     return method;
   }
 
-  private ServiceDescriptor findService(String serviceName, Optional<String> packageName) {
+  private ServiceDescriptor findService(String serviceName, String packageName) {
     // TODO(dino): Consider creating an index.
     for (FileDescriptor fileDescriptor : fileDescriptors) {
-      if (packageName.isPresent() && !fileDescriptor.getPackage().equals(packageName.get())) {
+      if (!fileDescriptor.getPackage().equals(packageName)) {
         // Package does not match this file, ignore.
         continue;
       }

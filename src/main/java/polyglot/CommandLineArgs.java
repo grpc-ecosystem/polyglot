@@ -13,6 +13,7 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
 import polyglot.oauth2.OauthConfig;
+import polyglot.protobuf.ProtoMethodName;
 
 import com.google.api.client.util.Charsets;
 import com.google.common.base.Preconditions;
