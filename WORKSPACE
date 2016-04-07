@@ -10,6 +10,12 @@ http_file(
   sha256 = "dea9f7e6f540390d60641515a8d078db281bc4cced333dbf229c1525ba842b33",
 )
 
+http_file(
+  name = "protoc_linux_x86_64",
+  url = "http://search.maven.org/remotecontent?filepath=com/google/protobuf/protoc/3.0.0-beta-2/protoc-3.0.0-beta-2-linux-x86_64.exe",
+  sha256 = "314dfcbfe1e816aa07cff4fd254f69b482778c089e47ff565222ff2daccfc188",
+)
+
 maven_jar(
   name = "grpc_artifact",
   artifact = "io.grpc:grpc-all:0.13.2",

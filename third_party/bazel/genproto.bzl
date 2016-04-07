@@ -55,7 +55,7 @@ gensrcjar = rule(
       # TODO(bazel-team): this should be a hidden attribute with a default
       # value, but Skylark needs to support select first.
       "_proto_compiler": attr.label(
-          default=Label("@bazel_tools//third_party:protoc"),
+          default=Label("//third_party/protobuf:protoc_exe"),
           allow_files=True,
           single_file=True),
       "_gen_java_grpc": attr.label(
@@ -77,7 +77,7 @@ gensrcjar = rule(
 def proto_java_library(name, src, gensrcjar_deps = [], deps = [], gen_grpc = False):
   gensrcjar(name=name + "_srcjar", src=src, deps=gensrcjar_deps, gen_grpc = gen_grpc)
 
-  java_deps = ["@bazel_tools//third_party:protobuf"] + deps
+  java_deps = ["//third_party/protobuf"] + deps
   if gen_grpc:
     java_deps += ["//third_party/grpc", "//third_party/guava"]
 
