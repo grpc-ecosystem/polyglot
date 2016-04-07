@@ -48,6 +48,9 @@ public class CommandLineArgs {
   @Option(name = "--oauth2_token_endpoint")
   private String oauth2TokenEndpoint;
 
+  @Option(name = "--oauth2_access_token_path", metaVar = "<path>")
+  private String oauth2AccessTokenPath;
+
   @Option(name = "--use_tls", metaVar = "true|false")
   private String useTls;
 
@@ -96,6 +99,8 @@ public class CommandLineArgs {
     Preconditions.checkNotNull(fullMethodArg, "The --full_method argument is required");
     Preconditions.checkNotNull(protoRootArg, "The --proto_root argument is required");
     Preconditions.checkArgument(Files.exists(Paths.get(protoRootArg)));
+    Preconditions.checkState(oauth2AccessTokenPath == null || oauth2RefreshTokenPath == null,
+        "--oauth2_access_token_path must not be used with --oauth2_refresh_token_path");
 
     hostAndPort = HostAndPort.fromString(endpointArg);
     grpcMethodName = ProtoMethodName.parseFullGrpcMethodName(fullMethodArg);
@@ -141,6 +146,18 @@ public class CommandLineArgs {
       return new String(Files.readAllBytes(Paths.get(oauth2RefreshTokenPath)), Charsets.UTF_8);
     } catch (IOException e) {
       throw new RuntimeException("Unable ot get refresh token", e);
+    }
+  }
+
+  public Optional<String> oauth2AccessToken() {
+    if (oauth2AccessTokenPath == null) {
+      return Optional.empty();
+    } else {
+      try {
+        return Optional.of(new String(Files.readAllBytes(Paths.get(oauth2AccessTokenPath)), Charsets.UTF_8));
+      } catch (IOException e) {
+        throw new RuntimeException("Unable ot get access token", e);
+      }
     }
   }
 
