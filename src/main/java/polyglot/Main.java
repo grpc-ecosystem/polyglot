@@ -1,7 +1,5 @@
 package polyglot;
 
-import io.grpc.stub.StreamObserver;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -13,19 +11,13 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.LogManager;
 
-import com.google.auth.oauth2.AccessToken;
-import com.google.auth.oauth2.OAuth2Credentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import polyglot.grpc.DynamicGrpcClient;
-import polyglot.oauth2.RefreshTokenCredentials;
-import polyglot.protobuf.ProtocInvoker;
-import polyglot.protobuf.ProtocInvoker.ProtocInvocationException;
-import polyglot.protobuf.ServiceResolver;
-
 import com.google.auth.Credentials;
+import com.google.auth.oauth2.AccessToken;
+import com.google.auth.oauth2.OAuth2Credentials;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
@@ -36,6 +28,14 @@ import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.TextFormat;
 import com.google.protobuf.TextFormat.ParseException;
+
+import io.grpc.stub.StreamObserver;
+import polyglot.ConfigProto.Configuration;
+import polyglot.grpc.DynamicGrpcClient;
+import polyglot.oauth2.RefreshTokenCredentials;
+import polyglot.protobuf.ProtocInvoker;
+import polyglot.protobuf.ProtocInvoker.ProtocInvocationException;
+import polyglot.protobuf.ServiceResolver;
 
 public class Main {
   private static final Logger logger = LoggerFactory.getLogger(Main.class);
@@ -52,6 +52,14 @@ public class Main {
       logger.info("Usage: polyglot " + CommandLineArgs.getUsage());
       return;
     }
+
+    ConfigurationLoader configLoader = arguments.configSetPath().isPresent()
+        ? ConfigurationLoader.forFile(arguments.configSetPath().get())
+        : ConfigurationLoader.forDefaultFile();
+    Configuration config = arguments.configName().isPresent()
+        ? configLoader.getNamedConfiguration(arguments.configName().get())
+        : configLoader.getDefaultConfiguration();
+    logger.info("Loaded configuration: " + config.getName());
 
     logger.info("Loading proto file descriptors");
     FileDescriptorSet fileDescriptorSet =

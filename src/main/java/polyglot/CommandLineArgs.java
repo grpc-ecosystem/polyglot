@@ -12,12 +12,12 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
-import polyglot.oauth2.OauthConfig;
-import polyglot.protobuf.ProtoMethodName;
-
 import com.google.api.client.util.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.net.HostAndPort;
+
+import polyglot.oauth2.OauthConfig;
+import polyglot.protobuf.ProtoMethodName;
 
 /** Provides easy access to the arguments passed on the commmand line. */
 public class CommandLineArgs {
@@ -53,6 +53,12 @@ public class CommandLineArgs {
 
   @Option(name = "--use_tls", metaVar = "true|false")
   private String useTls;
+
+  @Option(name = "--config_set_path", metaVar = "<path/to/config.pb.json>")
+  private String configSetPath;
+
+  @Option(name = "--config_name", metaVar = "<config-name>")
+  private String configName;
 
   // Derived from the other fields.
   private HostAndPort hostAndPort;
@@ -159,6 +165,14 @@ public class CommandLineArgs {
         throw new RuntimeException("Unable ot get access token", e);
       }
     }
+  }
+
+  public Optional<Path> configSetPath() {
+    return maybePath(configSetPath);
+  }
+
+  public Optional<String> configName() {
+    return Optional.ofNullable(configName);
   }
 
   private static Optional<Path> maybePath(String rawPath) {

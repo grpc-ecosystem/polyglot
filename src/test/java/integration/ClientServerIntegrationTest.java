@@ -1,9 +1,6 @@
 package integration;
 
 import static com.google.common.truth.Truth.assertThat;
-import io.grpc.Server;
-import io.grpc.ServerBuilder;
-import io.grpc.stub.StreamObserver;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -19,16 +16,19 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+import com.google.protobuf.TextFormat;
+
+import io.grpc.Server;
+import io.grpc.ServerBuilder;
+import io.grpc.stub.StreamObserver;
 import polyglot.test.TestProto.TestRequest;
 import polyglot.test.TestProto.TestResponse;
 import polyglot.test.TestServiceGrpc;
 import polyglot.test.TestServiceGrpc.TestService;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
-import com.google.protobuf.TextFormat;
 
 /**
  * An integration test suite which has the Polyglot client talk to a server which records requests.

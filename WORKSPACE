@@ -42,6 +42,11 @@ maven_jar(
 )
 
 maven_jar(
+  name = "protobuf_java_util_artifact",
+  artifact = "com.google.protobuf:protobuf-java-util:3.0.0-beta-2",
+)
+
+maven_jar(
   name = "slf4j_api_artifact",
   artifact= "org.slf4j:slf4j-api:1.7.13",
 )
@@ -104,4 +109,9 @@ maven_jar(
 maven_jar(
   name = "jackson_core_artifact",
   artifact = "com.fasterxml.jackson.core:jackson-core:2.6.3",
+)
+
+maven_jar(
+  name = "google_gson_artifact",
+  artifact = "com.google.code.gson:gson:2.6.2",
 )
