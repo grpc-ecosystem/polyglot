@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package polyglot;
+
+option java_outer_classname = "ConfigProto";
+
+// Holds multiple named configurations. By default, the first configuration is
+// used, but a command line flag can have Polyglot use a specific config.
+message ConfigurationSet {
+  repeated Configuration configurations = 1;
+}
+
+// Holds parameters used by Polylgot at runtime.
+message Configuration {
+  string name = 1;
+
+  CallConfiguration call_config = 2;
+  ProtoConfiguration proto_config = 3;
+  OutputConfiguration output_config = 4;
+}
+
+// Holds parameters used to make rpc calls.
+message CallConfiguration {
+  double deadline = 1;
+  bool use_tls = 2;
+  OauthConfiguration oauth_configuration = 3;
+}
+
+// Holds the necessary parameters for adding authentication to requests using
+// Oauth2.
+message OauthConfiguration {
+  // Credentials obtained by exchanging a refresh token for an access token.
+  message RefreshTokenCredentials {
+    string token_endpoint_url = 1;
+    string refresh_token_path = 2;
+  }
+
+  // Credentials used directly adding an access token to the rpc.
+  message AccessTokenCredentials {
+    string access_token_path = 1;
+  }
+
+  string client_id = 1;
+  string client_secret = 2;
+  oneof credentials {
+    RefreshTokenCredentials refresh_token_credentials = 3;
+    AccessTokenCredentials access_token_credentials = 4;
+  }
+}
+
+// Different ways a proto can be formatted.
+enum ProtoFormat {
+  JSON = 0;
+  SERIALIZED = 1;
+}
+
+// Contains parameters controlling the output protos of polyglot.
+message OutputConfiguration {
+  ProtoFormat format = 1;
+
+  enum Destination {
+    STDOUT = 0;
+    FILE = 1;
+  }
+  Destination destination = 2;
+}
+
+// Contains the necessary information to locate .proto files for services and
+// compile them using a single invocation of protoc.
+message ProtoConfiguration {
+  // A root directory to scan for .proto files.
+  string root_directory = 1;
+
+  // Include paths for proto compilation. Evaluated in order.
+  repeated string include_path = 2;
+}

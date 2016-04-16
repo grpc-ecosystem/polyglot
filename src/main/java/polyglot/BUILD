@@ -16,6 +16,7 @@ java_library(
     "//src/main/java/polyglot/grpc",
     "//src/main/java/polyglot/oauth2",
     "//src/main/java/polyglot/protobuf",
+    "//src/main/proto:config_proto",
     "//third_party/args4j",
     "//third_party/google-oauth",
     "//third_party/grpc",
