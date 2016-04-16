@@ -19,7 +19,7 @@ public class ConfigurationLoader {
   private static final String DEFAULT_FILE_NAME = "config.pb.json";
   private static final String DEFAULT_LOCATION = ".polyglot";
 
-  /** Empty iff we are loading the empty config. */
+  // If this is absent, we hand out default instances of configs.
   private final Optional<ConfigurationSet> configSet;
 
   /**
@@ -78,7 +78,7 @@ public class ConfigurationLoader {
         .orElseThrow(() -> new IllegalArgumentException("Could not find named config: " + name));
   }
 
-  /** Returns true the config set is backed by a real file. */
+  /** Returns false iff this is backed by a real config set (rather than the special empty one). */
   private boolean isEmptyConfig() {
     return !configSet.isPresent();
   }
