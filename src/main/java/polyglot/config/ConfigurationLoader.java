@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
@@ -110,6 +111,16 @@ public class ConfigurationLoader {
       resultBuilder.getOutputConfigBuilder().setDestination(Destination.FILE);
       resultBuilder.getOutputConfigBuilder().setFilePath(
           overrides.get().outputFilePath().get().toString());
+    }
+    if (!overrides.get().additionalProtocIncludes().isEmpty()) {
+      Iterable<String> paths = overrides.get().additionalProtocIncludes().stream()
+          .map(Object::toString)
+          .collect(Collectors.toList());
+      resultBuilder.getProtoConfigBuilder().addAllIncludePath(paths);
+    }
+    if (overrides.get().protoFiles().isPresent()) {
+      resultBuilder.getProtoConfigBuilder().setRootDirectory(
+          overrides.get().protoFiles().get().toString());
     }
     return resultBuilder.build();
   }

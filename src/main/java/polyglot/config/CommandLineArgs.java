@@ -12,6 +12,7 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.net.HostAndPort;
 
 import polyglot.protobuf.ProtoMethodName;
@@ -25,24 +26,23 @@ public class CommandLineArgs {
   private String endpointArg;
 
   @Option(name = "--config_set_path", metaVar = "<path/to/config.pb.json>")
-  private String configSetPath;
+  private String configSetPathArg;
 
   @Option(name = "--config_name", metaVar = "<config-name>")
-  private String configName;
+  private String configNameArg;
 
   // The flags below represent overrides for the configuration used at runtime.
-
-  @Option(name = "--proto_root", required = true, metaVar = "<path>")
-  private String protoRootArg;
-
-  @Option(name = "--protoc_proto_path", metaVar = "<path>")
-  private String protocProtoPath;
-
   @Option(name = "--output_file_path", metaVar = "<path>")
-  private String outputFilePath;
+  private String outputFilePathArg;
 
   @Option(name = "--use_tls", metaVar = "true|false")
-  private String useTls;
+  private String useTlsArg;
+
+  @Option(name = "--add_protoc_includes", metaVar = "<path1>,<path2>")
+  private String addProtocIncludesArg;
+
+  @Option(name = "--proto_files", metaVar = "<path>")
+  private String protoFilesArg;
 
   // Derived from the other fields.
   private HostAndPort hostAndPort;
@@ -86,8 +86,7 @@ public class CommandLineArgs {
   private void initialize() {
     Preconditions.checkNotNull(endpointArg, "The --endpoint argument is required");
     Preconditions.checkNotNull(fullMethodArg, "The --full_method argument is required");
-    Preconditions.checkNotNull(protoRootArg, "The --proto_root argument is required");
-    Preconditions.checkArgument(Files.exists(Paths.get(protoRootArg)));
+    Preconditions.checkArgument(Files.exists(Paths.get(protoFilesArg)));
 
     hostAndPort = HostAndPort.fromString(endpointArg);
     grpcMethodName = ProtoMethodName.parseFullGrpcMethodName(fullMethodArg);
@@ -98,8 +97,8 @@ public class CommandLineArgs {
   }
 
   /** Returns the root of the directory tree in which to discover proto files. */
-  public Path protoRoot() {
-    return Paths.get(protoRootArg).toAbsolutePath();
+  public Optional<Path> protoFiles() {
+    return maybePath(protoFilesArg);
   }
 
   /** Returns the fully qualified name of the supplied proto method. */
@@ -109,27 +108,36 @@ public class CommandLineArgs {
 
   /** Returns the location in which to store the response proto. */
   public Optional<Path> outputFilePath() {
-    return maybePath(outputFilePath);
-  }
-
-  /** Returns a directory to use as --proto_path for calls to protoc. */
-  public Optional<Path> protocProtoPath() {
-    return maybePath(protocProtoPath);
+    return maybePath(outputFilePathArg);
   }
 
   public Optional<Boolean> useTls() {
-    if (useTls == null) {
+    if (useTlsArg == null) {
       return Optional.empty();
     }
-    return Optional.of(Boolean.parseBoolean(useTls));
+    return Optional.of(Boolean.parseBoolean(useTlsArg));
   }
 
   public Optional<Path> configSetPath() {
-    return maybePath(configSetPath);
+    return maybePath(configSetPathArg);
   }
 
   public Optional<String> configName() {
-    return Optional.ofNullable(configName);
+    return Optional.ofNullable(configNameArg);
+  }
+
+  public ImmutableList<Path> additionalProtocIncludes() {
+    if (addProtocIncludesArg == null) {
+      return ImmutableList.of();
+    }
+
+    ImmutableList.Builder<Path> resultBuilder = ImmutableList.builder();
+    for (String pathString : addProtocIncludesArg.split(",")) {
+      Path includePath = Paths.get(pathString);
+      Preconditions.checkArgument(Files.exists(includePath), "Invalid include: " + includePath);
+      resultBuilder.add(includePath);
+    }
+    return resultBuilder.build();
   }
 
   private static Optional<Path> maybePath(String rawPath) {

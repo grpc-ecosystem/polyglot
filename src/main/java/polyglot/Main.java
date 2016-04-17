@@ -8,7 +8,6 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.LogManager;
 
@@ -31,6 +30,7 @@ import com.google.protobuf.TextFormat.ParseException;
 import io.grpc.stub.StreamObserver;
 import polyglot.ConfigProto.Configuration;
 import polyglot.ConfigProto.OutputConfiguration.Destination;
+import polyglot.ConfigProto.ProtoConfiguration;
 import polyglot.config.CommandLineArgs;
 import polyglot.config.ConfigurationLoader;
 import polyglot.grpc.DynamicGrpcClient;
@@ -51,7 +51,7 @@ public class Main {
     try {
       arguments = CommandLineArgs.parse(args);
     } catch (RuntimeException e) {
-      logger.info("Usage: polyglot " + CommandLineArgs.getUsage());
+      logger.info("Usage: polyglot " + CommandLineArgs.getUsage(), e);
       return;
     }
 
@@ -65,8 +65,7 @@ public class Main {
     logger.info("Loaded configuration: " + config.getName());
 
     logger.info("Loading proto file descriptors");
-    FileDescriptorSet fileDescriptorSet =
-        getFileDescriptorSet(arguments.protoRoot(), arguments.protocProtoPath());
+    FileDescriptorSet fileDescriptorSet = getFileDescriptorSet(config.getProtoConfig());
     ServiceResolver serviceResolver = ServiceResolver.fromFileDescriptorSet(fileDescriptorSet);
     MethodDescriptor methodDescriptor =
         serviceResolver.resolveServiceMethod(arguments.grpcMethodName());
@@ -128,10 +127,10 @@ public class Main {
     }
   }
 
-  private static FileDescriptorSet getFileDescriptorSet(
-      Path protoRoot, Optional<Path> protocProtoPath) {
+  private static FileDescriptorSet getFileDescriptorSet(ProtoConfiguration protoConfig) {
+    Path protoFiles = Paths.get(protoConfig.getRootDirectory());
     try {
-      return new ProtocInvoker(protocProtoPath).invoke(protoRoot);
+      return ProtocInvoker.forConfig(protoConfig).invoke(protoFiles);
     } catch (ProtocInvocationException e) {
       throw new RuntimeException("Failed to invoke the protoc binary", e);
     }

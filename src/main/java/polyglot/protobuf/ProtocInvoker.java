@@ -5,13 +5,16 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.util.Optional;
+import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
 import com.github.os72.protocjar.Protoc;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
+
+import polyglot.ConfigProto.ProtoConfiguration;
 
 /**
  * A utility class which facilitates invoking the protoc compiler on all proto files in a
@@ -21,21 +24,40 @@ public class ProtocInvoker {
   private static final PathMatcher PROTO_MATCHER =
       FileSystems.getDefault().getPathMatcher("glob:**/*.proto");
 
-  private final Optional<Path> protocProtoPath;
+  // Derived from the config.
+  private final Path protoRootPath;
+  private final ImmutableList<Path> protocIncludePaths;
+
+  /** Creates a new {@link ProtocInvoker} with the supplied configuration. */
+  public static ProtocInvoker forConfig(ProtoConfiguration protoConfig) {
+    Preconditions.checkArgument(!protoConfig.getRootDirectory().isEmpty(), "Proto root required");
+    Path protoRootPath = Paths.get(protoConfig.getRootDirectory());
+    Preconditions.checkArgument(Files.exists(protoRootPath));
+
+    ImmutableList.Builder<Path> includePaths = ImmutableList.builder();
+    for (String includePathString : protoConfig.getIncludePathList()) {
+      Path path = Paths.get(includePathString);
+      Preconditions.checkArgument(Files.exists(path));
+      includePaths.add(path.toAbsolutePath());
+    }
+
+    return new ProtocInvoker(protoRootPath, includePaths.build());
+  }
 
   /**
    * Takes an optional path to pass to protoc as --proto_path. Uses the invocation-time proto root
    * if none is passed.
    */
-  public ProtocInvoker(Optional<Path> protocProtoPath) {
-    this.protocProtoPath = protocProtoPath;
+  private ProtocInvoker(Path protoRootPath, ImmutableList<Path> protocIncludePaths) {
+    this.protoRootPath = protoRootPath;
+    this.protocIncludePaths = protocIncludePaths;
   }
 
   /**
-   * Exectutes the protoc binary on all proto files in the directory tree rooted at the supplied
-   * path and returns a {@link FileDescriptorSet} which describes the proto files found this way.
+   * Executes protoc on all .proto files in the subtree rooted at the supplied path and returns a
+   * {@link FileDescriptorSet} which describes all the protos.
    */
-  public FileDescriptorSet invoke(Path protoRoot) throws ProtocInvocationException {
+  public FileDescriptorSet invoke(Path protoFiles) throws ProtocInvocationException {
     Path descriptorPath;
     try {
       descriptorPath = Files.createTempFile("descriptor", ".pb.bin");
@@ -43,20 +65,27 @@ public class ProtocInvoker {
       throw new ProtocInvocationException("Unable to create temporary file", e);
     }
 
-    Path protoPath = protocProtoPath.orElse(protoRoot.toAbsolutePath());
-    ImmutableList.Builder<String> protocArgs = ImmutableList.<String>builder()
-        .addAll(scanProtoFiles(protoRoot))
+    ImmutableList<String> protocArgs = ImmutableList.<String>builder()
+        .addAll(scanProtoFiles(protoFiles))
+        .addAll(includePathArgs())
         .add("--descriptor_set_out=" + descriptorPath.toAbsolutePath().toString())
         .add("--include_imports")
-        .add("--proto_path=" + protoPath.toAbsolutePath().toString());
+        .add("--proto_path=" + protoRootPath.toString())
+        .build();
 
-    invokeBinary(protocArgs.build());
+    invokeBinary(protocArgs);
 
     try {
       return FileDescriptorSet.parseFrom(Files.readAllBytes(descriptorPath));
     } catch (IOException e) {
       throw new ProtocInvocationException("Unable to parse the generated descriptors", e);
     }
+  }
+
+  private ImmutableSet<String> includePathArgs() {
+    return ImmutableSet.copyOf(protocIncludePaths.stream()
+        .map(include -> "-I" + include.toString())
+        .collect(Collectors.toSet()));
   }
 
   private void invokeBinary(ImmutableList<String> protocArgs) throws ProtocInvocationException {

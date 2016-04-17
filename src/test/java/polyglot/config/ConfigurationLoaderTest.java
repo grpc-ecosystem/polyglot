@@ -12,6 +12,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import com.google.common.collect.ImmutableList;
+
 import polyglot.ConfigProto.Configuration;
 import polyglot.ConfigProto.ConfigurationSet;
 import polyglot.ConfigProto.OutputConfiguration.Destination;
@@ -55,6 +57,8 @@ public class ConfigurationLoaderTest {
   public void appliesOverrides() {
     when(mockOverrides.useTls()).thenReturn(Optional.of(true));
     when(mockOverrides.outputFilePath()).thenReturn(Optional.of(Paths.get("asdf")));
+    when(mockOverrides.additionalProtocIncludes()).thenReturn(ImmutableList.of(Paths.get(".")));
+    when(mockOverrides.protoFiles()).thenReturn(Optional.of(Paths.get(".")));
     ConfigurationLoader loader = ConfigurationLoader
         .forDefaultConfigSet()
         .withOverrides(mockOverrides);

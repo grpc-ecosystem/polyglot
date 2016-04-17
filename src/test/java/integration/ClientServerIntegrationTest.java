@@ -37,7 +37,8 @@ public class ClientServerIntegrationTest {
   private static final long NUM_SERVER_START_TRIES = 3;
   private static final int MIN_SERVER_PORT = 50_000;
   private static final int MAX_SERVER_PORT = 60_000;
-  private static final String TEST_PROTO_ROOT = Paths.get("src/main/proto/testing").toString();
+  private static final String TEST_PROTO_ROOT =
+      Paths.get(getWorkspaceRoot().toString(), "src/main/proto/testing").toString();
   private static final String TEST_UNARY_METHOD = "polyglot.test.TestService/TestMethod";
   private static final String TEST_STREAM_METHOD = "polyglot.test.TestService/TestMethodStream";
 
@@ -162,10 +163,9 @@ public class ClientServerIntegrationTest {
   private static ImmutableList<String> makeArgs(int port, String protoRoot, String method) {
     return ImmutableList.<String>builder()
         .add(makeArgument("endpoint", Joiner.on(':').join("localhost", port)))
-        .add(makeArgument("proto_root", TEST_PROTO_ROOT))
+        .add(makeArgument("proto_files", TEST_PROTO_ROOT))
         .add(makeArgument("full_method", method))
-        .add(makeArgument("protoc_proto_path", getWorkspaceRoot().toString()))
-        .add(makeArgument("use_tls", "false"))
+        .add(makeArgument("add_protoc_includes", getWorkspaceRoot().toString()))
         .build();
   }
 

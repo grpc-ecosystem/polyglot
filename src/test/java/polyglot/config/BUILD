@@ -7,6 +7,7 @@ java_test(
   deps = [
     "//src/main/proto:config_proto",
     "//src/main/java/polyglot/config",
+    "//third_party/guava",
     "//third_party/testing",
   ],
 )
