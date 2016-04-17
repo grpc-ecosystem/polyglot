@@ -1,9 +1,6 @@
 package polyglot.grpc;
 
 import static org.mockito.Mockito.when;
-import io.grpc.Channel;
-import io.grpc.ClientCall;
-import io.grpc.stub.StreamObserver;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -13,12 +10,16 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-import polyglot.test.TestProto;
-import polyglot.test.TestProto.TestRequest;
-
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.DynamicMessage;
+
+import io.grpc.Channel;
+import io.grpc.ClientCall;
+import io.grpc.stub.StreamObserver;
+import polyglot.grpc.DynamicGrpcClient;
+import polyglot.test.TestProto;
+import polyglot.test.TestProto.TestRequest;
 
 /** Unit tests for {@link DynamicGrpcClient}. */
 public class DynamicGrpcClientTest {

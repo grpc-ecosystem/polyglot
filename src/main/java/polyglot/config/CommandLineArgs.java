@@ -1,7 +1,6 @@
-package polyglot;
+package polyglot.config;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,12 +11,10 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
-import polyglot.oauth2.OauthConfig;
-import polyglot.protobuf.ProtoMethodName;
-
-import com.google.api.client.util.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.net.HostAndPort;
+
+import polyglot.protobuf.ProtoMethodName;
 
 /** Provides easy access to the arguments passed on the commmand line. */
 public class CommandLineArgs {
@@ -27,29 +24,22 @@ public class CommandLineArgs {
   @Option(name = "--endpoint", required = true, metaVar = "<host>:<port>")
   private String endpointArg;
 
+  @Option(name = "--config_set_path", metaVar = "<path/to/config.pb.json>")
+  private String configSetPath;
+
+  @Option(name = "--config_name", metaVar = "<config-name>")
+  private String configName;
+
+  // The flags below represent overrides for the configuration used at runtime.
+
   @Option(name = "--proto_root", required = true, metaVar = "<path>")
   private String protoRootArg;
 
   @Option(name = "--protoc_proto_path", metaVar = "<path>")
   private String protocProtoPath;
 
-  @Option(name = "--output", metaVar = "<path>")
-  private String output;
-
-  @Option(name = "--oauth2_client_id")
-  private String oauth2ClientId;
-
-  @Option(name = "--oauth2_client_secret")
-  private String oauth2ClientSecret;
-
-  @Option(name = "--oauth2_refresh_token_path", metaVar = "<path>")
-  private String oauth2RefreshTokenPath;
-
-  @Option(name = "--oauth2_token_endpoint")
-  private String oauth2TokenEndpoint;
-
-  @Option(name = "--oauth2_access_token_path", metaVar = "<path>")
-  private String oauth2AccessTokenPath;
+  @Option(name = "--output_file_path", metaVar = "<path>")
+  private String outputFilePath;
 
   @Option(name = "--use_tls", metaVar = "true|false")
   private String useTls;
@@ -64,7 +54,6 @@ public class CommandLineArgs {
    */
   public static CommandLineArgs parse(String[] args) {
     CommandLineArgs result = new CommandLineArgs();
-    result.useTls = "true";
 
     CmdLineParser parser = new CmdLineParser(result);
     try {
@@ -99,8 +88,6 @@ public class CommandLineArgs {
     Preconditions.checkNotNull(fullMethodArg, "The --full_method argument is required");
     Preconditions.checkNotNull(protoRootArg, "The --proto_root argument is required");
     Preconditions.checkArgument(Files.exists(Paths.get(protoRootArg)));
-    Preconditions.checkState(oauth2AccessTokenPath == null || oauth2RefreshTokenPath == null,
-        "--oauth2_access_token_path must not be used with --oauth2_refresh_token_path");
 
     hostAndPort = HostAndPort.fromString(endpointArg);
     grpcMethodName = ProtoMethodName.parseFullGrpcMethodName(fullMethodArg);
@@ -121,8 +108,8 @@ public class CommandLineArgs {
   }
 
   /** Returns the location in which to store the response proto. */
-  public Optional<Path> outputPath() {
-    return maybePath(output);
+  public Optional<Path> outputFilePath() {
+    return maybePath(outputFilePath);
   }
 
   /** Returns a directory to use as --proto_path for calls to protoc. */
@@ -130,35 +117,19 @@ public class CommandLineArgs {
     return maybePath(protocProtoPath);
   }
 
-  public boolean useTls() {
-    return Boolean.parseBoolean(useTls);
-  }
-
-  public Optional<OauthConfig> oauthConfig() {
-    if (oauth2ClientId == null || oauth2ClientSecret == null || oauth2TokenEndpoint == null) {
+  public Optional<Boolean> useTls() {
+    if (useTls == null) {
       return Optional.empty();
     }
-    return Optional.of(new OauthConfig(oauth2ClientId, oauth2ClientSecret, oauth2TokenEndpoint));
+    return Optional.of(Boolean.parseBoolean(useTls));
   }
 
-  public String oauth2RefreshToken() {
-    try {
-      return new String(Files.readAllBytes(Paths.get(oauth2RefreshTokenPath)), Charsets.UTF_8);
-    } catch (IOException e) {
-      throw new RuntimeException("Unable ot get refresh token", e);
-    }
+  public Optional<Path> configSetPath() {
+    return maybePath(configSetPath);
   }
 
-  public Optional<String> oauth2AccessToken() {
-    if (oauth2AccessTokenPath == null) {
-      return Optional.empty();
-    } else {
-      try {
-        return Optional.of(new String(Files.readAllBytes(Paths.get(oauth2AccessTokenPath)), Charsets.UTF_8));
-      } catch (IOException e) {
-        throw new RuntimeException("Unable ot get access token", e);
-      }
-    }
+  public Optional<String> configName() {
+    return Optional.ofNullable(configName);
   }
 
   private static Optional<Path> maybePath(String rawPath) {

@@ -1,13 +1,15 @@
 package(default_visibility = ["//visibility:public"])
 
 java_library(
-  name = "oauth2",
+  name = "config",
   srcs = glob(['*.java']),
   deps = [
     "//src/main/proto:config_proto",
-    "//third_party/google-oauth",
+    "//src/main/java/polyglot/protobuf",
+    "//third_party/args4j",
+    "//third_party/grpc",
     "//third_party/guava",
-    "//third_party/jackson-core",
-    "//third_party/logging:logging-api",
+    "//third_party/netty",
+    "//third_party/protobuf",
   ],
 )

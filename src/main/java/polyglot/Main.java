@@ -1,7 +1,5 @@
 package polyglot;
 
-import io.grpc.stub.StreamObserver;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,21 +7,14 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.LogManager;
 
-import com.google.auth.oauth2.AccessToken;
-import com.google.auth.oauth2.OAuth2Credentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
-
-import polyglot.grpc.DynamicGrpcClient;
-import polyglot.oauth2.RefreshTokenCredentials;
-import polyglot.protobuf.ProtocInvoker;
-import polyglot.protobuf.ProtocInvoker.ProtocInvocationException;
-import polyglot.protobuf.ServiceResolver;
 
 import com.google.auth.Credentials;
 import com.google.common.base.Charsets;
@@ -36,6 +27,17 @@ import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.TextFormat;
 import com.google.protobuf.TextFormat.ParseException;
+
+import io.grpc.stub.StreamObserver;
+import polyglot.ConfigProto.Configuration;
+import polyglot.ConfigProto.OutputConfiguration.Destination;
+import polyglot.config.CommandLineArgs;
+import polyglot.config.ConfigurationLoader;
+import polyglot.grpc.DynamicGrpcClient;
+import polyglot.oauth2.OauthCredentialsFactory;
+import polyglot.protobuf.ProtocInvoker;
+import polyglot.protobuf.ProtocInvoker.ProtocInvocationException;
+import polyglot.protobuf.ServiceResolver;
 
 public class Main {
   private static final Logger logger = LoggerFactory.getLogger(Main.class);
@@ -53,6 +55,15 @@ public class Main {
       return;
     }
 
+    ConfigurationLoader configLoader = arguments.configSetPath().isPresent()
+        ? ConfigurationLoader.forFile(arguments.configSetPath().get())
+        : ConfigurationLoader.forDefaultConfigSet();
+    configLoader = configLoader.withOverrides(arguments);
+    Configuration config = arguments.configName().isPresent()
+        ? configLoader.getNamedConfiguration(arguments.configName().get())
+        : configLoader.getDefaultConfiguration();
+    logger.info("Loaded configuration: " + config.getName());
+
     logger.info("Loading proto file descriptors");
     FileDescriptorSet fileDescriptorSet =
         getFileDescriptorSet(arguments.protoRoot(), arguments.protocProtoPath());
@@ -62,20 +73,14 @@ public class Main {
 
     logger.info("Creating dynamic grpc client");
     DynamicGrpcClient dynamicClient;
-    if (arguments.oauthConfig().isPresent()) {
-      Credentials credentials;
-      if (arguments.oauth2AccessToken().isPresent()) {
-        logger.info("Using provided access token");
-        credentials = new OAuth2Credentials(new AccessToken(arguments.oauth2AccessToken().get(), null));
-      } else {
-        credentials = RefreshTokenCredentials.create(
-            arguments.oauthConfig().get(), arguments.oauth2RefreshToken());
-      }
+    if (config.getCallConfig().hasOauthConfig()) {
+      Credentials credentials =
+          new OauthCredentialsFactory(config.getCallConfig().getOauthConfig()).getCredentials();
       dynamicClient = DynamicGrpcClient.createWithCredentials(
-          methodDescriptor, arguments.endpoint(), arguments.useTls(), credentials);
+          methodDescriptor, arguments.endpoint(), config.getCallConfig().getUseTls(), credentials);
     } else {
-      dynamicClient =
-          DynamicGrpcClient.create(methodDescriptor, arguments.endpoint(), arguments.useTls());
+      dynamicClient = DynamicGrpcClient.create(
+          methodDescriptor, arguments.endpoint(), config.getCallConfig().getUseTls());
     }
 
     DynamicMessage requestMessage = getProtoFromStdin(methodDescriptor.getInputType());
@@ -86,7 +91,6 @@ public class Main {
     StreamObserver<DynamicMessage> streamObserver = new StreamObserver<DynamicMessage>() {
       @Override
       public void onNext(DynamicMessage response) {
-        logger.info("Got rpc response: " + response);
         responsesBuilder.add(response);
       }
 
@@ -108,14 +112,11 @@ public class Main {
     }
 
     ImmutableList<DynamicMessage> responses = responsesBuilder.build();
-
-    if (arguments.outputPath().isPresent()) {
-      if (responses.size() != 1) {
-        logger.warn(
-            "Got unexpected number of responses, skipping write to file: " + responses.size());
-      } else {
-        writeToFile(arguments.outputPath().get(), responses.get(0).toString());
-      }
+    if (config.getOutputConfig().getDestination() == Destination.LOG) {
+      logger.info("Got responses: \n" + responses);
+    } else if (config.getOutputConfig().getDestination() == Destination.FILE) {
+      // TODO(dino): Handle response streams properly.
+      writeToFile(Paths.get(config.getOutputConfig().getFilePath()), responses.get(0).toString());
     }
   }
 

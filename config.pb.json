@@ -1,0 +1,10 @@
+{
+  "configurations": [
+    {
+      "name": "default",
+      "call_config": {
+        "use_tls": "false"
+      }
+    }
+  ]
+}
