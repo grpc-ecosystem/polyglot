@@ -40,11 +40,16 @@ message OauthConfiguration {
     string access_token_path = 1;
   }
 
-  string client_id = 1;
-  string client_secret = 2;
+  // Contains the necessary information to identify ourselves as an Oauth2 client.
+  message OauthClient {
+    string id = 1;
+    string secret = 2;
+  }
+
+  OauthClient client = 1;
   oneof credentials {
-    RefreshTokenCredentials refresh_token_credentials = 3;
-    AccessTokenCredentials access_token_credentials = 4;
+    RefreshTokenCredentials refresh_token_credentials = 2;
+    AccessTokenCredentials access_token_credentials = 3;
   }
 }
 

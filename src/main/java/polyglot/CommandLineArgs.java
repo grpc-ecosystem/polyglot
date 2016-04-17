@@ -1,7 +1,6 @@
 package polyglot;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,11 +11,9 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
-import com.google.api.client.util.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.net.HostAndPort;
 
-import polyglot.oauth2.OauthConfig;
 import polyglot.protobuf.ProtoMethodName;
 
 /** Provides easy access to the arguments passed on the commmand line. */
@@ -43,21 +40,6 @@ public class CommandLineArgs {
 
   @Option(name = "--output", metaVar = "<path>")
   private String output;
-
-  @Option(name = "--oauth2_client_id")
-  private String oauth2ClientId;
-
-  @Option(name = "--oauth2_client_secret")
-  private String oauth2ClientSecret;
-
-  @Option(name = "--oauth2_refresh_token_path", metaVar = "<path>")
-  private String oauth2RefreshTokenPath;
-
-  @Option(name = "--oauth2_token_endpoint")
-  private String oauth2TokenEndpoint;
-
-  @Option(name = "--oauth2_access_token_path", metaVar = "<path>")
-  private String oauth2AccessTokenPath;
 
   @Option(name = "--use_tls", metaVar = "true|false")
   private String useTls;
@@ -107,8 +89,6 @@ public class CommandLineArgs {
     Preconditions.checkNotNull(fullMethodArg, "The --full_method argument is required");
     Preconditions.checkNotNull(protoRootArg, "The --proto_root argument is required");
     Preconditions.checkArgument(Files.exists(Paths.get(protoRootArg)));
-    Preconditions.checkState(oauth2AccessTokenPath == null || oauth2RefreshTokenPath == null,
-        "--oauth2_access_token_path must not be used with --oauth2_refresh_token_path");
 
     hostAndPort = HostAndPort.fromString(endpointArg);
     grpcMethodName = ProtoMethodName.parseFullGrpcMethodName(fullMethodArg);
@@ -143,33 +123,6 @@ public class CommandLineArgs {
       return Optional.empty();
     }
     return Optional.of(Boolean.parseBoolean(useTls));
-  }
-
-  public Optional<OauthConfig> oauthConfig() {
-    if (oauth2ClientId == null || oauth2ClientSecret == null || oauth2TokenEndpoint == null) {
-      return Optional.empty();
-    }
-    return Optional.of(new OauthConfig(oauth2ClientId, oauth2ClientSecret, oauth2TokenEndpoint));
-  }
-
-  public String oauth2RefreshToken() {
-    try {
-      return new String(Files.readAllBytes(Paths.get(oauth2RefreshTokenPath)), Charsets.UTF_8);
-    } catch (IOException e) {
-      throw new RuntimeException("Unable ot get refresh token", e);
-    }
-  }
-
-  public Optional<String> oauth2AccessToken() {
-    if (oauth2AccessTokenPath == null) {
-      return Optional.empty();
-    } else {
-      try {
-        return Optional.of(new String(Files.readAllBytes(Paths.get(oauth2AccessTokenPath)), Charsets.UTF_8));
-      } catch (IOException e) {
-        throw new RuntimeException("Unable ot get access token", e);
-      }
-    }
   }
 
   public Optional<Path> configSetPath() {

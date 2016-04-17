@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.LogManager;
@@ -31,6 +32,10 @@ import com.google.protobuf.TextFormat.ParseException;
 
 import io.grpc.stub.StreamObserver;
 import polyglot.ConfigProto.Configuration;
+import polyglot.ConfigProto.OauthConfiguration;
+import polyglot.ConfigProto.OauthConfiguration.AccessTokenCredentials;
+import polyglot.ConfigProto.OauthConfiguration.CredentialsCase;
+import polyglot.ConfigProto.OauthConfiguration.OauthClient;
 import polyglot.grpc.DynamicGrpcClient;
 import polyglot.oauth2.RefreshTokenCredentials;
 import polyglot.protobuf.ProtocInvoker;
@@ -70,22 +75,36 @@ public class Main {
 
     logger.info("Creating dynamic grpc client");
     DynamicGrpcClient dynamicClient;
-    if (arguments.oauthConfig().isPresent()) {
+    if (config.getCallConfig().hasOauthConfiguration()) {
+      OauthConfiguration oauthConfig = config.getCallConfig().getOauthConfiguration();
+
       Credentials credentials;
-      if (arguments.oauth2AccessToken().isPresent()) {
-        logger.info("Using provided access token");
-        credentials = new OAuth2Credentials(
-            new AccessToken(arguments.oauth2AccessToken().get(), null));
+      if (oauthConfig.getCredentialsCase() == CredentialsCase.ACCESS_TOKEN_CREDENTIALS) {
+        AccessTokenCredentials accessTokenCreds = oauthConfig.getAccessTokenCredentials();
+        AccessToken accessToken = new AccessToken(
+            readFile(Paths.get(accessTokenCreds.getAccessTokenPath())), null);
+
+        logger.info("Using access token credentials");
+        credentials = new OAuth2Credentials(accessToken);
+      } else if (oauthConfig.getCredentialsCase() == CredentialsCase.REFRESH_TOKEN_CREDENTIALS) {
+        String exchangeUrl = oauthConfig.getRefreshTokenCredentials().getTokenEndpointUrl();
+        String refreshToken = readFile(
+            Paths.get(oauthConfig.getRefreshTokenCredentials().getRefreshTokenPath()));
+        OauthClient oauthClient = oauthConfig.getClient();
+
+        logger.info("Using refresh token credentials");
+        credentials = RefreshTokenCredentials.create(oauthClient, refreshToken, exchangeUrl);
       } else {
-        credentials = RefreshTokenCredentials.create(
-            arguments.oauthConfig().get(), arguments.oauth2RefreshToken());
+        throw new IllegalArgumentException(
+            "Unknown oauth crdentials: " + oauthConfig.getCredentialsCase());
       }
       dynamicClient = DynamicGrpcClient.createWithCredentials(
           methodDescriptor, arguments.endpoint(), config.getCallConfig().getUseTls(), credentials);
     } else {
       dynamicClient = DynamicGrpcClient.create(
-          methodDescriptor, arguments.endpoint(),  config.getCallConfig().getUseTls());
+          methodDescriptor, arguments.endpoint(), config.getCallConfig().getUseTls());
     }
+
 
     DynamicMessage requestMessage = getProtoFromStdin(methodDescriptor.getInputType());
 
@@ -133,6 +152,14 @@ public class Main {
       Files.write(path, content.toString().getBytes(Charsets.UTF_8));
     } catch (IOException e) {
       throw new RuntimeException("Unable to write to file: " + path.toString(), e);
+    }
+  }
+
+  private static String readFile(Path path) {
+    try {
+      return Joiner.on('\n').join(Files.readAllLines(path));
+    } catch (IOException e) {
+      throw new RuntimeException("Unable to read file: " + path.toString(), e);
     }
   }
 
