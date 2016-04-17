@@ -17,6 +17,7 @@ import com.google.protobuf.DynamicMessage;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
 import io.grpc.stub.StreamObserver;
+import polyglot.grpc.DynamicGrpcClient;
 import polyglot.test.TestProto;
 import polyglot.test.TestProto.TestRequest;
 

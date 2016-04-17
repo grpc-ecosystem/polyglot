@@ -6,7 +6,7 @@ java_test(
   size = "small",
   deps = [
     "//src/main/proto:config_proto",
-    "//src/main/java/polyglot:polyglot-lib",
+    "//src/main/java/polyglot/config",
     "//third_party/testing",
   ],
 )

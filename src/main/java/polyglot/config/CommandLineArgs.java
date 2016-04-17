@@ -1,4 +1,4 @@
-package polyglot;
+package polyglot.config;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;

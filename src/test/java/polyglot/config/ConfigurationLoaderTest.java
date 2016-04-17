@@ -1,4 +1,4 @@
-package polyglot;
+package polyglot.config;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.when;
@@ -13,6 +13,8 @@ import org.mockito.junit.MockitoRule;
 
 import polyglot.ConfigProto.Configuration;
 import polyglot.ConfigProto.ConfigurationSet;
+import polyglot.config.CommandLineArgs;
+import polyglot.config.ConfigurationLoader;
 
 /** Unit tests for {@link ConfigurationLoader}. */
 public class ConfigurationLoaderTest {

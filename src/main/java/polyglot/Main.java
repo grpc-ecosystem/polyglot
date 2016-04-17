@@ -36,6 +36,8 @@ import polyglot.ConfigProto.OauthConfiguration;
 import polyglot.ConfigProto.OauthConfiguration.AccessTokenCredentials;
 import polyglot.ConfigProto.OauthConfiguration.CredentialsCase;
 import polyglot.ConfigProto.OauthConfiguration.OauthClient;
+import polyglot.config.CommandLineArgs;
+import polyglot.config.ConfigurationLoader;
 import polyglot.grpc.DynamicGrpcClient;
 import polyglot.oauth2.RefreshTokenCredentials;
 import polyglot.protobuf.ProtocInvoker;
