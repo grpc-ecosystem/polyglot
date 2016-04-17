@@ -47,6 +47,7 @@ public class ProtocInvoker {
     ImmutableList.Builder<String> protocArgs = ImmutableList.<String>builder()
         .addAll(scanProtoFiles(protoRoot))
         .add("--descriptor_set_out=" + descriptorPath.toAbsolutePath().toString())
+        .add("--include_imports")
         .add("--proto_path=" + protoPath.toAbsolutePath().toString());
 
     invokeBinary(protocArgs.build());
