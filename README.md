@@ -29,8 +29,7 @@ Then, the binary itself can be invoked as follows:
 $ echo <text-format-request> | polyglot \
     --endpoint=<host>:<port> \
     --full_method=<some.package.Service/doSomething> \
-    --proto_root=<path> \
-    [--output=<path>]
+    --proto_files=<path>
 ```
 
 For an example, see `run-client-example.sh`.
@@ -48,6 +47,46 @@ Polyglot has built-in support for authentication of requests using OAuth. In ord
 * An OAuth refresh token stored on disk (though we are working on removing this requirement), using `--oauth2_refresh_token_path`
 
 Upon execution, Polyglot exchanges the refresh token for an access token and passes the access token to the grpc server when making the request, allowing it to authorize the caller.
+
+### Configuration files
+
+Some of the features of Polyglot (such as Oauth) require a fair share of configuration. Moreover, that sort of configuration tends to remain constant across multiple Polyglot runs. In order to improve usability, Polyglot supports loading a configuration proto from a Json file at runtime. This configuration file can contain multiple `Configuration` objects (schema defined [here](https://github.com/dinowernli/polyglot/blob/master/src/main/proto/config.proto#L14)). An example configuration could look like this:
+
+```
+{
+    "configurations": [
+        {
+          "name": "production",
+          "call_config": {
+            "use_tls": "true",
+    		"oauth_config": {
+    			"refresh_token_credentials": {
+    				"token_endpoint_url": "https://auth.example.com/token",
+    				"client": {
+    					"id": "example_id",
+    					"secret": "example_secret"
+    				},
+                    "refresh_token_path": "/path/to/refresh/token"
+    			}
+    		}
+          }
+        },
+        {
+          "name": "staging",
+          "call_config": {
+            "use_tls": "true",
+    		"oauth_config": {
+    			"refresh_token_credentials": {
+    				"token_endpoint_url": "https://auth-staging.example.com/token",
+    			}
+    		}
+          }
+        }
+    ]
+}
+```
+
+By default, Polyglot tries to find a config file at `$HOME/.polyglot/config.pb.json`, but this can be overridden with the `--config_set_path` flag. By default, Polyglot uses the first configuration in the set, but this can be overridden with the `--config_name` flag.
 
 ## Build requirements
 
@@ -74,12 +113,10 @@ Then, in a different terminal, run the client example:
 
 * OAuth integration for authenticated requests
 * Ability to parse .proto files at runtime
+* Support for receiving streams of responses
 
 ## Upcoming features
 
-* Handling responses which are streams of messages
 * Executing the full OAuth dance (rather than relying on a refresh token on disk)
 * Binary distribution
-* Library distribution on Maven Central
 * Building on Mac and Windows
-* More convenient configuration of defaults, e.g., OAuth servers, flag values, etc.
