@@ -1,5 +1,6 @@
 package polyglot.grpc;
 
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
 import org.junit.Before;
@@ -28,6 +29,15 @@ public class CompositeStreamObserverTest {
   @Test
   public void callsOnNext() {
     SomeType value = new SomeType();
+    compositeObserver.onNext(value);
+    verify(mockFirstObserver).onNext(value);
+    verify(mockSecondObserver).onNext(value);
+  }
+
+  @Test
+  public void callOthersEvenIfOneErrorsOut() {
+    SomeType value = new SomeType();
+    doThrow(new RuntimeException()).when(mockFirstObserver).onNext(value);
     compositeObserver.onNext(value);
     verify(mockFirstObserver).onNext(value);
     verify(mockSecondObserver).onNext(value);
