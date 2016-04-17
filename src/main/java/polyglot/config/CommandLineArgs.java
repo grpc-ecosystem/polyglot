@@ -54,7 +54,6 @@ public class CommandLineArgs {
    */
   public static CommandLineArgs parse(String[] args) {
     CommandLineArgs result = new CommandLineArgs();
-    result.useTls = "true";
 
     CmdLineParser parser = new CmdLineParser(result);
     try {

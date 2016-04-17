@@ -23,8 +23,12 @@ public class ConfigurationLoaderTest {
 
   @Test
   public void loadsDefaultConfig() {
-    assertThat(ConfigurationLoader.forDefaultConfigSet().getDefaultConfiguration())
-        .isEqualTo(Configuration.getDefaultInstance());
+    Configuration defaultConfig =
+        ConfigurationLoader.forDefaultConfigSet().getDefaultConfiguration();
+    assertThat(defaultConfig).isEqualTo(Configuration.getDefaultInstance());
+
+    assertThat(defaultConfig.getCallConfig().getUseTls()).isFalse();
+    assertThat(defaultConfig.getOutputConfig().getDestination()).isEqualTo(Destination.LOG);
   }
 
   @Test(expected = IllegalStateException.class)
