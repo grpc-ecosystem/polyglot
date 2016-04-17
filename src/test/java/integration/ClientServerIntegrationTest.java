@@ -19,11 +19,12 @@ import org.junit.Test;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import com.google.protobuf.TextFormat;
+import com.google.protobuf.DynamicMessage;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
+import polyglot.io.FileMessageReader;
 import polyglot.test.TestProto.TestRequest;
 import polyglot.test.TestProto.TestResponse;
 import polyglot.test.TestServiceGrpc;
@@ -86,8 +87,9 @@ public class ClientServerIntegrationTest {
     polyglot.Main.main(args.toArray(new String[0]));
 
     // Make sure we can parse the response from the file.
-    TestResponse response = readResponseFile();
-    assertThat(response).isEqualTo(UNARY_SERVER_RESPONSE);
+    ImmutableList<TestResponse> responses = readResponseFile();
+    assertThat(responses).hasSize(1);
+    assertThat(responses.get(0)).isEqualTo(UNARY_SERVER_RESPONSE);
   }
 
   @Test
@@ -102,8 +104,9 @@ public class ClientServerIntegrationTest {
     polyglot.Main.main(args.toArray(new String[0]));
 
     // Make sure we can parse the response from the file.
-    TestResponse response = readResponseFile();
-    assertThat(response).isEqualTo(STREAMING_SERVER_RESPONSE);
+    ImmutableList<TestResponse> responses = readResponseFile();
+    assertThat(responses).hasSize(1);
+    assertThat(responses.get(0)).isEqualTo(STREAMING_SERVER_RESPONSE);
   }
 
   @Test(expected = RuntimeException.class)
@@ -119,11 +122,16 @@ public class ClientServerIntegrationTest {
   }
 
   /** Attempts to read a response proto from the created temp file. */
-  private TestResponse readResponseFile() throws IOException {
-    String fileContent = Joiner.on("\n").join(Files.readAllLines(responseFilePath));
-    TestResponse.Builder responseBuilder = TestResponse.newBuilder();
-    TextFormat.getParser().merge(fileContent, responseBuilder);
-    return responseBuilder.build();
+  private ImmutableList<TestResponse> readResponseFile() throws Throwable {
+    FileMessageReader reader =
+        FileMessageReader.create(responseFilePath, TestResponse.getDescriptor());
+    ImmutableList<DynamicMessage> responses = reader.read();
+
+    ImmutableList.Builder<TestResponse> resultBuilder = ImmutableList.builder();
+    for (DynamicMessage response : responses) {
+      resultBuilder.add(TestResponse.parseFrom(response.toByteString()));
+    }
+    return resultBuilder.build();
   }
 
   /**

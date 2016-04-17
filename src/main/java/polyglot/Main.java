@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
@@ -18,7 +17,6 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import com.google.auth.Credentials;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
 import com.google.protobuf.Descriptors.Descriptor;
@@ -29,11 +27,15 @@ import com.google.protobuf.TextFormat.ParseException;
 
 import io.grpc.stub.StreamObserver;
 import polyglot.ConfigProto.Configuration;
-import polyglot.ConfigProto.OutputConfiguration.Destination;
+import polyglot.ConfigProto.OutputConfiguration;
 import polyglot.ConfigProto.ProtoConfiguration;
 import polyglot.config.CommandLineArgs;
 import polyglot.config.ConfigurationLoader;
+import polyglot.grpc.CompositeStreamObserver;
 import polyglot.grpc.DynamicGrpcClient;
+import polyglot.io.FileMessageWriter;
+import polyglot.io.LoggingMessageWriter;
+import polyglot.io.LoggingStatsWriter;
 import polyglot.oauth2.OauthCredentialsFactory;
 import polyglot.protobuf.ProtocInvoker;
 import polyglot.protobuf.ProtocInvoker.ProtocInvocationException;
@@ -82,51 +84,31 @@ public class Main {
           methodDescriptor, arguments.endpoint(), config.getCallConfig().getUseTls());
     }
 
-    DynamicMessage requestMessage = getProtoFromStdin(methodDescriptor.getInputType());
-
     logger.info("Making rpc call to endpoint: " + arguments.endpoint());
-    ImmutableList.Builder<DynamicMessage> responsesBuilder = ImmutableList.builder();
-
-    StreamObserver<DynamicMessage> streamObserver = new StreamObserver<DynamicMessage>() {
-      @Override
-      public void onNext(DynamicMessage response) {
-        responsesBuilder.add(response);
-      }
-
-      @Override
-      public void onError(Throwable t) {
-        logger.info("Got rpc error: ", t);
-      }
-
-      @Override
-      public void onCompleted() {
-        logger.info("Rpc completed successfully");
-      }
-    };
-
+    DynamicMessage requestMessage = getProtoFromStdin(methodDescriptor.getInputType());
+    StreamObserver<DynamicMessage> streamObserver = CompositeStreamObserver.of(
+        new LoggingStatsWriter(), messageOutputObserver(config.getOutputConfig()));
     try {
       dynamicClient.call(requestMessage, streamObserver).get();
     } catch (InterruptedException | ExecutionException e) {
       throw new RuntimeException("Caught exeception while waiting for rpc", e);
     }
+  }
 
-    ImmutableList<DynamicMessage> responses = responsesBuilder.build();
-    if (config.getOutputConfig().getDestination() == Destination.LOG) {
-      logger.info("Got responses: \n" + responses);
-    } else if (config.getOutputConfig().getDestination() == Destination.FILE) {
-      // TODO(dino): Handle response streams properly.
-      writeToFile(Paths.get(config.getOutputConfig().getFilePath()), responses.get(0).toString());
+  /** Returns an observer which writes the obtained message to the specified output. */
+  private static StreamObserver<DynamicMessage> messageOutputObserver(OutputConfiguration config) {
+    switch (config.getDestination()) {
+      case FILE:
+        return FileMessageWriter.forFile(Paths.get(config.getFilePath()));
+      case LOG:
+        return LoggingMessageWriter.create();
+      default:
+        throw new IllegalArgumentException(
+            "Unrecognized output destination: " + config.getDestination());
     }
   }
 
-  private static void writeToFile(Path path, String content) {
-    try {
-      Files.write(path, content.toString().getBytes(Charsets.UTF_8));
-    } catch (IOException e) {
-      throw new RuntimeException("Unable to write to file: " + path.toString(), e);
-    }
-  }
-
+  /** Invokes protoc and returns a {@link FileDescriptorSet} used for discovery. */
   private static FileDescriptorSet getFileDescriptorSet(ProtoConfiguration protoConfig) {
     Path protoFiles = Paths.get(protoConfig.getRootDirectory());
     try {
