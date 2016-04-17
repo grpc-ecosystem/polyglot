@@ -17,8 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.google.auth.Credentials;
-import com.google.auth.oauth2.AccessToken;
-import com.google.auth.oauth2.OAuth2Credentials;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
@@ -32,15 +30,11 @@ import com.google.protobuf.TextFormat.ParseException;
 
 import io.grpc.stub.StreamObserver;
 import polyglot.ConfigProto.Configuration;
-import polyglot.ConfigProto.OauthConfiguration;
-import polyglot.ConfigProto.OauthConfiguration.AccessTokenCredentials;
-import polyglot.ConfigProto.OauthConfiguration.CredentialsCase;
-import polyglot.ConfigProto.OauthConfiguration.OauthClient;
 import polyglot.ConfigProto.OutputConfiguration.Destination;
 import polyglot.config.CommandLineArgs;
 import polyglot.config.ConfigurationLoader;
 import polyglot.grpc.DynamicGrpcClient;
-import polyglot.oauth2.RefreshTokenCredentials;
+import polyglot.oauth2.OauthCredentialsFactory;
 import polyglot.protobuf.ProtocInvoker;
 import polyglot.protobuf.ProtocInvoker.ProtocInvocationException;
 import polyglot.protobuf.ServiceResolver;
@@ -80,35 +74,14 @@ public class Main {
     logger.info("Creating dynamic grpc client");
     DynamicGrpcClient dynamicClient;
     if (config.getCallConfig().hasOauthConfig()) {
-      OauthConfiguration oauthConfig = config.getCallConfig().getOauthConfig();
-
-      Credentials credentials;
-      if (oauthConfig.getCredentialsCase() == CredentialsCase.ACCESS_TOKEN_CREDENTIALS) {
-        AccessTokenCredentials accessTokenCreds = oauthConfig.getAccessTokenCredentials();
-        AccessToken accessToken = new AccessToken(
-            readFile(Paths.get(accessTokenCreds.getAccessTokenPath())), null);
-
-        logger.info("Using access token credentials");
-        credentials = new OAuth2Credentials(accessToken);
-      } else if (oauthConfig.getCredentialsCase() == CredentialsCase.REFRESH_TOKEN_CREDENTIALS) {
-        String exchangeUrl = oauthConfig.getRefreshTokenCredentials().getTokenEndpointUrl();
-        String refreshToken = readFile(
-            Paths.get(oauthConfig.getRefreshTokenCredentials().getRefreshTokenPath()));
-        OauthClient oauthClient = oauthConfig.getRefreshTokenCredentials().getClient();
-
-        logger.info("Using refresh token credentials");
-        credentials = RefreshTokenCredentials.create(oauthClient, refreshToken, exchangeUrl);
-      } else {
-        throw new IllegalArgumentException(
-            "Unknown oauth crdentials: " + oauthConfig.getCredentialsCase());
-      }
+      Credentials credentials =
+          new OauthCredentialsFactory(config.getCallConfig().getOauthConfig()).getCredentials();
       dynamicClient = DynamicGrpcClient.createWithCredentials(
           methodDescriptor, arguments.endpoint(), config.getCallConfig().getUseTls(), credentials);
     } else {
       dynamicClient = DynamicGrpcClient.create(
           methodDescriptor, arguments.endpoint(), config.getCallConfig().getUseTls());
     }
-
 
     DynamicMessage requestMessage = getProtoFromStdin(methodDescriptor.getInputType());
 
@@ -152,14 +125,6 @@ public class Main {
       Files.write(path, content.toString().getBytes(Charsets.UTF_8));
     } catch (IOException e) {
       throw new RuntimeException("Unable to write to file: " + path.toString(), e);
-    }
-  }
-
-  private static String readFile(Path path) {
-    try {
-      return Joiner.on('\n').join(Files.readAllLines(path));
-    } catch (IOException e) {
-      throw new RuntimeException("Unable to read file: " + path.toString(), e);
     }
   }
 
