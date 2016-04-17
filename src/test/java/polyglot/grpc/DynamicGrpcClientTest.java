@@ -17,7 +17,6 @@ import com.google.protobuf.DynamicMessage;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
 import io.grpc.stub.StreamObserver;
-import polyglot.grpc.DynamicGrpcClient;
 import polyglot.test.TestProto;
 import polyglot.test.TestProto.TestRequest;
 
@@ -65,4 +64,6 @@ public class DynamicGrpcClientTest {
     client = new DynamicGrpcClient(UNARY_METHOD, mockChannel, mockExecutor);
     client.call(REQUEST, mockStreamObserver);
   }
+
+  // TODO(dino): Add some more tests for the streaming and bidi cases.
 }

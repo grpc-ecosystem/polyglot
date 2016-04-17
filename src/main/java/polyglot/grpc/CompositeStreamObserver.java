@@ -1,5 +1,8 @@
 package polyglot.grpc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableList;
 
 import io.grpc.stub.StreamObserver;
@@ -7,11 +10,12 @@ import io.grpc.stub.StreamObserver;
 /**
  * A {@link StreamObserver} which groups multiple observers and executes them all.
  */
-class CompositeStreamObserver<T> implements StreamObserver<T> {
+public class CompositeStreamObserver<T> implements StreamObserver<T> {
+  private static final Logger logger = LoggerFactory.getLogger(CompositeStreamObserver.class);
   private final ImmutableList<StreamObserver<T>> observers;
 
   @SafeVarargs
-  static <T> CompositeStreamObserver<T> of(StreamObserver<T>... observers) {
+  public static <T> CompositeStreamObserver<T> of(StreamObserver<T>... observers) {
     return new CompositeStreamObserver<T>(ImmutableList.copyOf(observers));
   }
 
@@ -22,21 +26,33 @@ class CompositeStreamObserver<T> implements StreamObserver<T> {
   @Override
   public void onCompleted() {
     for (StreamObserver<T> observer : observers) {
-      observer.onCompleted();
+      try {
+        observer.onCompleted();
+      } catch (Throwable t) {
+        logger.error("Exception in composite onComplete, moving on", t);
+      }
     }
   }
 
   @Override
   public void onError(Throwable t) {
     for (StreamObserver<T> observer : observers) {
-      observer.onError(t);
+      try {
+        observer.onError(t);
+      } catch (Throwable s) {
+        logger.error("Exception in composite onError, moving on", s);
+      }
     }
   }
 
   @Override
   public void onNext(T value) {
     for (StreamObserver<T> observer : observers) {
-      observer.onNext(value);
+      try {
+        observer.onNext(value);
+      } catch (Throwable t) {
+        logger.error("Exception in composite onNext, moving on", t);
+      }
     }
   }
 }
