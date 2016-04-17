@@ -38,8 +38,8 @@ public class CommandLineArgs {
   @Option(name = "--protoc_proto_path", metaVar = "<path>")
   private String protocProtoPath;
 
-  @Option(name = "--output", metaVar = "<path>")
-  private String output;
+  @Option(name = "--output_file_path", metaVar = "<path>")
+  private String outputFilePath;
 
   @Option(name = "--use_tls", metaVar = "true|false")
   private String useTls;
@@ -109,8 +109,8 @@ public class CommandLineArgs {
   }
 
   /** Returns the location in which to store the response proto. */
-  public Optional<Path> outputPath() {
-    return maybePath(output);
+  public Optional<Path> outputFilePath() {
+    return maybePath(outputFilePath);
   }
 
   /** Returns a directory to use as --proto_path for calls to protoc. */

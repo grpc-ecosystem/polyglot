@@ -13,6 +13,7 @@ import com.google.protobuf.util.JsonFormat;
 
 import polyglot.ConfigProto.Configuration;
 import polyglot.ConfigProto.ConfigurationSet;
+import polyglot.ConfigProto.OutputConfiguration.Destination;
 
 /** A utility which manipulating and reading a single {@link ConfigurationSet}. */
 public class ConfigurationLoader {
@@ -104,6 +105,11 @@ public class ConfigurationLoader {
     Configuration.Builder resultBuilder = configuration.toBuilder();
     if (overrides.get().useTls().isPresent()) {
       resultBuilder.getCallConfigBuilder().setUseTls(overrides.get().useTls().get());
+    }
+    if (overrides.get().outputFilePath().isPresent()) {
+      resultBuilder.getOutputConfigBuilder().setDestination(Destination.FILE);
+      resultBuilder.getOutputConfigBuilder().setFilePath(
+          overrides.get().outputFilePath().get().toString());
     }
     return resultBuilder.build();
   }

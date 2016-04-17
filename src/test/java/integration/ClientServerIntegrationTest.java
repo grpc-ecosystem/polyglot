@@ -77,7 +77,7 @@ public class ClientServerIntegrationTest {
   public void makesRoundTripUnary() throws Throwable {
     ImmutableList<String> args = ImmutableList.<String>builder()
         .addAll(makeArgs(serverPort, TEST_PROTO_ROOT, TEST_UNARY_METHOD))
-        .add(makeArgument("output", responseFilePath.toString()))
+        .add(makeArgument("output_file_path", responseFilePath.toString()))
         .build();
     setStdinContents(REQUEST.toString());
 
@@ -93,7 +93,7 @@ public class ClientServerIntegrationTest {
   public void makesRoundTripStream() throws Throwable {
     ImmutableList<String> args = ImmutableList.<String>builder()
         .addAll(makeArgs(serverPort, TEST_PROTO_ROOT, TEST_STREAM_METHOD))
-        .add(makeArgument("output", responseFilePath.toString()))
+        .add(makeArgument("output_file_path", responseFilePath.toString()))
         .build();
     setStdinContents(REQUEST.toString());
 

@@ -36,6 +36,7 @@ import polyglot.ConfigProto.OauthConfiguration;
 import polyglot.ConfigProto.OauthConfiguration.AccessTokenCredentials;
 import polyglot.ConfigProto.OauthConfiguration.CredentialsCase;
 import polyglot.ConfigProto.OauthConfiguration.OauthClient;
+import polyglot.ConfigProto.OutputConfiguration.Destination;
 import polyglot.config.CommandLineArgs;
 import polyglot.config.ConfigurationLoader;
 import polyglot.grpc.DynamicGrpcClient;
@@ -63,6 +64,7 @@ public class Main {
     ConfigurationLoader configLoader = arguments.configSetPath().isPresent()
         ? ConfigurationLoader.forFile(arguments.configSetPath().get())
         : ConfigurationLoader.forDefaultConfigSet();
+    configLoader = configLoader.withOverrides(arguments);
     Configuration config = arguments.configName().isPresent()
         ? configLoader.getNamedConfiguration(arguments.configName().get())
         : configLoader.getDefaultConfiguration();
@@ -116,7 +118,6 @@ public class Main {
     StreamObserver<DynamicMessage> streamObserver = new StreamObserver<DynamicMessage>() {
       @Override
       public void onNext(DynamicMessage response) {
-        logger.info("Got rpc response: " + response);
         responsesBuilder.add(response);
       }
 
@@ -138,14 +139,11 @@ public class Main {
     }
 
     ImmutableList<DynamicMessage> responses = responsesBuilder.build();
-
-    if (arguments.outputPath().isPresent()) {
-      if (responses.size() != 1) {
-        logger.warn(
-            "Got unexpected number of responses, skipping write to file: " + responses.size());
-      } else {
-        writeToFile(arguments.outputPath().get(), responses.get(0).toString());
-      }
+    if (config.getOutputConfig().getDestination() == Destination.LOG) {
+      logger.info("Got responses: \n" + responses);
+    } else if (config.getOutputConfig().getDestination() == Destination.FILE) {
+      // TODO(dino): Handle response streams properly.
+      writeToFile(Paths.get(config.getOutputConfig().getFilePath()), responses.get(0).toString());
     }
   }
 

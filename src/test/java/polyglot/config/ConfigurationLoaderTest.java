@@ -3,6 +3,7 @@ package polyglot.config;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.when;
 
+import java.nio.file.Paths;
 import java.util.Optional;
 
 import org.junit.Rule;
@@ -13,8 +14,7 @@ import org.mockito.junit.MockitoRule;
 
 import polyglot.ConfigProto.Configuration;
 import polyglot.ConfigProto.ConfigurationSet;
-import polyglot.config.CommandLineArgs;
-import polyglot.config.ConfigurationLoader;
+import polyglot.ConfigProto.OutputConfiguration.Destination;
 
 /** Unit tests for {@link ConfigurationLoader}. */
 public class ConfigurationLoaderTest {
@@ -50,10 +50,13 @@ public class ConfigurationLoaderTest {
   @Test
   public void appliesOverrides() {
     when(mockOverrides.useTls()).thenReturn(Optional.of(true));
+    when(mockOverrides.outputFilePath()).thenReturn(Optional.of(Paths.get("asdf")));
     ConfigurationLoader loader = ConfigurationLoader
         .forDefaultConfigSet()
         .withOverrides(mockOverrides);
     assertThat(loader.getDefaultConfiguration().getCallConfig().getUseTls()).isTrue();
+    assertThat(loader.getDefaultConfiguration().getOutputConfig().getDestination())
+        .isEqualTo(Destination.FILE);
   }
 
   private static Configuration namedConfig(String name) {
