@@ -23,7 +23,7 @@ message Configuration {
 message CallConfiguration {
   double deadline = 1;
   bool use_tls = 2;
-  OauthConfiguration oauth_configuration = 3;
+  OauthConfiguration oauth_config = 3;
 }
 
 // Holds the necessary parameters for adding authentication to requests using
@@ -31,8 +31,14 @@ message CallConfiguration {
 message OauthConfiguration {
   // Credentials obtained by exchanging a refresh token for an access token.
   message RefreshTokenCredentials {
+    // A url to talk to in order to exchange the refresh token for an access token.
     string token_endpoint_url = 1;
-    string refresh_token_path = 2;
+
+    // A client identity to use when exchanging tokens.
+    OauthClient client = 2;
+
+    // A path to a refresh token used for the exchange.
+    string refresh_token_path = 3;
   }
 
   // Credentials used directly adding an access token to the rpc.
@@ -46,10 +52,9 @@ message OauthConfiguration {
     string secret = 2;
   }
 
-  OauthClient client = 1;
   oneof credentials {
-    RefreshTokenCredentials refresh_token_credentials = 2;
-    AccessTokenCredentials access_token_credentials = 3;
+    RefreshTokenCredentials refresh_token_credentials = 1;
+    AccessTokenCredentials access_token_credentials = 2;
   }
 }
 

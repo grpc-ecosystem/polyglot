@@ -75,8 +75,8 @@ public class Main {
 
     logger.info("Creating dynamic grpc client");
     DynamicGrpcClient dynamicClient;
-    if (config.getCallConfig().hasOauthConfiguration()) {
-      OauthConfiguration oauthConfig = config.getCallConfig().getOauthConfiguration();
+    if (config.getCallConfig().hasOauthConfig()) {
+      OauthConfiguration oauthConfig = config.getCallConfig().getOauthConfig();
 
       Credentials credentials;
       if (oauthConfig.getCredentialsCase() == CredentialsCase.ACCESS_TOKEN_CREDENTIALS) {
@@ -90,7 +90,7 @@ public class Main {
         String exchangeUrl = oauthConfig.getRefreshTokenCredentials().getTokenEndpointUrl();
         String refreshToken = readFile(
             Paths.get(oauthConfig.getRefreshTokenCredentials().getRefreshTokenPath()));
-        OauthClient oauthClient = oauthConfig.getClient();
+        OauthClient oauthClient = oauthConfig.getRefreshTokenCredentials().getClient();
 
         logger.info("Using refresh token credentials");
         credentials = RefreshTokenCredentials.create(oauthClient, refreshToken, exchangeUrl);
