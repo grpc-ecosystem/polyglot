@@ -55,7 +55,7 @@ public class Main {
 
     ConfigurationLoader configLoader = arguments.configSetPath().isPresent()
         ? ConfigurationLoader.forFile(arguments.configSetPath().get())
-        : ConfigurationLoader.forDefaultFile();
+        : ConfigurationLoader.forDefaultConfigSet();
     Configuration config = arguments.configName().isPresent()
         ? configLoader.getNamedConfiguration(arguments.configName().get())
         : configLoader.getDefaultConfiguration();
@@ -74,16 +74,17 @@ public class Main {
       Credentials credentials;
       if (arguments.oauth2AccessToken().isPresent()) {
         logger.info("Using provided access token");
-        credentials = new OAuth2Credentials(new AccessToken(arguments.oauth2AccessToken().get(), null));
+        credentials = new OAuth2Credentials(
+            new AccessToken(arguments.oauth2AccessToken().get(), null));
       } else {
         credentials = RefreshTokenCredentials.create(
             arguments.oauthConfig().get(), arguments.oauth2RefreshToken());
       }
       dynamicClient = DynamicGrpcClient.createWithCredentials(
-          methodDescriptor, arguments.endpoint(), arguments.useTls(), credentials);
+          methodDescriptor, arguments.endpoint(), config.getCallConfig().getUseTls(), credentials);
     } else {
-      dynamicClient =
-          DynamicGrpcClient.create(methodDescriptor, arguments.endpoint(), arguments.useTls());
+      dynamicClient = DynamicGrpcClient.create(
+          methodDescriptor, arguments.endpoint(),  config.getCallConfig().getUseTls());
     }
 
     DynamicMessage requestMessage = getProtoFromStdin(methodDescriptor.getInputType());

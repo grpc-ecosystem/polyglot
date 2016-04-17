@@ -1,23 +1,33 @@
 package polyglot;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Mockito.when;
 
+import java.util.Optional;
+
+import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import polyglot.ConfigProto.Configuration;
 import polyglot.ConfigProto.ConfigurationSet;
 
 /** Unit tests for {@link ConfigurationLoader}. */
 public class ConfigurationLoaderTest {
+  @Rule public MockitoRule mockitoJunitRule = MockitoJUnit.rule();
+  @Mock private CommandLineArgs mockOverrides;
+
   @Test
   public void loadsDefaultConfig() {
-    assertThat(ConfigurationLoader.forDefaultFile().getDefaultConfiguration())
+    assertThat(ConfigurationLoader.forDefaultConfigSet().getDefaultConfiguration())
         .isEqualTo(Configuration.getDefaultInstance());
   }
 
   @Test(expected = IllegalStateException.class)
   public void throwsIfAskedToLoadNamedFromDefaultSet() {
-    ConfigurationLoader.forDefaultFile().getNamedConfiguration("asdf");
+    ConfigurationLoader.forDefaultConfigSet().getNamedConfiguration("asdf");
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -33,6 +43,15 @@ public class ConfigurationLoaderTest {
         .addConfigurations(namedConfig("bar"))
         .build());
     assertThat(loader.getNamedConfiguration("foo").getName()).isEqualTo("foo");
+  }
+
+  @Test
+  public void appliesOverrides() {
+    when(mockOverrides.useTls()).thenReturn(Optional.of(true));
+    ConfigurationLoader loader = ConfigurationLoader
+        .forDefaultConfigSet()
+        .withOverrides(mockOverrides);
+    assertThat(loader.getDefaultConfiguration().getCallConfig().getUseTls()).isTrue();
   }
 
   private static Configuration namedConfig(String name) {

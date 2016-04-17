@@ -27,6 +27,14 @@ public class CommandLineArgs {
   @Option(name = "--endpoint", required = true, metaVar = "<host>:<port>")
   private String endpointArg;
 
+  @Option(name = "--config_set_path", metaVar = "<path/to/config.pb.json>")
+  private String configSetPath;
+
+  @Option(name = "--config_name", metaVar = "<config-name>")
+  private String configName;
+
+  // The flags below represent overrides for the configuration used at runtime.
+
   @Option(name = "--proto_root", required = true, metaVar = "<path>")
   private String protoRootArg;
 
@@ -53,12 +61,6 @@ public class CommandLineArgs {
 
   @Option(name = "--use_tls", metaVar = "true|false")
   private String useTls;
-
-  @Option(name = "--config_set_path", metaVar = "<path/to/config.pb.json>")
-  private String configSetPath;
-
-  @Option(name = "--config_name", metaVar = "<config-name>")
-  private String configName;
 
   // Derived from the other fields.
   private HostAndPort hostAndPort;
@@ -136,8 +138,11 @@ public class CommandLineArgs {
     return maybePath(protocProtoPath);
   }
 
-  public boolean useTls() {
-    return Boolean.parseBoolean(useTls);
+  public Optional<Boolean> useTls() {
+    if (useTls == null) {
+      return Optional.empty();
+    }
+    return Optional.of(Boolean.parseBoolean(useTls));
   }
 
   public Optional<OauthConfig> oauthConfig() {
