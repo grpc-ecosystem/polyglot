@@ -11,11 +11,11 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
+import polyglot.protobuf.ProtoMethodName;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.net.HostAndPort;
-
-import polyglot.protobuf.ProtoMethodName;
 
 /** Provides easy access to the arguments passed on the commmand line. */
 public class CommandLineArgs {
@@ -86,7 +86,9 @@ public class CommandLineArgs {
   private void initialize() {
     Preconditions.checkNotNull(endpointArg, "The --endpoint argument is required");
     Preconditions.checkNotNull(fullMethodArg, "The --full_method argument is required");
-    Preconditions.checkArgument(Files.exists(Paths.get(protoFilesArg)));
+    validatePath(protoFiles());
+    validatePath(configSetPath());
+    validatePaths(additionalProtocIncludes());
 
     hostAndPort = HostAndPort.fromString(endpointArg);
     grpcMethodName = ProtoMethodName.parseFullGrpcMethodName(fullMethodArg);
@@ -138,6 +140,18 @@ public class CommandLineArgs {
       resultBuilder.add(includePath);
     }
     return resultBuilder.build();
+  }
+
+  private static void validatePath(Optional<Path> maybePath) {
+    if (maybePath.isPresent()) {
+      Preconditions.checkArgument(Files.exists(maybePath.get()));
+    }
+  }
+
+  private static void validatePaths(Iterable<Path> paths) {
+    for (Path path : paths) {
+      Preconditions.checkArgument(Files.exists(path));
+    }
   }
 
   private static Optional<Path> maybePath(String rawPath) {

@@ -8,13 +8,13 @@ import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
+import polyglot.ConfigProto.ProtoConfiguration;
+
 import com.github.os72.protocjar.Protoc;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
-
-import polyglot.ConfigProto.ProtoConfiguration;
 
 /**
  * A utility class which facilitates invoking the protoc compiler on all proto files in a
@@ -25,14 +25,13 @@ public class ProtocInvoker {
       FileSystems.getDefault().getPathMatcher("glob:**/*.proto");
 
   // Derived from the config.
-  private final Path protoRootPath;
   private final ImmutableList<Path> protocIncludePaths;
 
   /** Creates a new {@link ProtocInvoker} with the supplied configuration. */
   public static ProtocInvoker forConfig(ProtoConfiguration protoConfig) {
     Preconditions.checkArgument(!protoConfig.getRootDirectory().isEmpty(), "Proto root required");
     Path protoRootPath = Paths.get(protoConfig.getRootDirectory());
-    Preconditions.checkArgument(Files.exists(protoRootPath));
+    Preconditions.checkArgument(Files.exists(protoRootPath), "Invalid path: " + protoRootPath);
 
     ImmutableList.Builder<Path> includePaths = ImmutableList.builder();
     for (String includePathString : protoConfig.getIncludePathList()) {
@@ -41,15 +40,14 @@ public class ProtocInvoker {
       includePaths.add(path.toAbsolutePath());
     }
 
-    return new ProtocInvoker(protoRootPath, includePaths.build());
+    return new ProtocInvoker(includePaths.build());
   }
 
   /**
    * Takes an optional path to pass to protoc as --proto_path. Uses the invocation-time proto root
    * if none is passed.
    */
-  private ProtocInvoker(Path protoRootPath, ImmutableList<Path> protocIncludePaths) {
-    this.protoRootPath = protoRootPath;
+  private ProtocInvoker(ImmutableList<Path> protocIncludePaths) {
     this.protocIncludePaths = protocIncludePaths;
   }
 
@@ -70,7 +68,6 @@ public class ProtocInvoker {
         .addAll(includePathArgs())
         .add("--descriptor_set_out=" + descriptorPath.toAbsolutePath().toString())
         .add("--include_imports")
-        .add("--proto_path=" + protoRootPath.toString())
         .build();
 
     invokeBinary(protocArgs);
@@ -82,10 +79,12 @@ public class ProtocInvoker {
     }
   }
 
-  private ImmutableSet<String> includePathArgs() {
-    return ImmutableSet.copyOf(protocIncludePaths.stream()
-        .map(include -> "-I" + include.toString())
-        .collect(Collectors.toSet()));
+  private ImmutableList<String> includePathArgs() {
+    ImmutableList.Builder<String> resultBuilder = ImmutableList.builder();
+    for (Path path : protocIncludePaths) {
+      resultBuilder.add("-I" + path.toString());
+    }
+    return resultBuilder.build();
   }
 
   private void invokeBinary(ImmutableList<String> protocArgs) throws ProtocInvocationException {

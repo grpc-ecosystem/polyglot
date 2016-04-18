@@ -4,17 +4,18 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import polyglot.ConfigProto.Configuration;
+import polyglot.ConfigProto.ConfigurationSet;
+import polyglot.ConfigProto.OutputConfiguration.Destination;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.util.JsonFormat;
-
-import polyglot.ConfigProto.Configuration;
-import polyglot.ConfigProto.ConfigurationSet;
-import polyglot.ConfigProto.OutputConfiguration.Destination;
 
 /** A utility which manipulating and reading a single {@link ConfigurationSet}. */
 public class ConfigurationLoader {
@@ -113,10 +114,11 @@ public class ConfigurationLoader {
           overrides.get().outputFilePath().get().toString());
     }
     if (!overrides.get().additionalProtocIncludes().isEmpty()) {
-      Iterable<String> paths = overrides.get().additionalProtocIncludes().stream()
-          .map(Object::toString)
-          .collect(Collectors.toList());
-      resultBuilder.getProtoConfigBuilder().addAllIncludePath(paths);
+      List<String> additionalIncludes = new ArrayList<>();
+      for (Path path : overrides.get().additionalProtocIncludes()) {
+        additionalIncludes.add(path.toString());
+      }
+      resultBuilder.getProtoConfigBuilder().addAllIncludePath(additionalIncludes);
     }
     if (overrides.get().protoFiles().isPresent()) {
       resultBuilder.getProtoConfigBuilder().setRootDirectory(
