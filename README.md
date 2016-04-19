@@ -26,67 +26,78 @@ After calling this, you should have a fresh binary at:
 Then, the binary itself can be invoked as follows:
 
 ```
-$ echo <text-format-request> | polyglot \
+$ echo <json-request> | polyglot \
     --endpoint=<host>:<port> \
     --full_method=<some.package.Service/doSomething> \
-    --proto_files=<path>
+    --proto_discovery_root=<path>
 ```
 
 For an example, see `run-client-example.sh`.
 
-### Using TLS
+### Configuration
 
-Polyglot uses statically linked boringssl libraries under the hood and doesn't require the machine running Polyglot to have any specific libraries. Whether or not the client uses TLS to talk to the server can be controlled using the `--use_tls` flag.
-
-### Authenticating requests using OAuth
-
-Polyglot has built-in support for authentication of requests using OAuth. In order to use it, you need to pass the following to Polyglot:
-* An OAuth client id, using `--oauth2_client_id`
-* An OAuth client secret, using `--oauth2_client_secret`
-* The host and port of the OAuth server you would like ot talk to, using `--oauth2_token_endpoint`
-* An OAuth refresh token stored on disk (though we are working on removing this requirement), using `--oauth2_refresh_token_path`
-
-Upon execution, Polyglot exchanges the refresh token for an access token and passes the access token to the grpc server when making the request, allowing it to authorize the caller.
-
-### Configuration files
-
-Some of the features of Polyglot (such as Oauth) require a fair share of configuration. Moreover, that sort of configuration tends to remain constant across multiple Polyglot runs. In order to improve usability, Polyglot supports loading a configuration proto from a Json file at runtime. This configuration file can contain multiple `Configuration` objects (schema defined [here](https://github.com/dinowernli/polyglot/blob/master/src/main/proto/config.proto#L14)). An example configuration could look like this:
+Some of the features of Polyglot (such as Oauth, see below) require some configuration. Moreover, that sort of configuration tends to remain constant across multiple Polyglot runs. In order to improve usability, Polyglot supports loading a configuration proto from a Json file at runtime. This configuration file can contain multiple `Configuration` objects (schema defined [here](https://github.com/dinowernli/polyglot/blob/master/src/main/proto/config.proto#L14)). An example configuration could look like this:
 
 ```
 {
-    "configurations": [
-        {
-          "name": "production",
-          "call_config": {
-            "use_tls": "true",
-    		"oauth_config": {
-    			"refresh_token_credentials": {
-    				"token_endpoint_url": "https://auth.example.com/token",
-    				"client": {
-    					"id": "example_id",
-    					"secret": "example_secret"
-    				},
-                    "refresh_token_path": "/path/to/refresh/token"
-    			}
-    		}
-          }
-        },
-        {
-          "name": "staging",
-          "call_config": {
-            "use_tls": "true",
-    		"oauth_config": {
-    			"refresh_token_credentials": {
-    				"token_endpoint_url": "https://auth-staging.example.com/token",
-    			}
-    		}
+  "configurations": [
+    {
+      "name": "production",
+      "call_config": {
+        "use_tls": "true",
+        "oauth_config": {
+          "refresh_token_credentials": {
+            "token_endpoint_url": "https://auth.example.com/token",
+            "client": {
+                "id": "example_id",
+                "secret": "example_secret"
+            },
+            "refresh_token_path": "/path/to/refresh/token"
           }
         }
-    ]
+      },
+      "proto_config": {
+        "proto_discovery_root": "/home/dave/protos",
+        "include_paths": [
+          "/home/dave/lib"
+        ]
+      }
+    },
+    {
+      "name": "staging",
+      "call_config": {
+        "oauth_config": {
+          "refresh_token_credentials": {
+            "token_endpoint_url": "https://auth-staging.example.com/token"
+          }
+        }
+      },
+      "proto_config": {
+        "proto_discovery_root": "/home/dave/staging/protos",
+        "include_paths": [
+          "/home/dave/staging/lib"
+        ]
+      }
+    }
+  ]
 }
 ```
 
 By default, Polyglot tries to find a config file at `$HOME/.polyglot/config.pb.json`, but this can be overridden with the `--config_set_path` flag. By default, Polyglot uses the first configuration in the set, but this can be overridden with the `--config_name` flag.
+
+The general philosophy is for the configuration to drive Polyglot's behavior and for command line flags to allow selectively overriding parts of the configuration. For a full list of what can be configured, please see [`config.proto`](https://github.com/dinowernli/polyglot/blob/master/src/main/proto/config.proto#L14).
+
+### Using TLS
+
+Polyglot uses statically linked boringssl libraries under the hood and doesn't require the host machine to have any specific libraries. Whether or not the client uses TLS to talk to the server can be controlled using the `--use_tls` flag or the corresponding configuration entry.
+
+### Authenticating requests using OAuth
+
+Polyglot has built-in support for authentication of requests using OAuth tokens in two ways:
+* Loading an access token from disk and attaching it to the request.
+* Loading a refresh token from disk, exchanging it for an access token, and attaching the access token to the request.
+
+In order to use this feature, Polyglot needs an `OauthConfiguration` inside its `Configuration`. For details on how to populate the `OauthConfiguration`, please see the documentation of the fields in [`config.proto`](https://github.com/dinowernli/polyglot/blob/master/src/main/proto/config.proto#L14).
 
 ## Build requirements
 
