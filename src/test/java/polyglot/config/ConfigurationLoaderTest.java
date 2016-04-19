@@ -58,7 +58,7 @@ public class ConfigurationLoaderTest {
     when(mockOverrides.useTls()).thenReturn(Optional.of(true));
     when(mockOverrides.outputFilePath()).thenReturn(Optional.of(Paths.get("asdf")));
     when(mockOverrides.additionalProtocIncludes()).thenReturn(ImmutableList.of(Paths.get(".")));
-    when(mockOverrides.protoFiles()).thenReturn(Optional.of(Paths.get(".")));
+    when(mockOverrides.protoDiscoveryRoot()).thenReturn(Optional.of(Paths.get(".")));
     ConfigurationLoader loader = ConfigurationLoader
         .forDefaultConfigSet()
         .withOverrides(mockOverrides);

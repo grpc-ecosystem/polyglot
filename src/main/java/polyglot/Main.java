@@ -110,7 +110,7 @@ public class Main {
 
   /** Invokes protoc and returns a {@link FileDescriptorSet} used for discovery. */
   private static FileDescriptorSet getFileDescriptorSet(ProtoConfiguration protoConfig) {
-    Path protoFiles = Paths.get(protoConfig.getRootDirectory());
+    Path protoFiles = Paths.get(protoConfig.getProtoDiscoveryRoot());
     try {
       return ProtocInvoker.forConfig(protoConfig).invoke(protoFiles);
     } catch (ProtocInvocationException e) {

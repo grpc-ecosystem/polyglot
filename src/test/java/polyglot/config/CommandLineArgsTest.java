@@ -47,7 +47,7 @@ public class CommandLineArgsTest {
         .addAll(args)
         .add("--endpoint=somehost:1234")
         .add("--full_method=some.package/Method")
-        .add("--proto_files=.")
+        .add("--proto_discovery_root=.")
         .build();
     return CommandLineArgs.parse(allArgs.toArray(new String[0]));
   }

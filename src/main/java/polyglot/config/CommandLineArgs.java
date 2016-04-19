@@ -41,8 +41,8 @@ public class CommandLineArgs {
   @Option(name = "--add_protoc_includes", metaVar = "<path1>,<path2>")
   private String addProtocIncludesArg;
 
-  @Option(name = "--proto_files", metaVar = "<path>")
-  private String protoFilesArg;
+  @Option(name = "--proto_discovery_root", metaVar = "<path>")
+  private String protoDiscoveryRootArg;
 
   // Derived from the other fields.
   private HostAndPort hostAndPort;
@@ -86,7 +86,7 @@ public class CommandLineArgs {
   private void initialize() {
     Preconditions.checkNotNull(endpointArg, "The --endpoint argument is required");
     Preconditions.checkNotNull(fullMethodArg, "The --full_method argument is required");
-    validatePath(protoFiles());
+    validatePath(protoDiscoveryRoot());
     validatePath(configSetPath());
     validatePaths(additionalProtocIncludes());
 
@@ -99,8 +99,8 @@ public class CommandLineArgs {
   }
 
   /** Returns the root of the directory tree in which to discover proto files. */
-  public Optional<Path> protoFiles() {
-    return maybePath(protoFilesArg);
+  public Optional<Path> protoDiscoveryRoot() {
+    return maybePath(protoDiscoveryRootArg);
   }
 
   /** Returns the fully qualified name of the supplied proto method. */

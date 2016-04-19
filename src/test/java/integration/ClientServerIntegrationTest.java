@@ -171,7 +171,7 @@ public class ClientServerIntegrationTest {
   private static ImmutableList<String> makeArgs(int port, String protoRoot, String method) {
     return ImmutableList.<String>builder()
         .add(makeArgument("endpoint", Joiner.on(':').join("localhost", port)))
-        .add(makeArgument("proto_files", TEST_PROTO_ROOT))
+        .add(makeArgument("proto_discovery_root", TEST_PROTO_ROOT))
         .add(makeArgument("full_method", method))
         .add(makeArgument("add_protoc_includes", getWorkspaceRoot().toString()))
         .build();

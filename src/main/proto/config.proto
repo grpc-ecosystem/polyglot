@@ -37,12 +37,13 @@ message OauthConfiguration {
     // A client identity to use when exchanging tokens.
     OauthClient client = 2;
 
-    // A path to a refresh token used for the exchange.
+    // A path to a file containing a refresh token used for the exchange.
     string refresh_token_path = 3;
   }
 
   // Credentials used directly adding an access token to the rpc.
   message AccessTokenCredentials {
+    // A path to a file containing an access token.
     string access_token_path = 1;
   }
 
@@ -58,16 +59,8 @@ message OauthConfiguration {
   }
 }
 
-// Different ways a proto can be formatted.
-enum ProtoFormat {
-  JSON = 0;
-  SERIALIZED = 1;
-}
-
 // Contains parameters controlling the output protos of polyglot.
 message OutputConfiguration {
-  ProtoFormat format = 1;
-
   enum Destination {
     // Dumps the result into the standard logs.
     LOG = 0;
@@ -75,18 +68,19 @@ message OutputConfiguration {
     // Writes the result to a file.
     FILE = 1;
   }
-  Destination destination = 2;
+  Destination destination = 1;
 
   // When using a destination of type FILE, indicates which file to write to.
-  string file_path = 3;
+  string file_path = 2;
 }
 
 // Contains the necessary information to locate .proto files for services and
-// compile them using a single invocation of protoc.
+// analyze them by invoking protoc.
 message ProtoConfiguration {
-  // A root directory to scan for .proto files.
-  string root_directory = 1;
+  // A root directory to scan for .proto files. All files found this way will
+  // be analyzed for service definitions.
+  string proto_discovery_root = 1;
 
-  // Include paths for proto compilation. Evaluated in order.
-  repeated string include_path = 2;
+  // Include paths used to resolve imports of the files being analyzed.
+  repeated string include_paths = 2;
 }

@@ -118,11 +118,11 @@ public class ConfigurationLoader {
       for (Path path : overrides.get().additionalProtocIncludes()) {
         additionalIncludes.add(path.toString());
       }
-      resultBuilder.getProtoConfigBuilder().addAllIncludePath(additionalIncludes);
+      resultBuilder.getProtoConfigBuilder().addAllIncludePaths(additionalIncludes);
     }
-    if (overrides.get().protoFiles().isPresent()) {
-      resultBuilder.getProtoConfigBuilder().setRootDirectory(
-          overrides.get().protoFiles().get().toString());
+    if (overrides.get().protoDiscoveryRoot().isPresent()) {
+      resultBuilder.getProtoConfigBuilder().setProtoDiscoveryRoot(
+          overrides.get().protoDiscoveryRoot().get().toString());
     }
     return resultBuilder.build();
   }
