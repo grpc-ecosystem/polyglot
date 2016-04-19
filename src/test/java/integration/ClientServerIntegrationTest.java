@@ -1,6 +1,9 @@
 package integration;
 
 import static com.google.common.truth.Truth.assertThat;
+import io.grpc.Server;
+import io.grpc.ServerBuilder;
+import io.grpc.stub.StreamObserver;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -20,10 +23,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.DynamicMessage;
-
-import io.grpc.Server;
-import io.grpc.ServerBuilder;
-import io.grpc.stub.StreamObserver;
+import com.google.protobuf.util.JsonFormat;
 import polyglot.io.FileMessageReader;
 import polyglot.test.TestProto.TestRequest;
 import polyglot.test.TestProto.TestResponse;
@@ -81,7 +81,7 @@ public class ClientServerIntegrationTest {
         .addAll(makeArgs(serverPort, TEST_PROTO_ROOT, TEST_UNARY_METHOD))
         .add(makeArgument("output_file_path", responseFilePath.toString()))
         .build();
-    setStdinContents(REQUEST.toString());
+    setStdinContents(JsonFormat.printer().print(REQUEST));
 
     // Run the full client.
     polyglot.Main.main(args.toArray(new String[0]));
@@ -98,7 +98,7 @@ public class ClientServerIntegrationTest {
         .addAll(makeArgs(serverPort, TEST_PROTO_ROOT, TEST_STREAM_METHOD))
         .add(makeArgument("output_file_path", responseFilePath.toString()))
         .build();
-    setStdinContents(REQUEST.toString());
+    setStdinContents(JsonFormat.printer().print(REQUEST));
 
     // Run the full client.
     polyglot.Main.main(args.toArray(new String[0]));

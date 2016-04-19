@@ -22,8 +22,8 @@ import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.DynamicMessage;
-import com.google.protobuf.TextFormat;
-import com.google.protobuf.TextFormat.ParseException;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.util.JsonFormat;
 
 import io.grpc.stub.StreamObserver;
 import polyglot.ConfigProto.Configuration;
@@ -129,8 +129,8 @@ public class Main {
 
     DynamicMessage.Builder resultBuilder = DynamicMessage.newBuilder(protoDescriptor);
     try {
-      TextFormat.getParser().merge(protoText, resultBuilder);
-    } catch (ParseException e) {
+      JsonFormat.parser().merge(protoText, resultBuilder);
+    } catch (InvalidProtocolBufferException e) {
       throw new RuntimeException("Unable to parse text proto", e);
     }
     return resultBuilder.build();
