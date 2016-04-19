@@ -54,7 +54,11 @@ message OauthConfiguration {
   }
 
   oneof credentials {
+    // If present, a refresh token will be exchanged for an access token and
+    // the access token will be used to authenticate the request.
     RefreshTokenCredentials refresh_token_credentials = 1;
+
+    // If present, the access token will be used to authenticate the request.    
     AccessTokenCredentials access_token_credentials = 2;
   }
 }
