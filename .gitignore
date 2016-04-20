@@ -10,3 +10,6 @@ bazel-*
 
 // Phabricator stuff.
 .arcconfig
+
+// The build output.
+output
