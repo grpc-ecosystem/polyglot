@@ -1,6 +1,8 @@
 package polyglot.protobuf;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -8,7 +10,8 @@ import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
-import polyglot.ConfigProto.ProtoConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.os72.protocjar.Protoc;
 import com.google.common.base.Preconditions;
@@ -16,11 +19,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
 
+import polyglot.ConfigProto.ProtoConfiguration;
+
 /**
  * A utility class which facilitates invoking the protoc compiler on all proto files in a
  * directory tree.
  */
 public class ProtocInvoker {
+  private static final Logger logger = LoggerFactory.getLogger(ProtocInvoker.class);
   private static final PathMatcher PROTO_MATCHER =
       FileSystems.getDefault().getPathMatcher("glob:**/*.proto");
 
@@ -91,12 +97,30 @@ public class ProtocInvoker {
 
   private void invokeBinary(ImmutableList<String> protocArgs) throws ProtocInvocationException {
     int status;
+    String[] protocLogLines;
+
+    // The "protoc" library unconditionally writes to stdout. So, we replace stdout right before
+    // calling into the library in order to gather its output.
+    PrintStream stdoutBackup = System.out;
     try {
+      ByteArrayOutputStream protocStdout = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(protocStdout));
+
       status = Protoc.runProtoc(protocArgs.toArray(new String[0]));
+      protocLogLines = protocStdout.toString().split("\n");
     } catch (IOException | InterruptedException e) {
       throw new ProtocInvocationException("Unable to execute protoc binary", e);
+    } finally {
+      // Restore stdout.
+      System.setOut(stdoutBackup);
     }
     if (status != 0) {
+      // If protoc failed, we dump its output as a warning.
+      logger.warn("Protoc invocation failed with status: " + status);
+      for (String line : protocLogLines) {
+        logger.warn("[Protoc log] " + line);
+      }
+
       throw new ProtocInvocationException(
           String.format("Got exit code [%d] from protoc with args [%s]", status, protocArgs));
     }
