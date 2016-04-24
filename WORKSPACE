@@ -11,6 +11,19 @@ http_file(
 )
 
 http_file(
+  name = "tcnative_boringssl_static_windows_x86_64",
+  url = "http://search.maven.org/remotecontent?filepath=io/netty/netty-tcnative-boringssl-static/1.1.33.Fork14/netty-tcnative-boringssl-static-1.1.33.Fork14-windows-x86_64.jar",
+  sha256 = "40466538b8b264e003639f54e2549da89bad016d2e680c5d3b94c451e932741b",
+)
+
+http_file(
+  name = "tcnative_boringssl_static_osx_x86_64",
+  url = "http://search.maven.org/remotecontent?filepath=io/netty/netty-tcnative-boringssl-static/1.1.33.Fork14/netty-tcnative-boringssl-static-1.1.33.Fork14-osx-x86_64.jar",
+  sha256 = "7b8a730655f271cb52e0e6e4fba23fbabd6f989041b77491fcfec3e61699f83e",
+)
+
+
+http_file(
   name = "protoc_linux_x86_64",
   url = "http://search.maven.org/remotecontent?filepath=com/google/protobuf/protoc/3.0.0-beta-2/protoc-3.0.0-beta-2-linux-x86_64.exe",
   sha256 = "314dfcbfe1e816aa07cff4fd254f69b482778c089e47ff565222ff2daccfc188",
