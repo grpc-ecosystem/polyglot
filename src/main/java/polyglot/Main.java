@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.LogManager;
@@ -110,9 +109,8 @@ public class Main {
 
   /** Invokes protoc and returns a {@link FileDescriptorSet} used for discovery. */
   private static FileDescriptorSet getFileDescriptorSet(ProtoConfiguration protoConfig) {
-    Path protoFiles = Paths.get(protoConfig.getProtoDiscoveryRoot());
     try {
-      return ProtocInvoker.forConfig(protoConfig).invoke(protoFiles);
+      return ProtocInvoker.forConfig(protoConfig).invoke();
     } catch (ProtocInvocationException e) {
       throw new RuntimeException("Failed to invoke the protoc binary", e);
     }

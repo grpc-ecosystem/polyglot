@@ -8,13 +8,13 @@ import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
-import polyglot.ConfigProto.ProtoConfiguration;
-
 import com.github.os72.protocjar.Protoc;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
+
+import polyglot.ConfigProto.ProtoConfiguration;
 
 /**
  * A utility class which facilitates invoking the protoc compiler on all proto files in a
@@ -24,8 +24,8 @@ public class ProtocInvoker {
   private static final PathMatcher PROTO_MATCHER =
       FileSystems.getDefault().getPathMatcher("glob:**/*.proto");
 
-  // Derived from the config.
   private final ImmutableList<Path> protocIncludePaths;
+  private final Path discoveryRoot;
 
   /** Creates a new {@link ProtocInvoker} with the supplied configuration. */
   public static ProtocInvoker forConfig(ProtoConfiguration protoConfig) {
@@ -42,22 +42,23 @@ public class ProtocInvoker {
       includePaths.add(path.toAbsolutePath());
     }
 
-    return new ProtocInvoker(includePaths.build());
+    return new ProtocInvoker(discoveryRootPath, includePaths.build());
   }
 
   /**
    * Takes an optional path to pass to protoc as --proto_path. Uses the invocation-time proto root
    * if none is passed.
    */
-  private ProtocInvoker(ImmutableList<Path> protocIncludePaths) {
+  private ProtocInvoker(Path discoveryRoot, ImmutableList<Path> protocIncludePaths) {
     this.protocIncludePaths = protocIncludePaths;
+    this.discoveryRoot = discoveryRoot;
   }
 
   /**
    * Executes protoc on all .proto files in the subtree rooted at the supplied path and returns a
    * {@link FileDescriptorSet} which describes all the protos.
    */
-  public FileDescriptorSet invoke(Path protoFiles) throws ProtocInvocationException {
+  public FileDescriptorSet invoke() throws ProtocInvocationException {
     Path descriptorPath;
     try {
       descriptorPath = Files.createTempFile("descriptor", ".pb.bin");
@@ -66,7 +67,7 @@ public class ProtocInvoker {
     }
 
     ImmutableList<String> protocArgs = ImmutableList.<String>builder()
-        .addAll(scanProtoFiles(protoFiles))
+        .addAll(scanProtoFiles(discoveryRoot))
         .addAll(includePathArgs())
         .add("--descriptor_set_out=" + descriptorPath.toAbsolutePath().toString())
         .add("--include_imports")
@@ -86,6 +87,12 @@ public class ProtocInvoker {
     for (Path path : protocIncludePaths) {
       resultBuilder.add("-I" + path.toString());
     }
+
+    // Protoc requires that all files being compiled are present in the subtree rooted at one of
+    // the import paths (or the proto_root argument, which we don't use). Therefore, the safest
+    // thing to do is to add the discovery path itself as the *last* include.
+    resultBuilder.add("-I" + discoveryRoot.toAbsolutePath().toString());
+
     return resultBuilder.build();
   }
 
