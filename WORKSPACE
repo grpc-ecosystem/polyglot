@@ -24,8 +24,8 @@ http_file(
 
 http_file(
   name = "protoc_osx_x86_64",
-  url = "http://search.maven.org/remotecontent?filepath=com/google/protobuf/protoc/3.0.0-beta-2/protoc-3.0.0-beta-2-os-x86_64.exe",
-  sha256 = "314dfcbfe1e816aa07cff4fd254f69b482778c089e47ff565222ff2daccfc188",
+  url = "https://repo1.maven.org/maven2/com/google/protobuf/protoc/3.0.0-beta-2/protoc-3.0.0-beta-2-osx-x86_64.exe",
+  sha256 = "dd275c9c22a160adac20b4e0c049270b2ebd29b1a8803c0f286c228a4fe13092",
 )
 
 http_file(
