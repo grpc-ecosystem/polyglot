@@ -3,8 +3,6 @@ package polyglot;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.LogManager;
@@ -45,7 +43,6 @@ public class Main {
 
   public static void main(String[] args) {
     // Fix the logging setup.
-    disableStdout();
     setupJavaUtilLogging();
 
     final CommandLineArgs arguments;
@@ -139,16 +136,5 @@ public class Main {
     LogManager.getLogManager().reset();
     SLF4JBridgeHandler.removeHandlersForRootLogger();
     SLF4JBridgeHandler.install();
-  }
-
-  /** Disables stdout altogether. Necessary because some library prints... */
-  private static void disableStdout() {
-    PrintStream nullPrintStream = new PrintStream(new OutputStream() {
-      @Override
-      public void write(int b) throws IOException {
-        // Do nothing.
-      }
-    });
-    System.setOut(nullPrintStream);
   }
 }
