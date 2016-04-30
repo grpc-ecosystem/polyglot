@@ -45,7 +45,7 @@ public class CommandLineArgs {
   private String protoDiscoveryRootArg;
 
   @Option(name = "--deadline_ms", metaVar = "<number>")
-  private Long deadlineMs;
+  private Integer deadlineMs;
 
   // Derived from the other fields.
   private HostAndPort hostAndPort;
@@ -144,7 +144,7 @@ public class CommandLineArgs {
     return resultBuilder.build();
   }
 
-  public Optional<Long> getRpcDeadline() {
+  public Optional<Integer> getRpcDeadlineMs() {
     return Optional.ofNullable(deadlineMs);
   }
 

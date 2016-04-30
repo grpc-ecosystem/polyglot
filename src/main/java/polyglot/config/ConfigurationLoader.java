@@ -8,14 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import polyglot.ConfigProto.Configuration;
-import polyglot.ConfigProto.ConfigurationSet;
-import polyglot.ConfigProto.OutputConfiguration.Destination;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.util.JsonFormat;
+
+import polyglot.ConfigProto.Configuration;
+import polyglot.ConfigProto.ConfigurationSet;
+import polyglot.ConfigProto.OutputConfiguration.Destination;
 
 /** A utility which manipulating and reading a single {@link ConfigurationSet}. */
 public class ConfigurationLoader {
@@ -123,6 +123,9 @@ public class ConfigurationLoader {
     if (overrides.get().protoDiscoveryRoot().isPresent()) {
       resultBuilder.getProtoConfigBuilder().setProtoDiscoveryRoot(
           overrides.get().protoDiscoveryRoot().get().toString());
+    }
+    if (overrides.get().getRpcDeadlineMs().isPresent()) {
+      resultBuilder.getCallConfigBuilder().setDeadlineMs(overrides.get().getRpcDeadlineMs().get());
     }
     return resultBuilder.build();
   }
