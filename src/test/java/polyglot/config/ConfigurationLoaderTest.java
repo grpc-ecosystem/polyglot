@@ -59,12 +59,16 @@ public class ConfigurationLoaderTest {
     when(mockOverrides.outputFilePath()).thenReturn(Optional.of(Paths.get("asdf")));
     when(mockOverrides.additionalProtocIncludes()).thenReturn(ImmutableList.of(Paths.get(".")));
     when(mockOverrides.protoDiscoveryRoot()).thenReturn(Optional.of(Paths.get(".")));
-    ConfigurationLoader loader = ConfigurationLoader
+    when(mockOverrides.getRpcDeadlineMs()).thenReturn(Optional.of(25));
+
+    Configuration config = ConfigurationLoader
         .forDefaultConfigSet()
-        .withOverrides(mockOverrides);
-    assertThat(loader.getDefaultConfiguration().getCallConfig().getUseTls()).isTrue();
-    assertThat(loader.getDefaultConfiguration().getOutputConfig().getDestination())
-        .isEqualTo(Destination.FILE);
+        .withOverrides(mockOverrides)
+        .getDefaultConfiguration();
+
+    assertThat(config.getCallConfig().getUseTls()).isTrue();
+    assertThat(config.getOutputConfig().getDestination()).isEqualTo(Destination.FILE);
+    assertThat(config.getCallConfig().getDeadlineMs()).isEqualTo(25);
   }
 
   private static Configuration namedConfig(String name) {
