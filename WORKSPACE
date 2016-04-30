@@ -1,7 +1,13 @@
 http_file(
-  name = "gen_java_grpc",
+  name = "gen_java_grpc_linux_x86_64",
   url = "https://repo1.maven.org/maven2/io/grpc/protoc-gen-grpc-java/0.13.2/protoc-gen-grpc-java-0.13.2-linux-x86_64.exe",
   sha256 = "188fe7e975f75af6931dd36427dca1b5f7b43797dc406ef8d852b31df846f1d6",
+)
+
+http_file(
+  name = "gen_java_grpc_osx_x86_64",
+  url = "https://repo1.maven.org/maven2/io/grpc/protoc-gen-grpc-java/0.13.2/protoc-gen-grpc-java-0.13.2-osx-x86_64.exe",
+  sha256 = "6318405813e19b62d0555b569df7dcd6bbddcfe8c3b58c9aed6ca0d3737ab9e3",
 )
 
 http_file(

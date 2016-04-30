@@ -19,45 +19,27 @@ config_setting(
 )
 
 native.genrule(
-    name = "tcnative_boringssl_static_linux_x86_64_jar",
+    name = "tcnative_boringssl_static_jar",
     srcs = [
+        "@tcnative_boringssl_static_osx_x86_64//file",
+        "@tcnative_boringssl_static_windows_x86_64//file",
         "@tcnative_boringssl_static_linux_x86_64//file",
     ],
     executable = 1,
-    outs = ["tcnative_boringssl_static_linux_x86_64.jar"],
-    cmd = "cat $(locations @tcnative_boringssl_static_linux_x86_64//file) > $@",
-    licenses=["permissive"],
-)
-
-native.genrule(
-    name = "tcnative_boringssl_static_windows_x86_64_jar",
-    srcs = [
-        "@tcnative_boringssl_static_windows_x86_64//file",
-    ],
-    executable = 1,
-    outs = ["tcnative_boringssl_static_windows_x86_64.jar"],
-    cmd = "cat $(locations @tcnative_boringssl_static_windows_x86_64//file) > $@",
-    licenses=["permissive"],
-)
-
-native.genrule(
-    name = "tcnative_boringssl_static_osx_x86_64_jar",
-    srcs = [
-        "@tcnative_boringssl_static_osx_x86_64//file",
-    ],
-    executable = 1,
-    outs = ["tcnative_boringssl_static_osx_x86_64.jar"],
-    cmd = "cat $(locations @tcnative_boringssl_static_osx_x86_64//file) > $@",
+    outs = ["tcnative_boringssl_static.jar"],
+    cmd = select({
+      ":linux_64": "cat $(locations @tcnative_boringssl_static_linux_x86_64//file) > $@",
+      ":windows_64": "cat $(locations @tcnative_boringssl_static_windows_x86_64//file) > $@",
+      ":darwin_64": "cat $(locations @tcnative_boringssl_static_osx_x86_64//file) > $@",
+    }),
     licenses=["permissive"],
 )
 
 java_import(
   name = "tcnative-jar",
-  jars = select({
-    ":linux_64": [":tcnative_boringssl_static_linux_x86_64_jar"],
-    ":windows_64": [":tcnative_boringssl_static_windows_x86_64_jar"],
-    ":darwin_64": [":tcnative_boringssl_static_osx_x86_64_jar"],
-  }),
+  jars = [
+    ":tcnative_boringssl_static_jar"
+  ],
   licenses = ["permissive"],
 )
 
