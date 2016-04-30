@@ -8,7 +8,7 @@ config_setting(
 
 config_setting(
   name = "darwin_64",
-  values = {"cpu": "darwin_x86_64"},
+  values = {"cpu": "darwin"},
   licenses=["permissive"],
 )
 
