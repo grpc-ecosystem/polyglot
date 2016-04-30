@@ -11,11 +11,11 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
-import polyglot.protobuf.ProtoMethodName;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.net.HostAndPort;
+
+import polyglot.protobuf.ProtoMethodName;
 
 /** Provides easy access to the arguments passed on the commmand line. */
 public class CommandLineArgs {
@@ -128,7 +128,6 @@ public class CommandLineArgs {
     return maybePath(configSetPathArg);
   }
 
-<<<<<<< ff87ae2f54291c09bd2668f2582236832c015d3b:src/main/java/polyglot/config/CommandLineArgs.java
   public Optional<String> configName() {
     return Optional.ofNullable(configNameArg);
   }
@@ -143,17 +142,12 @@ public class CommandLineArgs {
       Path includePath = Paths.get(pathString);
       Preconditions.checkArgument(Files.exists(includePath), "Invalid include: " + includePath);
       resultBuilder.add(includePath);
-=======
-  public long getRpcDeadline() {
-    return deadlineMs;
-  }
-
-  public Optional<OauthConfig> oauthConfig() {
-    if (oauth2ClientId == null || oauth2ClientSecret == null || oauth2TokenEndpoint == null) {
-      return Optional.empty();
->>>>>>> Add deadlines.:src/main/java/polyglot/CommandLineArgs.java
     }
     return resultBuilder.build();
+  }
+
+  public long getRpcDeadline() {
+    return deadlineMs;
   }
 
   private static void validatePath(Optional<Path> maybePath) {
