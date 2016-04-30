@@ -45,7 +45,7 @@ public class CommandLineArgs {
   private String protoDiscoveryRootArg;
 
   @Option(name = "--deadline_ms", metaVar = "<number>")
-  private long deadlineMs;
+  private Long deadlineMs;
 
   // Derived from the other fields.
   private HostAndPort hostAndPort;
@@ -57,8 +57,6 @@ public class CommandLineArgs {
    */
   public static CommandLineArgs parse(String[] args) {
     CommandLineArgs result = new CommandLineArgs();
-    result.deadlineMs = 2000;
-
     CmdLineParser parser = new CmdLineParser(result);
     try {
       parser.parseArgument(args);
@@ -146,8 +144,8 @@ public class CommandLineArgs {
     return resultBuilder.build();
   }
 
-  public long getRpcDeadline() {
-    return deadlineMs;
+  public Optional<Long> getRpcDeadline() {
+    return Optional.ofNullable(deadlineMs);
   }
 
   private static void validatePath(Optional<Path> maybePath) {

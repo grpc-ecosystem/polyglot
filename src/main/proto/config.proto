@@ -21,7 +21,7 @@ message Configuration {
 
 // Holds parameters used to make rpc calls.
 message CallConfiguration {
-  double deadline = 1;
+  uint32 deadline_ms = 1;
   bool use_tls = 2;
   OauthConfiguration oauth_config = 3;
 }

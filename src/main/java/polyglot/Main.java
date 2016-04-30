@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.LogManager;
 
 import org.slf4j.Logger;
@@ -22,7 +23,9 @@ import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;
 
+import io.grpc.CallOptions;
 import io.grpc.stub.StreamObserver;
+import polyglot.ConfigProto.CallConfiguration;
 import polyglot.ConfigProto.Configuration;
 import polyglot.ConfigProto.OutputConfiguration;
 import polyglot.ConfigProto.ProtoConfiguration;
@@ -69,15 +72,16 @@ public class Main {
         serviceResolver.resolveServiceMethod(arguments.grpcMethodName());
 
     logger.info("Creating dynamic grpc client");
+    CallConfiguration callConfig = config.getCallConfig();
     DynamicGrpcClient dynamicClient;
-    if (config.getCallConfig().hasOauthConfig()) {
+    if (callConfig.hasOauthConfig()) {
       Credentials credentials =
-          new OauthCredentialsFactory(config.getCallConfig().getOauthConfig()).getCredentials();
+          new OauthCredentialsFactory(callConfig.getOauthConfig()).getCredentials();
       dynamicClient = DynamicGrpcClient.createWithCredentials(
-          methodDescriptor, arguments.endpoint(), config.getCallConfig().getUseTls(), credentials);
+          methodDescriptor, arguments.endpoint(), callConfig.getUseTls(), credentials);
     } else {
       dynamicClient = DynamicGrpcClient.create(
-          methodDescriptor, arguments.endpoint(), config.getCallConfig().getUseTls());
+          methodDescriptor, arguments.endpoint(), callConfig.getUseTls());
     }
 
     logger.info("Making rpc call to endpoint: " + arguments.endpoint());
@@ -85,10 +89,18 @@ public class Main {
     StreamObserver<DynamicMessage> streamObserver = CompositeStreamObserver.of(
         new LoggingStatsWriter(), messageOutputObserver(config.getOutputConfig()));
     try {
-      dynamicClient.call(requestMessage, streamObserver).get();
+      dynamicClient.call(requestMessage, streamObserver, callOptions(callConfig)).get();
     } catch (InterruptedException | ExecutionException e) {
       throw new RuntimeException("Caught exeception while waiting for rpc", e);
     }
+  }
+
+  private static CallOptions callOptions(CallConfiguration callConfig) {
+    CallOptions result = CallOptions.DEFAULT;
+    if (callConfig.getDeadlineMs() > 0) {
+      result = result.withDeadlineAfter(callConfig.getDeadlineMs(), TimeUnit.MILLISECONDS);
+    }
+    return result;
   }
 
   /** Returns an observer which writes the obtained message to the specified output. */
