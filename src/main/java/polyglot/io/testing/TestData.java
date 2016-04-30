@@ -5,7 +5,7 @@ import com.google.protobuf.DynamicMessage;
 import polyglot.test.TestProto.TestRequest;
 
 /** Test data used for unit tests of the io package. */
-public class Testdata {
+public class TestData {
   public static final DynamicMessage REQUEST = DynamicMessage.newBuilder(
       TestRequest.newBuilder()
           .setMessage("some message")

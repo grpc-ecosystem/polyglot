@@ -11,6 +11,7 @@ java_test(
     "//src/main/proto/testing:test_service_proto_grpc",
     "//src/main/java/polyglot:polyglot-lib",
     "//src/main/java/polyglot/io",
+    "//src/main/java/polyglot/testing",
     "//third_party/grpc",
     "//third_party/guava",
     "//third_party/protobuf",

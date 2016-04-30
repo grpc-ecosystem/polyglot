@@ -1,16 +1,12 @@
 package integration;
 
 import static com.google.common.truth.Truth.assertThat;
-import io.grpc.Server;
-import io.grpc.ServerBuilder;
-import io.grpc.stub.StreamObserver;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -24,11 +20,16 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.util.JsonFormat;
+
+import io.grpc.Server;
+import io.grpc.ServerBuilder;
+import io.grpc.stub.StreamObserver;
 import polyglot.io.FileMessageReader;
 import polyglot.test.TestProto.TestRequest;
 import polyglot.test.TestProto.TestResponse;
 import polyglot.test.TestServiceGrpc;
 import polyglot.test.TestServiceGrpc.TestService;
+import polyglot.testing.TestUtils;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
@@ -38,8 +39,6 @@ public class ClientServerIntegrationTest {
   private static final long NUM_SERVER_START_TRIES = 3;
   private static final int MIN_SERVER_PORT = 50_000;
   private static final int MAX_SERVER_PORT = 60_000;
-  private static final String TEST_PROTO_ROOT =
-      Paths.get(getWorkspaceRoot().toString(), "src/main/proto/testing").toString();
   private static final String TEST_UNARY_METHOD = "polyglot.test.TestService/TestMethod";
   private static final String TEST_STREAM_METHOD = "polyglot.test.TestService/TestMethodStream";
 
@@ -78,7 +77,7 @@ public class ClientServerIntegrationTest {
   @Test
   public void makesRoundTripUnary() throws Throwable {
     ImmutableList<String> args = ImmutableList.<String>builder()
-        .addAll(makeArgs(serverPort, TEST_PROTO_ROOT, TEST_UNARY_METHOD))
+        .addAll(makeArgs(serverPort, TestUtils.TESTING_PROTO_ROOT.toString(), TEST_UNARY_METHOD))
         .add(makeArgument("output_file_path", responseFilePath.toString()))
         .build();
     setStdinContents(JsonFormat.printer().print(REQUEST));
@@ -95,7 +94,7 @@ public class ClientServerIntegrationTest {
   @Test
   public void makesRoundTripStream() throws Throwable {
     ImmutableList<String> args = ImmutableList.<String>builder()
-        .addAll(makeArgs(serverPort, TEST_PROTO_ROOT, TEST_STREAM_METHOD))
+        .addAll(makeArgs(serverPort, TestUtils.TESTING_PROTO_ROOT.toString(), TEST_STREAM_METHOD))
         .add(makeArgument("output_file_path", responseFilePath.toString()))
         .build();
     setStdinContents(JsonFormat.printer().print(REQUEST));
@@ -111,7 +110,8 @@ public class ClientServerIntegrationTest {
 
   @Test(expected = RuntimeException.class)
   public void rejectsBadInput() throws Throwable {
-    ImmutableList<String> args = makeArgs(serverPort, TEST_PROTO_ROOT, TEST_UNARY_METHOD);
+    ImmutableList<String> args =
+        makeArgs(serverPort, TestUtils.TESTING_PROTO_ROOT.toString(), TEST_UNARY_METHOD);
     setStdinContents("this is not a valid text proto!");
 
     // Run the full client.
@@ -171,15 +171,10 @@ public class ClientServerIntegrationTest {
   private static ImmutableList<String> makeArgs(int port, String protoRoot, String method) {
     return ImmutableList.<String>builder()
         .add(makeArgument("endpoint", Joiner.on(':').join("localhost", port)))
-        .add(makeArgument("proto_discovery_root", TEST_PROTO_ROOT))
+        .add(makeArgument("proto_discovery_root", TestUtils.TESTING_PROTO_ROOT.toString()))
         .add(makeArgument("full_method", method))
-        .add(makeArgument("add_protoc_includes", getWorkspaceRoot().toString()))
+        .add(makeArgument("add_protoc_includes", TestUtils.getWorkspaceRoot().toString()))
         .build();
-  }
-
-  private static Path getWorkspaceRoot() {
-    // Bazel runs binaries with the workspace root as working directory.
-    return Paths.get(".").toAbsolutePath();
   }
 
   private static void setStdinContents(String contents) {

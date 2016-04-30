@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import com.google.protobuf.util.JsonFormat;
 
-import polyglot.io.testing.Testdata;
+import polyglot.io.testing.TestData;
 
 /** Unit tests for {@link FileMessageWriter}. */
 public class FileMessageWriterTest {
@@ -25,20 +25,20 @@ public class FileMessageWriterTest {
 
   @Test
   public void writesSingleMessage() {
-    writer.onNext(Testdata.REQUEST);
+    writer.onNext(TestData.REQUEST);
     writer.onCompleted();
     String result = outputStream.toString();
-    assertThat(result).isEqualTo(Testdata.REQUEST_JSON);
+    assertThat(result).isEqualTo(TestData.REQUEST_JSON);
   }
 
   @Test
   public void writesMultipleMessages() {
-    writer.onNext(Testdata.REQUEST);
-    writer.onNext(Testdata.REQUEST);
-    writer.onNext(Testdata.REQUEST);
+    writer.onNext(TestData.REQUEST);
+    writer.onNext(TestData.REQUEST);
+    writer.onNext(TestData.REQUEST);
     writer.onCompleted();
     String result = outputStream.toString();
     assertThat(result)
-        .isEqualTo(Testdata.REQUEST_JSON + Testdata.REQUEST_JSON + Testdata.REQUEST_JSON);
+        .isEqualTo(TestData.REQUEST_JSON + TestData.REQUEST_JSON + TestData.REQUEST_JSON);
   }
 }

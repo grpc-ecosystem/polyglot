@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package polyglot.test.protoc;
+
+// This is a very simple file which is completely self-contained. It is used to
+// test the case where we pass no imports to the protoc invoker.
+message Standalone {
+}
