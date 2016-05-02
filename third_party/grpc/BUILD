@@ -1,6 +1,24 @@
 package(default_visibility = ["//visibility:public"])
 
 config_setting(
+  name = "target_windows",
+  values = {"define": "target=windows"},
+  licenses=["permissive"],
+)
+
+config_setting(
+  name = "target_osx",
+  values = {"define": "target=osx"},
+  licenses=["permissive"],
+)
+
+config_setting(
+  name = "target_linux",
+  values = {"define": "target=linux"},
+  licenses=["permissive"],
+)
+
+config_setting(
   name = "windows_64",
   values = {"cpu": "x64_windows"},
   licenses=["permissive"],
@@ -28,9 +46,10 @@ native.genrule(
     executable = 1,
     outs = ["tcnative_boringssl_static.jar"],
     cmd = select({
-      ":linux_64": "cat $(locations @tcnative_boringssl_static_linux_x86_64//file) > $@",
-      ":windows_64": "cat $(locations @tcnative_boringssl_static_windows_x86_64//file) > $@",
-      ":darwin_64": "cat $(locations @tcnative_boringssl_static_osx_x86_64//file) > $@",
+      ":target_osx": "cat $(locations @tcnative_boringssl_static_osx_x86_64//file) > $@",
+      ":target_linux": "cat $(locations @tcnative_boringssl_static_linux_x86_64//file) > $@",
+      ":target_windows": "cat $(locations @tcnative_boringssl_static_windows_x86_64//file) > $@",
+      "//conditions:default": "cat $(locations @tcnative_boringssl_static_linux_x86_64//file) > $@",
     }),
     licenses=["permissive"],
 )
