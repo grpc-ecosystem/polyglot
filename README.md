@@ -7,32 +7,24 @@ Polyglot is a grpc client which can talk to any grpc server. In order to make a 
 
 In particular, it is not necessary to generate grpc classes for the service or to compile the protos into the Polyglot binary.
 
-## Status
-
-Polyglot now has most of the features for min-viable ability to talk to any server. As such, it is usable but a bit rough around the edges, more usability improvements are on their way.
-
 ## Usage
 
-### Basics
+### Requirements
 
-For now, it is required to build polyglot before usage (currently only works on Linux):
+All you need to run Polyglot is a Java runtime. Binaries for Mac, Linux, and Windows are available from the [releases page](https://github.com/dinowernli/polyglot/releases).
 
-`$ bazel build src/main/java/polyglot`
+### Making a grpc request
 
-After calling this, you should have a fresh binary at:
-
-`./bazel-bin/src/main/java/polyglot/polyglot`
-
-Then, the binary itself can be invoked as follows:
+Polyglot can be invoked as follows:
 
 ```
-$ echo <json-request> | polyglot \
+$ echo <json-request> | java -jar polyglot.jar \
     --endpoint=<host>:<port> \
     --full_method=<some.package.Service/doSomething> \
     --proto_discovery_root=<path>
 ```
 
-For an example, see `run-client-example.sh`.
+Note that on Linux you should be able to just run `./polyglot.jar` as long as you have `binfmt-support` installed. For a more detailed execution example, see `run-client-example.sh`.
 
 ### Configuration
 
@@ -101,12 +93,20 @@ In order to use this feature, Polyglot needs an `OauthConfiguration` inside its 
 
 ## Build requirements
 
-We do not yet have a binary distribution, so right now it is required to build the binary from source in order to use it. The build requirements are:
+In order to build Polyglot from source, you will need:
 
-* Java 8
-* Bazel
+* [Java 8](https://www.oracle.com/downloads/index.html)
+* [Bazel](http://bazel.io)
 
-## Run the example
+## Building a binary
+
+`$ bazel build src/main/java/polyglot`
+
+After calling this, you should have a fresh binary at:
+
+`./bazel-bin/src/main/java/polyglot/polyglot`
+
+## Running the example
 
 First, start the server: 
 
@@ -116,7 +116,7 @@ Then, in a different terminal, run the client example:
 
 `$ ./run-client-example.sh`
 
-## Build and run tests
+## Building and running tests
 
 `$ bazel test ...`
 
@@ -125,9 +125,3 @@ Then, in a different terminal, run the client example:
 * OAuth integration for authenticated requests
 * Ability to parse .proto files at runtime
 * Support for receiving streams of responses
-
-## Upcoming features
-
-* Executing the full OAuth dance (rather than relying on a refresh token on disk)
-* Binary distribution
-* Building on Mac and Windows
