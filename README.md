@@ -28,7 +28,7 @@ Note that on Linux you should be able to just run `./polyglot.jar` as long as yo
 
 ### Configuration
 
-Some of the features of Polyglot (such as Oauth, see below) require some configuration. Moreover, that sort of configuration tends to remain constant across multiple Polyglot runs. In order to improve usability, Polyglot supports loading a configuration proto from a Json file at runtime. This configuration file can contain multiple `Configuration` objects (schema defined [here](https://github.com/dinowernli/polyglot/blob/master/src/main/proto/config.proto#L14)). An example configuration could look like this:
+Some of the features of Polyglot (such as Oauth, see below) require some configuration. Moreover, that sort of configuration tends to remain identical across multiple Polyglot runs. In order to improve usability, Polyglot supports loading a configuration set from a file at runtime. This configuration set can contain multiple named `Configuration` objects (schema defined [here](https://github.com/dinowernli/polyglot/blob/master/src/main/proto/config.proto#L14)). An example configuration could look like this:
 
 ```
 {
@@ -81,7 +81,7 @@ The general philosophy is for the configuration to drive Polyglot's behavior and
 
 ### Using TLS
 
-Polyglot uses statically linked boringssl libraries under the hood and doesn't require the host machine to have any specific libraries. Whether or not the client uses TLS to talk to the server can be controlled using the `--use_tls` flag or the corresponding configuration entry.
+Polyglot uses statically linked [boringssl](https://boringssl.googlesource.com/boringssl/) libraries under the hood and doesn't require the host machine to have any specific libraries. Whether or not the client uses TLS to talk to the server can be controlled using the `--use_tls` flag or the corresponding configuration entry.
 
 ### Authenticating requests using OAuth
 
