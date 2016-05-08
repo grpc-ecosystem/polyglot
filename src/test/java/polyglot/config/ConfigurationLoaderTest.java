@@ -60,6 +60,7 @@ public class ConfigurationLoaderTest {
     when(mockOverrides.additionalProtocIncludes()).thenReturn(ImmutableList.of(Paths.get(".")));
     when(mockOverrides.protoDiscoveryRoot()).thenReturn(Optional.of(Paths.get(".")));
     when(mockOverrides.getRpcDeadlineMs()).thenReturn(Optional.of(25));
+    when(mockOverrides.tlsCaCertPath()).thenReturn(Optional.of(Paths.get("asdf")));
 
     Configuration config = ConfigurationLoader
         .forDefaultConfigSet()
@@ -69,6 +70,7 @@ public class ConfigurationLoaderTest {
     assertThat(config.getCallConfig().getUseTls()).isTrue();
     assertThat(config.getOutputConfig().getDestination()).isEqualTo(Destination.FILE);
     assertThat(config.getCallConfig().getDeadlineMs()).isEqualTo(25);
+    assertThat(config.getCallConfig().getTlsCaCertPath()).isNotEmpty();
   }
 
   private static Configuration namedConfig(String name) {

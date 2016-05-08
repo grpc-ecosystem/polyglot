@@ -24,6 +24,9 @@ message CallConfiguration {
   uint32 deadline_ms = 1;
   bool use_tls = 2;
   OauthConfiguration oauth_config = 3;
+
+  // If set, this file will be used as a root certificate for calls using TLS.
+  string tls_ca_cert_path = 4;
 }
 
 // Holds the necessary parameters for adding authentication to requests using

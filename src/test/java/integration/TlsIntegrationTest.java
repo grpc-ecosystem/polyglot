@@ -22,16 +22,14 @@ import com.google.protobuf.util.JsonFormat;
 import polyglot.io.FileMessageReader;
 import polyglot.test.TestProto.TestRequest;
 import polyglot.test.TestProto.TestResponse;
-import polyglot.testing.RecordingTestService;
 import polyglot.testing.TestServer;
 import polyglot.testing.TestUtils;
 
 /**
- * An integration test suite which has the Polyglot client talk to a server which records requests.
+ * An integration test suite which tests Polyglot's ability to connect to servers using TLS.
  */
-public class ClientServerIntegrationTest {
+public class TlsIntegrationTest {
   private static final String TEST_UNARY_METHOD = "polyglot.test.TestService/TestMethod";
-  private static final String TEST_STREAM_METHOD = "polyglot.test.TestService/TestMethodStream";
 
   private static final TestRequest REQUEST = TestRequest.newBuilder()
       .setMessage("i am totally a message")
@@ -45,7 +43,7 @@ public class ClientServerIntegrationTest {
   public void setUp() throws Throwable {
     responseFilePath = Files.createTempFile("response", "pb.ascii");
     storedStdin = System.in;
-    testServer = TestServer.createAndStart(Optional.empty() /* sslContext */);
+    testServer = TestServer.createAndStart(Optional.of(TestServer.serverSslContextForTesting()));
   }
 
   @After
@@ -61,6 +59,8 @@ public class ClientServerIntegrationTest {
     ImmutableList<String> args = ImmutableList.<String>builder()
         .addAll(makeArgs(serverPort, TestUtils.TESTING_PROTO_ROOT.toString(), TEST_UNARY_METHOD))
         .add(makeArgument("output_file_path", responseFilePath.toString()))
+        .add(makeArgument("tls_ca_cert_path", TestServer.getRootCaPath().toString()))
+        .add(makeArgument("use_tls", "true"))
         .build();
     setStdinContents(JsonFormat.printer().print(REQUEST));
 
@@ -71,38 +71,6 @@ public class ClientServerIntegrationTest {
     ImmutableList<TestResponse> responses = readResponseFile();
     assertThat(responses).hasSize(1);
     assertThat(responses.get(0)).isEqualTo(TestServer.UNARY_SERVER_RESPONSE);
-  }
-
-  @Test
-  public void makesRoundTripStream() throws Throwable {
-    int serverPort = testServer.getGrpcServerPort();
-    ImmutableList<String> args = ImmutableList.<String>builder()
-        .addAll(makeArgs(serverPort, TestUtils.TESTING_PROTO_ROOT.toString(), TEST_STREAM_METHOD))
-        .add(makeArgument("output_file_path", responseFilePath.toString()))
-        .build();
-    setStdinContents(JsonFormat.printer().print(REQUEST));
-
-    // Run the full client.
-    polyglot.Main.main(args.toArray(new String[0]));
-
-    // Make sure we can parse the response from the file.
-    ImmutableList<TestResponse> responses = readResponseFile();
-    assertThat(responses).hasSize(1);
-    assertThat(responses.get(0)).isEqualTo(TestServer.STREAMING_SERVER_RESPONSE);
-  }
-
-  @Test(expected = RuntimeException.class)
-  public void rejectsBadInput() throws Throwable {
-    ImmutableList<String> args = makeArgs(
-        testServer.getGrpcServerPort(), TestUtils.TESTING_PROTO_ROOT.toString(), TEST_UNARY_METHOD);
-    setStdinContents("this is not a valid text proto!");
-
-    // Run the full client.
-    polyglot.Main.main(args.toArray(new String[0]));
-
-    RecordingTestService recordingTestService = testServer.getServiceImpl();
-    assertThat(recordingTestService.numRequests()).isEqualTo(1);
-    assertThat(recordingTestService.getRequest(0)).isEqualTo(REQUEST);
   }
 
   /** Attempts to read a response proto from the created temp file. */
@@ -119,7 +87,8 @@ public class ClientServerIntegrationTest {
   }
 
   private static ImmutableList<String> makeArgs(int port, String protoRoot, String method) {
-    return TestUtils.makePolyglotArgs(Joiner.on(':').join("localhost", port), protoRoot, method);
+    return TestUtils.makePolyglotArgs(
+        Joiner.on(':').join("localhost", port), protoRoot, method);
   }
 
   private static void setStdinContents(String contents) {

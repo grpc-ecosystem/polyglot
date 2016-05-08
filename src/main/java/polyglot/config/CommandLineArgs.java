@@ -47,6 +47,9 @@ public class CommandLineArgs {
   @Option(name = "--deadline_ms", metaVar = "<number>")
   private Integer deadlineMs;
 
+  @Option(name = "--tls_ca_cert_path", metaVar = "<path>")
+  private String tlsCaCertPath;
+
   // Derived from the other fields.
   private HostAndPort hostAndPort;
   private ProtoMethodName grpcMethodName;
@@ -130,6 +133,10 @@ public class CommandLineArgs {
     return Optional.ofNullable(configNameArg);
   }
 
+  public Optional<Path> tlsCaCertPath() {
+    return maybePath(tlsCaCertPath);
+  }
+
   public ImmutableList<Path> additionalProtocIncludes() {
     if (addProtocIncludesArg == null) {
       return ImmutableList.of();
@@ -164,6 +171,8 @@ public class CommandLineArgs {
     if (rawPath == null) {
       return Optional.empty();
     }
+    Path path = Paths.get(rawPath);
+    Preconditions.checkArgument(Files.exists(path), "File " + rawPath + " does not exist");
     return Optional.of(Paths.get(rawPath));
   }
 }
