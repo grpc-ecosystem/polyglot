@@ -1,5 +1,26 @@
 package polyglot.grpc;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+
+import javax.net.ssl.SSLException;
+
+import com.google.auth.Credentials;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+import com.google.common.net.HostAndPort;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.protobuf.Descriptors.MethodDescriptor;
+import com.google.protobuf.DynamicMessage;
+
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientInterceptors;
@@ -11,24 +32,9 @@ import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.ClientCalls;
 import io.grpc.stub.StreamObserver;
 import io.netty.handler.ssl.SslContext;
-
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-
-import javax.net.ssl.SSLException;
-
+import io.netty.handler.ssl.SslContextBuilder;
+import polyglot.ConfigProto.CallConfiguration;
 import polyglot.protobuf.DynamicMessageMarshaller;
-
-import com.google.auth.Credentials;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.net.HostAndPort;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.google.protobuf.Descriptors.MethodDescriptor;
-import com.google.protobuf.DynamicMessage;
 
 /** A grpc client which operates on dynamic messages. */
 public class DynamicGrpcClient {
@@ -40,8 +46,8 @@ public class DynamicGrpcClient {
   public static DynamicGrpcClient create(
       MethodDescriptor protoMethod,
       HostAndPort endpoint,
-      boolean useTls) {
-    Channel channel = useTls ? createTlsChannel(endpoint) : createPlaintextChannel(endpoint);
+      CallConfiguration callConfiguration) {
+    Channel channel = createChannel(endpoint, callConfiguration);
     return new DynamicGrpcClient(protoMethod, channel, createExecutorService());
   }
 
@@ -52,23 +58,14 @@ public class DynamicGrpcClient {
   public static DynamicGrpcClient createWithCredentials(
       MethodDescriptor protoMethod,
       HostAndPort endpoint,
-      boolean useTls,
+      CallConfiguration callConfiguration,
       Credentials credentials) {
     ListeningExecutorService executor = createExecutorService();
-    Channel channel = useTls ? createTlsChannel(endpoint) : createPlaintextChannel(endpoint);
+    Channel channel = createChannel(endpoint, callConfiguration);
     return new DynamicGrpcClient(
         protoMethod,
         ClientInterceptors.intercept(channel, new ClientAuthInterceptor(credentials, executor)),
         executor);
-  }
-
-  /**
-   * Returns an executor in daemon-mode, allowing callers to actively decide whether they want to
-   * wait for rpc streams to complete.
-   */
-  private static ListeningExecutorService createExecutorService() {
-    return MoreExecutors.listeningDecorator(
-        Executors.newCachedThreadPool(new ThreadFactoryBuilder().setDaemon(true).build()));
   }
 
   @VisibleForTesting
@@ -173,23 +170,46 @@ public class DynamicGrpcClient {
     }
   }
 
+  /**
+   * Returns an executor in daemon-mode, allowing callers to actively decide whether they want to
+   * wait for rpc streams to complete.
+   */
+  private static ListeningExecutorService createExecutorService() {
+    return MoreExecutors.listeningDecorator(
+        Executors.newCachedThreadPool(new ThreadFactoryBuilder().setDaemon(true).build()));
+  }
+
   private static Channel createPlaintextChannel(HostAndPort endpoint) {
     return NettyChannelBuilder.forAddress(endpoint.getHostText(), endpoint.getPort())
         .negotiationType(NegotiationType.PLAINTEXT)
         .build();
   }
 
-  private static Channel createTlsChannel(HostAndPort endpoint) {
-    SslContext sslContext;
-    try {
-      sslContext = GrpcSslContexts.forClient().build();
-    } catch (SSLException e) {
-      throw new RuntimeException("Failed to create ssl context", e);
+  private static Channel createChannel(HostAndPort endpoint, CallConfiguration callConfiguration) {
+    if (!callConfiguration.getUseTls()) {
+      return createPlaintextChannel(endpoint);
     }
-
     return NettyChannelBuilder.forAddress(endpoint.getHostText(), endpoint.getPort())
-        .sslContext(sslContext)
+        .sslContext(createSslContext(callConfiguration))
         .negotiationType(NegotiationType.TLS)
         .build();
+  }
+
+  private static SslContext createSslContext(CallConfiguration callConfiguration) {
+    SslContextBuilder resultBuilder = GrpcSslContexts.forClient();
+    if (!callConfiguration.getTlsCaCertPath().isEmpty()) {
+      resultBuilder.trustManager(loadFile(callConfiguration.getTlsCaCertPath()));
+    }
+    try {
+      return resultBuilder.build();
+    } catch (SSLException e) {
+      throw new RuntimeException("Unable to build sslcontext for client call", e);
+    }
+  }
+
+  private static File loadFile(String fileName) {
+    Path filePath = Paths.get(fileName);
+    Preconditions.checkArgument(Files.exists(filePath), "File " + fileName + " was not found");
+    return filePath.toFile();
   }
 }

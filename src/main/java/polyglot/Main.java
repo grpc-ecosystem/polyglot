@@ -78,10 +78,9 @@ public class Main {
       Credentials credentials =
           new OauthCredentialsFactory(callConfig.getOauthConfig()).getCredentials();
       dynamicClient = DynamicGrpcClient.createWithCredentials(
-          methodDescriptor, arguments.endpoint(), callConfig.getUseTls(), credentials);
+          methodDescriptor, arguments.endpoint(), callConfig, credentials);
     } else {
-      dynamicClient = DynamicGrpcClient.create(
-          methodDescriptor, arguments.endpoint(), callConfig.getUseTls());
+      dynamicClient = DynamicGrpcClient.create(methodDescriptor, arguments.endpoint(), callConfig);
     }
 
     logger.info("Making rpc call to endpoint: " + arguments.endpoint());

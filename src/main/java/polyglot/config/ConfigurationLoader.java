@@ -127,6 +127,10 @@ public class ConfigurationLoader {
     if (overrides.get().getRpcDeadlineMs().isPresent()) {
       resultBuilder.getCallConfigBuilder().setDeadlineMs(overrides.get().getRpcDeadlineMs().get());
     }
+    if (overrides.get().tlsCaCertPath().isPresent()) {
+      resultBuilder.getCallConfigBuilder().setTlsCaCertPath(
+          overrides.get().tlsCaCertPath().get().toString());
+    }
     return resultBuilder.build();
   }
 
