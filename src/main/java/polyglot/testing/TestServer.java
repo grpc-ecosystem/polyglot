@@ -1,8 +1,6 @@
 package polyglot.testing;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.Random;
 
@@ -97,15 +95,10 @@ public class TestServer {
   /** An {@link SslContext} for use in unit test servers. Loads our testing certificates. */
   public static SslContext serverSslContextForTesting() throws IOException {
     return GrpcSslContexts
-        .forServer(TestUtils.loadCertFile("server.pem"), TestUtils.loadCertFile("server.key"))
-        .trustManager(TestUtils.loadCertFile("ca.pem"))
+        .forServer(TestUtils.loadServerChainCert(), TestUtils.loadServerKey())
+        .trustManager(TestUtils.loadRootCaCert())
         .sslProvider(SslProvider.OPENSSL)
         .build();
-  }
-
-  /** Returns the path to the root ca certificate used for the test server. */
-  public static Path getRootCaPath() {
-    return Paths.get(TestUtils.TESTING_CERTS_DIR.toString(), "ca.pem");
   }
 
   /** Starts a grpc server on the given port, throws {@link IOException} on failure. */

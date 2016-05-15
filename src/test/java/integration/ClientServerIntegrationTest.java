@@ -16,10 +16,8 @@ import org.junit.Test;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.util.JsonFormat;
 
-import polyglot.io.FileMessageReader;
 import polyglot.test.TestProto.TestRequest;
 import polyglot.test.TestProto.TestResponse;
 import polyglot.testing.RecordingTestService;
@@ -68,7 +66,7 @@ public class ClientServerIntegrationTest {
     polyglot.Main.main(args.toArray(new String[0]));
 
     // Make sure we can parse the response from the file.
-    ImmutableList<TestResponse> responses = readResponseFile();
+    ImmutableList<TestResponse> responses = TestUtils.readResponseFile(responseFilePath);
     assertThat(responses).hasSize(1);
     assertThat(responses.get(0)).isEqualTo(TestServer.UNARY_SERVER_RESPONSE);
   }
@@ -86,7 +84,7 @@ public class ClientServerIntegrationTest {
     polyglot.Main.main(args.toArray(new String[0]));
 
     // Make sure we can parse the response from the file.
-    ImmutableList<TestResponse> responses = readResponseFile();
+    ImmutableList<TestResponse> responses = TestUtils.readResponseFile(responseFilePath);
     assertThat(responses).hasSize(1);
     assertThat(responses.get(0)).isEqualTo(TestServer.STREAMING_SERVER_RESPONSE);
   }
@@ -103,19 +101,6 @@ public class ClientServerIntegrationTest {
     RecordingTestService recordingTestService = testServer.getServiceImpl();
     assertThat(recordingTestService.numRequests()).isEqualTo(1);
     assertThat(recordingTestService.getRequest(0)).isEqualTo(REQUEST);
-  }
-
-  /** Attempts to read a response proto from the created temp file. */
-  private ImmutableList<TestResponse> readResponseFile() throws Throwable {
-    FileMessageReader reader =
-        FileMessageReader.create(responseFilePath, TestResponse.getDescriptor());
-    ImmutableList<DynamicMessage> responses = reader.read();
-
-    ImmutableList.Builder<TestResponse> resultBuilder = ImmutableList.builder();
-    for (DynamicMessage response : responses) {
-      resultBuilder.add(TestResponse.parseFrom(response.toByteString()));
-    }
-    return resultBuilder.build();
   }
 
   private static ImmutableList<String> makeArgs(int port, String protoRoot, String method) {

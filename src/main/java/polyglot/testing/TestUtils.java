@@ -1,13 +1,15 @@
 package polyglot.testing;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.protobuf.DynamicMessage;
+import com.google.protobuf.InvalidProtocolBufferException;
+
+import polyglot.io.FileMessageReader;
+import polyglot.test.TestProto.TestResponse;
 
 /** Utilities shared across tests. */
 public class TestUtils {
@@ -19,6 +21,7 @@ public class TestUtils {
   public static final Path TESTING_CERTS_DIR = Paths.get(getWorkspaceRoot().toString(),
       "src", "main", "java", "polyglot", "testing", "test-certificates");
 
+  /** Returns the root directory of the runtime workspace. */
   public static Path getWorkspaceRoot() {
     // Bazel runs binaries with the workspace root as working directory.
     return Paths.get(".").toAbsolutePath();
@@ -38,10 +41,31 @@ public class TestUtils {
     return String.format("--%s=%s", key, value);
   }
 
-  /** Loads a certificate with the given name from our test certificates directory. */
-  public static File loadCertFile(String fileName) throws IOException {
-    Path filePath = Paths.get(TESTING_CERTS_DIR.toString(), fileName);
-    Preconditions.checkArgument(Files.exists(filePath), "File " + fileName + " was not found");
-    return filePath.toFile();
+  /** Attempts to read a response proto from the supplied file. */
+  public static ImmutableList<TestResponse> readResponseFile(Path file)
+      throws InvalidProtocolBufferException {
+    FileMessageReader reader = FileMessageReader.create(file, TestResponse.getDescriptor());
+    ImmutableList<DynamicMessage> responses = reader.read();
+
+    ImmutableList.Builder<TestResponse> resultBuilder = ImmutableList.builder();
+    for (DynamicMessage response : responses) {
+      resultBuilder.add(TestResponse.parseFrom(response.toByteString()));
+    }
+    return resultBuilder.build();
+  }
+
+  /** Returns a file containing a root CA certificate for use in tests. */
+  public static File loadRootCaCert() {
+    return Paths.get(TESTING_CERTS_DIR.toString(), "ca.pem").toFile();
+  }
+
+  /** Returns a file containing a certificate chain from our testing root CA to our server. */
+  public static File loadServerChainCert() {
+    return Paths.get(TESTING_CERTS_DIR.toString(), "server.pem").toFile();
+  }
+
+  /** Returns a file containing the key pair of our server. */
+  public static File loadServerKey() {
+    return Paths.get(TESTING_CERTS_DIR.toString(), "server.key").toFile();
   }
 }
