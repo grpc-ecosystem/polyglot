@@ -1,5 +1,6 @@
 package polyglot.protobuf;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,6 +43,15 @@ public class ServiceResolver {
       }
     }
     return new ServiceResolver(result.build());
+  }
+  
+  /** Lists all of the services found in the file descriptors */
+  public Iterable<ServiceDescriptor> listServices() {
+	  ArrayList<ServiceDescriptor> serviceDescriptors = new ArrayList<ServiceDescriptor>(); 
+	  for (FileDescriptor fileDescriptor: fileDescriptors) {
+		  serviceDescriptors.addAll(fileDescriptor.getServices());
+	  }
+	  return serviceDescriptors;
   }
 
   private ServiceResolver(Iterable<FileDescriptor> fileDescriptors) {

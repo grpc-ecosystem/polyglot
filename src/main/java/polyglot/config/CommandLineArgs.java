@@ -17,12 +17,12 @@ import com.google.common.net.HostAndPort;
 
 import polyglot.protobuf.ProtoMethodName;
 
-/** Provides easy access to the arguments passed on the commmand line. */
+/** Provides easy access to the arguments passed on the command line. */
 public class CommandLineArgs {
-  @Option(name = "--full_method", required = true, metaVar = "<some.package.Service/doSomething>")
+  @Option(name = "--full_method", metaVar = "<some.package.Service/doSomething>")
   private String fullMethodArg;
 
-  @Option(name = "--endpoint", required = true, metaVar = "<host>:<port>")
+  @Option(name = "--endpoint", metaVar = "<host>:<port>")
   private String endpointArg;
 
   @Option(name = "--config_set_path", metaVar = "<path/to/config.pb.json>")
@@ -49,6 +49,29 @@ public class CommandLineArgs {
 
   @Option(name = "--tls_ca_cert_path", metaVar = "<path>")
   private String tlsCaCertPath;
+
+  // *************************************************************************
+  // * Initial step towards the migration to "polyglot <command> [flagz...]" *
+  // *************************************************************************
+  @Option(name = "--command", metaVar = "<e.g. list_services>")	// Expand to support many commands
+  private String commandArg;
+  
+  // TODO: Move to a "list_services"-specific flag container
+  @Option(name = "--service_filter", metaVar = "service_name", 
+		  usage="Filters services to those containing this string")
+  private String serviceFilterArg;
+  
+  // TODO: Move to a "list_services"-specific flag container
+  @Option(name = "--method_filter", metaVar = "method_name", 
+		  usage="Filters methods on a service to those containing this string")
+  private String methodFilterArg;
+  
+  //TODO: Move to a "list_services"-specific flag container
+  @Option(name = "--with_message", metaVar = "true|false", 
+     usage="If true, then the message specification for the method is rendered")
+  private String withMessageArg;
+  
+  // *************************************************************************
 
   // Derived from the other fields.
   private HostAndPort hostAndPort;
@@ -89,6 +112,11 @@ public class CommandLineArgs {
   }
 
   private void initialize() {
+	// Short-circuit the preconditions checks if the "command" flag is present (as flag validation is command-specific) 
+	if (command().isPresent()) {
+	 return;
+	}
+	
     Preconditions.checkNotNull(endpointArg, "The --endpoint argument is required");
     Preconditions.checkNotNull(fullMethodArg, "The --full_method argument is required");
     validatePath(protoDiscoveryRoot());
@@ -136,6 +164,46 @@ public class CommandLineArgs {
   public Optional<Path> tlsCaCertPath() {
     return maybePath(tlsCaCertPath);
   }
+  
+  /**    
+   * First stage of a migration towards a "command"-based instantiation of polyglot.
+   * Supported commands:
+   * 	list_services [--service_filter XXX] [--method_filter YYY] 
+   */
+  public Optional<String> command() {
+	  if (commandArg == null) {
+		  return Optional.empty();
+	  }
+	  return Optional.of(commandArg);
+  }
+  
+  // **********************************************
+  // * Flags supporting the list_services command *
+  // **********************************************
+  // TODO: Move to a "list_services"-specific flag container
+  public Optional<String> serviceFilter() {
+	  if (serviceFilterArg == null) {
+		  return Optional.empty();
+	  }
+	  return Optional.of(serviceFilterArg);
+  }
+  
+  // TODO: Move to a "list_services"-specific flag container
+  public Optional<String> methodFilter() {
+	  if (methodFilterArg == null) {
+		  return Optional.empty();
+	  }
+	  return Optional.of(methodFilterArg);
+  }
+  
+  //TODO: Move to a "list_services"-specific flag container
+  public Optional<Boolean> withMessage() {
+    if (withMessageArg == null) {
+      return Optional.empty();
+    }
+    return Optional.of(Boolean.parseBoolean(withMessageArg));
+  }
+  // *************************************************************************
 
   public ImmutableList<Path> additionalProtocIncludes() {
     if (addProtocIncludesArg == null) {

@@ -27,7 +27,8 @@ public class ServiceList {
     System.out.println();
 
     for (ServiceDescriptor descriptor : serviceResolver.listServices()) {
-      boolean matchingDescriptor = !serviceFilter.isPresent()
+      boolean matchingDescriptor = 
+          !serviceFilter.isPresent()
           || descriptor.getFullName().toLowerCase().contains(serviceFilter.get().toLowerCase());
 
       if (matchingDescriptor) {
@@ -36,10 +37,7 @@ public class ServiceList {
     }
   }
 
-  /**
-   * Lists the methods on the service (the methodFilter will be applied if
-   * non-empty)
-   */
+  /** Lists the methods on the service (the methodFilter will be applied if non-empty)  */
   private static void listMethods(String protoDiscoveryRoot, ServiceDescriptor descriptor,
       Optional<String> methodFilter, Optional<Boolean> withMessage) {
 
@@ -47,14 +45,17 @@ public class ServiceList {
 
     for (MethodDescriptor method : descriptor.getMethods()) {
       if (!methodFilter.isPresent() || method.getName().contains(methodFilter.get())) {
+        
+        // Only print the service name once - and only if a method is going to be printed
         if (!printedService) {
-          System.out.println(descriptor.getFullName() + " -> "
-              + new File(protoDiscoveryRoot, descriptor.getFile().getFullName()).getAbsolutePath());
+          File protoFile = new File(protoDiscoveryRoot, descriptor.getFile().getFullName()); 
+          System.out.println(descriptor.getFullName() + " -> " + protoFile.getAbsolutePath());          
           printedService = true;
         }
 
         System.out.println("  " + descriptor.getFullName() + "/" + method.getName());
 
+        // If requested, add the message definition
         if (withMessage.isPresent() && withMessage.get()) {
           System.out.println(renderDescriptor(method.getInputType(), "  "));
           System.out.println();

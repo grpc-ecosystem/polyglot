@@ -64,12 +64,28 @@ public class Main {
         ? configLoader.getNamedConfiguration(arguments.configName().get())
         : configLoader.getDefaultConfiguration();
     logger.info("Loaded configuration: " + config.getName());
-
-    logger.info("Loading proto file descriptors");
+    
     FileDescriptorSet fileDescriptorSet = getFileDescriptorSet(config.getProtoConfig());
+    
+    if (arguments.command().isPresent()) {
+    	switch (arguments.command().get()) {
+    	case "list_services":
+    		ServiceList.listServices(
+    		    fileDescriptorSet, config.getProtoConfig().getProtoDiscoveryRoot(), 
+    		    arguments.serviceFilter(), arguments.methodFilter(), arguments.withMessage());
+    		break;
+    		
+    	default:
+    		runLegacyCommands(fileDescriptorSet, config, arguments);    		
+    	}
+    }
+  }
+  
+  /** The "legacy commands" will be deprecated when we move over to a "polyglot [command]" style invocation */
+  private static void runLegacyCommands(FileDescriptorSet fileDescriptorSet, final Configuration config, final CommandLineArgs arguments) {
     ServiceResolver serviceResolver = ServiceResolver.fromFileDescriptorSet(fileDescriptorSet);
     MethodDescriptor methodDescriptor =
-        serviceResolver.resolveServiceMethod(arguments.grpcMethodName());
+            serviceResolver.resolveServiceMethod(arguments.grpcMethodName());
 
     logger.info("Creating dynamic grpc client");
     CallConfiguration callConfig = config.getCallConfig();
@@ -141,7 +157,7 @@ public class Main {
     }
     return resultBuilder.build();
   }
-
+  
   /** Redirects the output of standard java loggers to our slf4j handler. */
   private static void setupJavaUtilLogging() {
     LogManager.getLogManager().reset();
