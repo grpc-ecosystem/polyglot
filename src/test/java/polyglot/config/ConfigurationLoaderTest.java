@@ -3,9 +3,12 @@ package polyglot.config;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
 import java.nio.file.Paths;
 import java.util.Optional;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -13,6 +16,7 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.io.Files;
 
 import polyglot.ConfigProto.Configuration;
 import polyglot.ConfigProto.ConfigurationSet;
@@ -22,6 +26,21 @@ import polyglot.ConfigProto.OutputConfiguration.Destination;
 public class ConfigurationLoaderTest {
   @Rule public MockitoRule mockitoJunitRule = MockitoJUnit.rule();
   @Mock private CommandLineArgs mockOverrides;
+
+  private String storedHomeProperty;
+
+  @Before
+  public void setUp() {
+    File file = Files.createTempDir();
+
+    storedHomeProperty = System.getProperty("user.home");
+    System.setProperty("user.home", file.getAbsolutePath());
+  }
+
+  @After
+  public void tearDown() {
+    System.setProperty("user.home", storedHomeProperty);
+  }
 
   @Test
   public void loadsDefaultConfig() {
