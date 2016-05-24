@@ -67,7 +67,10 @@ public class Main {
     
     FileDescriptorSet fileDescriptorSet = getFileDescriptorSet(config.getProtoConfig());
     
-    if (arguments.command().isPresent()) {
+    if (!arguments.command().isPresent()) {
+      runLegacyCommands(fileDescriptorSet, config, arguments);
+    
+    } else {
     	switch (arguments.command().get()) {
     	case "list_services":
     		ServiceList.listServices(
@@ -76,7 +79,7 @@ public class Main {
     		break;
     		
     	default:
-    		runLegacyCommands(fileDescriptorSet, config, arguments);    		
+    	  logger.warn("Unknown command: " + arguments.command().get());
     	}
     }
   }
