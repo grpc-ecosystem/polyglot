@@ -42,14 +42,18 @@ public class ServiceList {
       Optional<String> methodFilter, Optional<Boolean> withMessage) {
 
     boolean printedService = false;
+    
+    // Due to the way the protos are discovered, the leaf directly of the  protoDiscoveryRoot is the same as the root directory as the proto file
+    File protoDiscoveryDir = new File(protoDiscoveryRoot).getParentFile();    
 
     for (MethodDescriptor method : descriptor.getMethods()) {
       if (!methodFilter.isPresent() || method.getName().contains(methodFilter.get())) {
         
         // Only print the service name once - and only if a method is going to be printed
         if (!printedService) {
-          File protoFile = new File(protoDiscoveryRoot, descriptor.getFile().getFullName()); 
-          System.out.println(descriptor.getFullName() + " -> " + protoFile.getAbsolutePath());          
+          File protoFile = new File(protoDiscoveryDir, descriptor.getFile().getName());
+          String protoFileStatus = protoFile.exists() ? "" : " [MISSING]";
+          System.out.println(descriptor.getFullName() + " -> " + protoFile.getAbsolutePath() + protoFileStatus);
           printedService = true;
         }
 
