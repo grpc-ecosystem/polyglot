@@ -71,16 +71,16 @@ public class Main {
       runLegacyCommands(fileDescriptorSet, config, arguments);
     
     } else {
-    	switch (arguments.command().get()) {
-      	case "list_services":
-      		ServiceList.listServices(
-      		    fileDescriptorSet, config.getProtoConfig().getProtoDiscoveryRoot(), 
-      		    arguments.serviceFilter(), arguments.methodFilter(), arguments.withMessage());
-      		break;
-      		
-      	default:
-      	  logger.warn("Unknown command: " + arguments.command().get());
-    	}
+      switch (arguments.command().get()) {
+        case "list_services":
+          ServiceList.listServices(
+            fileDescriptorSet, config.getProtoConfig().getProtoDiscoveryRoot(), 
+            arguments.serviceFilter(), arguments.methodFilter(), arguments.withMessage());
+          break;
+
+        default:
+          logger.warn("Unknown command: " + arguments.command().get());
+      }
     }
   }
   
