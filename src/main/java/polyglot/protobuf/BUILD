@@ -5,6 +5,7 @@ java_library(
   srcs = glob(['*.java']),
   deps = [
     "//src/main/proto:config_proto",
+    "//third_party/google-oauth",
     "//third_party/grpc",
     "//third_party/guava",
     "//third_party/logging:logging-api",

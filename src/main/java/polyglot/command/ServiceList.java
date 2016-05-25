@@ -1,4 +1,4 @@
-package polyglot;
+package polyglot.command;
 
 import java.io.File;
 import java.util.List;
@@ -14,12 +14,14 @@ import com.google.protobuf.Descriptors.ServiceDescriptor;
 
 import polyglot.protobuf.ServiceResolver;
 
-/** Simple utility to list the services, methods and message definitions for the known GRPC end-points */
+/** Utility to list the services, methods and message definitions for the known GRPC end-points */
 public class ServiceList {
 
-  /** Lists the set of GRPC services - optionally filtered by service name (contains) or method name (contains) */ 
-  public static void listServices(FileDescriptorSet fileDescriptorSet, String protoDiscoveryRoot,
-      Optional<String> serviceFilter, Optional<String> methodFilter, Optional<Boolean> withMessage) {
+  /** Lists the GRPC services - filtered by service name (contains) or method name (contains) */ 
+  public static void listServices(
+      FileDescriptorSet fileDescriptorSet, String protoDiscoveryRoot, 
+      Optional<String> serviceFilter, Optional<String> methodFilter, 
+      Optional<Boolean> withMessage) {
 
     ServiceResolver serviceResolver = ServiceResolver.fromFileDescriptorSet(fileDescriptorSet);
 
@@ -43,7 +45,8 @@ public class ServiceList {
 
     boolean printedService = false;
     
-    // Due to the way the protos are discovered, the leaf directly of the  protoDiscoveryRoot is the same as the root directory as the proto file
+    // Due to the way the protos are discovered, the leaf directly of the  protoDiscoveryRoot 
+    // is the same as the root directory as the proto file
     File protoDiscoveryDir = new File(protoDiscoveryRoot).getParentFile();    
 
     for (MethodDescriptor method : descriptor.getMethods()) {
@@ -51,9 +54,8 @@ public class ServiceList {
         
         // Only print the service name once - and only if a method is going to be printed
         if (!printedService) {
-          File protoFile = new File(protoDiscoveryDir, descriptor.getFile().getName());
-          String protoFileStatus = protoFile.exists() ? "" : " [MISSING]";
-          System.out.println(descriptor.getFullName() + " -> " + protoFile.getAbsolutePath() + protoFileStatus);
+          File pFile = new File(protoDiscoveryDir, descriptor.getFile().getName());
+          System.out.println(descriptor.getFullName() + " -> " + pFile.getAbsolutePath());
           printedService = true;
         }
 
@@ -86,7 +88,7 @@ public class ServiceList {
     return Joiner.on(System.lineSeparator()).join(fieldsAsStrings);
   }
 
-  /** Creates a human-readable string of a field to help the user build a message to send to an end-point */
+  /** Create a readable string from the field to help the user build a message  */
   private static String renderDescriptor(FieldDescriptor descriptor, String indent) {
     String isOptional = descriptor.isOptional() ? "<optional>" : "<required>";
     String isRepeated = descriptor.isRepeated() ? "<repeated>" : "<single>";
