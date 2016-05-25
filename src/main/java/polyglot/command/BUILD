@@ -1,4 +1,4 @@
-package(default_visibility = ["//src/main/java/polyglot:__pkg__"])
+package(default_visibility = ["//visibility:public"])
 
 java_library(
   name = "command",

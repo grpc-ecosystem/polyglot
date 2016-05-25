@@ -90,17 +90,17 @@ public class ServiceList {
 
   /** Create a readable string from the field to help the user build a message  */
   private static String renderDescriptor(FieldDescriptor descriptor, String indent) {
-    String isOptional = descriptor.isOptional() ? "<optional>" : "<required>";
-    String isRepeated = descriptor.isRepeated() ? "<repeated>" : "<single>";
-    String fieldPrefix = indent + descriptor.getJsonName() + "[" + isOptional + " " + isRepeated + "]";
+    String isOpt = descriptor.isOptional() ? "<optional>" : "<required>";
+    String isRep = descriptor.isRepeated() ? "<repeated>" : "<single>";
+    String fieldPrefix = indent + descriptor.getJsonName() + "[" + isOpt + " " + isRep + "]";
 
-    if (descriptor.getJavaType() == com.google.protobuf.Descriptors.FieldDescriptor.JavaType.MESSAGE) {
+    if (descriptor.getJavaType() == FieldDescriptor.JavaType.MESSAGE) {
       return 
           fieldPrefix + " {" + System.lineSeparator() 
           + renderDescriptor(descriptor.getMessageType(), indent + "  ") 
           + System.lineSeparator() + indent + "}";
 
-    } else if (descriptor.getJavaType() == com.google.protobuf.Descriptors.FieldDescriptor.JavaType.ENUM) {
+    } else if (descriptor.getJavaType() == FieldDescriptor.JavaType.ENUM) {
       return fieldPrefix + ": " + descriptor.getEnumType().getValues();
 
     } else {

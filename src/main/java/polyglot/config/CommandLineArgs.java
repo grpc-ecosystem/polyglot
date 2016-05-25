@@ -107,18 +107,12 @@ public class CommandLineArgs {
 
   /** Returns the endpoint string */
   public Optional<String >endpoint() {
-    if (endpointArg == null) {
-      return Optional.empty();
-    }
-    return Optional.of(endpointArg);
+    return Optional.ofNullable(endpointArg);
   }
   
   /** Returns the endpoint method */
   public Optional<String >fullMethod() {
-    if (fullMethodArg == null) {
-      return Optional.empty();
-    }
-    return Optional.of(fullMethodArg);
+    return Optional.ofNullable(fullMethodArg);
   }
 
   /** Returns the root of the directory tree in which to discover proto files. */
@@ -156,10 +150,7 @@ public class CommandLineArgs {
    *    list_services [--service_filter XXX] [--method_filter YYY] 
    */
   public Optional<String> command() {
-    if (commandArg == null) {
-      return Optional.empty();
-    }
-    return Optional.of(commandArg);
+    return Optional.ofNullable(commandArg);
   }
   
   // **********************************************
@@ -167,18 +158,12 @@ public class CommandLineArgs {
   // **********************************************
   // TODO: Move to a "list_services"-specific flag container
   public Optional<String> serviceFilter() {
-    if (serviceFilterArg == null) {
-      return Optional.empty();
-    }
-    return Optional.of(serviceFilterArg);
+    return Optional.ofNullable(serviceFilterArg);
   }
   
   // TODO: Move to a "list_services"-specific flag container
   public Optional<String> methodFilter() {
-    if (methodFilterArg == null) {
-      return Optional.empty();
-    }
-    return Optional.of(methodFilterArg);
+    return Optional.ofNullable(methodFilterArg);
   }
   
   //TODO: Move to a "list_services"-specific flag container

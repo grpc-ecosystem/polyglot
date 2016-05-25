@@ -73,16 +73,20 @@ public class ServiceCall {
     logger.info("Creating dynamic grpc client");
     DynamicGrpcClient dynamicClient;
     if (callConfig.hasOauthConfig()) {
-      Credentials credentials = new OauthCredentialsFactory(callConfig.getOauthConfig()).getCredentials();
-      dynamicClient = DynamicGrpcClient.createWithCredentials(methodDescriptor, hostAndPort, callConfig, credentials);
+      Credentials credentials = 
+          new OauthCredentialsFactory(callConfig.getOauthConfig()).getCredentials();
+      
+      dynamicClient = DynamicGrpcClient.createWithCredentials(
+          methodDescriptor, hostAndPort, callConfig, credentials);
+    
     } else {
       dynamicClient = DynamicGrpcClient.create(methodDescriptor, hostAndPort, callConfig);
     }
 
     logger.info("Making rpc call to endpoint: " + endpoint);
     DynamicMessage requestMessage = getProtoFromStdin(methodDescriptor.getInputType());
-    StreamObserver<DynamicMessage> streamObserver = CompositeStreamObserver.of(new LoggingStatsWriter(),
-        messageOutputObserver(outputConfig));
+    StreamObserver<DynamicMessage> streamObserver = 
+        CompositeStreamObserver.of(new LoggingStatsWriter(), messageOutputObserver(outputConfig));
     try {
       dynamicClient.call(requestMessage, streamObserver, callOptions(callConfig)).get();
     } catch (InterruptedException | ExecutionException e) {
@@ -109,7 +113,7 @@ public class ServiceCall {
     case LOG:
       return LoggingMessageWriter.create();
     default:
-      throw new IllegalArgumentException("Unrecognized output destination: " + config.getDestination());
+      throw new IllegalArgumentException("Illegal output destination: " + config.getDestination());
     }
   }
 
