@@ -13,16 +13,13 @@ import org.kohsuke.args4j.Option;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.net.HostAndPort;
 
-import polyglot.protobuf.ProtoMethodName;
-
-/** Provides easy access to the arguments passed on the commmand line. */
+/** Provides easy access to the arguments passed on the command line. */
 public class CommandLineArgs {
-  @Option(name = "--full_method", required = true, metaVar = "<some.package.Service/doSomething>")
+  @Option(name = "--full_method", metaVar = "<some.package.Service/doSomething>")
   private String fullMethodArg;
 
-  @Option(name = "--endpoint", required = true, metaVar = "<host>:<port>")
+  @Option(name = "--endpoint", metaVar = "<host>:<port>")
   private String endpointArg;
 
   @Option(name = "--config_set_path", metaVar = "<path/to/config.pb.json>")
@@ -50,9 +47,41 @@ public class CommandLineArgs {
   @Option(name = "--tls_ca_cert_path", metaVar = "<path>")
   private String tlsCaCertPath;
 
-  // Derived from the other fields.
-  private HostAndPort hostAndPort;
-  private ProtoMethodName grpcMethodName;
+  // *************************************************************************
+  // * Initial step towards the migration to "polyglot <command> [flagz...]" *
+  // *************************************************************************
+  
+  /** Command to make a GRPC call to an endpoint */
+  public static final String CALL_COMMAND = "call";
+  
+  /** Command to list all known services defined in the proto files*/ 
+  public static final String LIST_SERVICES_COMMAND = "list_services";
+  
+  @Option(name = "--command", metaVar = "<call|list_services>")
+  private String commandArg;
+  
+  // TODO: Move to a "list_services"-specific flag container
+  @Option(
+      name = "--service_filter", 
+      metaVar = "service_name", 
+      usage="Filters service names containing this string e.g. --service_filter TestService")
+  private String serviceFilterArg;
+  
+  // TODO: Move to a "list_services"-specific flag container
+  @Option(
+      name = "--method_filter", 
+      metaVar = "method_name", 
+      usage="Filters service methods to those containing this string e.g. --method_name List")
+  private String methodFilterArg;
+  
+  //TODO: Move to a "list_services"-specific flag container
+  @Option(
+      name = "--with_message", 
+      metaVar = "true|false", 
+      usage="If true, then the message specification for the method is rendered")
+  private String withMessageArg;
+  
+  // *************************************************************************
 
   /**
    * Parses the arguments from the supplied array. Throws {@link IllegalArgumentException} if the
@@ -65,12 +94,6 @@ public class CommandLineArgs {
       parser.parseArgument(args);
     } catch (CmdLineException e) {
       throw new IllegalArgumentException("Unable to parse command line flags", e);
-    }
-
-    try {
-      result.initialize();
-    } catch (NullPointerException e) {
-      throw new IllegalArgumentException("Unable to initialize command line arguments", e);
     }
 
     return result;
@@ -88,29 +111,19 @@ public class CommandLineArgs {
   private CommandLineArgs() {
   }
 
-  private void initialize() {
-    Preconditions.checkNotNull(endpointArg, "The --endpoint argument is required");
-    Preconditions.checkNotNull(fullMethodArg, "The --full_method argument is required");
-    validatePath(protoDiscoveryRoot());
-    validatePath(configSetPath());
-    validatePaths(additionalProtocIncludes());
-
-    hostAndPort = HostAndPort.fromString(endpointArg);
-    grpcMethodName = ProtoMethodName.parseFullGrpcMethodName(fullMethodArg);
+  /** Returns the endpoint string */
+  public Optional<String >endpoint() {
+    return Optional.ofNullable(endpointArg);
   }
-
-  public HostAndPort endpoint() {
-    return hostAndPort;
+  
+  /** Returns the endpoint method */
+  public Optional<String >fullMethod() {
+    return Optional.ofNullable(fullMethodArg);
   }
 
   /** Returns the root of the directory tree in which to discover proto files. */
   public Optional<Path> protoDiscoveryRoot() {
     return maybePath(protoDiscoveryRootArg);
-  }
-
-  /** Returns the fully qualified name of the supplied proto method. */
-  public ProtoMethodName grpcMethodName() {
-    return grpcMethodName;
   }
 
   /** Returns the location in which to store the response proto. */
@@ -136,6 +149,37 @@ public class CommandLineArgs {
   public Optional<Path> tlsCaCertPath() {
     return maybePath(tlsCaCertPath);
   }
+  
+  /**    
+   * First stage of a migration towards a "command"-based instantiation of polyglot.
+   * Supported commands:
+   *    list_services [--service_filter XXX] [--method_filter YYY] 
+   */
+  public Optional<String> command() {
+    return Optional.ofNullable(commandArg);
+  }
+  
+  // **********************************************
+  // * Flags supporting the list_services command *
+  // **********************************************
+  // TODO: Move to a "list_services"-specific flag container
+  public Optional<String> serviceFilter() {
+    return Optional.ofNullable(serviceFilterArg);
+  }
+  
+  // TODO: Move to a "list_services"-specific flag container
+  public Optional<String> methodFilter() {
+    return Optional.ofNullable(methodFilterArg);
+  }
+  
+  //TODO: Move to a "list_services"-specific flag container
+  public Optional<Boolean> withMessage() {
+    if (withMessageArg == null) {
+      return Optional.empty();
+    }
+    return Optional.of(Boolean.parseBoolean(withMessageArg));
+  }
+  // *************************************************************************
 
   public ImmutableList<Path> additionalProtocIncludes() {
     if (addProtocIncludesArg == null) {
@@ -153,18 +197,6 @@ public class CommandLineArgs {
 
   public Optional<Integer> getRpcDeadlineMs() {
     return Optional.ofNullable(deadlineMs);
-  }
-
-  private static void validatePath(Optional<Path> maybePath) {
-    if (maybePath.isPresent()) {
-      Preconditions.checkArgument(Files.exists(maybePath.get()));
-    }
-  }
-
-  private static void validatePaths(Iterable<Path> paths) {
-    for (Path path : paths) {
-      Preconditions.checkArgument(Files.exists(path));
-    }
   }
 
   private static Optional<Path> maybePath(String rawPath) {
