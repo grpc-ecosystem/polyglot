@@ -54,8 +54,8 @@ public class Main {
     switch (command) {
       case CommandLineArgs.LIST_SERVICES_COMMAND:
         ServiceList.listServices(
-          fileDescriptorSet, config.getProtoConfig().getProtoDiscoveryRoot(), 
-          arguments.serviceFilter(), arguments.methodFilter(), arguments.withMessage());
+            fileDescriptorSet, config.getProtoConfig().getProtoDiscoveryRoot(), 
+            arguments.serviceFilter(), arguments.methodFilter(), arguments.withMessage());
         break;
 
       case CommandLineArgs.CALL_COMMAND:

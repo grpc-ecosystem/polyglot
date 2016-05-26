@@ -47,11 +47,11 @@ public class ServiceResolver {
   
   /** Lists all of the services found in the file descriptors */
   public Iterable<ServiceDescriptor> listServices() {
-      ArrayList<ServiceDescriptor> serviceDescriptors = new ArrayList<ServiceDescriptor>(); 
-      for (FileDescriptor fileDescriptor: fileDescriptors) {
-          serviceDescriptors.addAll(fileDescriptor.getServices());
-      }
-      return serviceDescriptors;
+    ArrayList<ServiceDescriptor> serviceDescriptors = new ArrayList<ServiceDescriptor>(); 
+    for (FileDescriptor fileDescriptor: fileDescriptors) {
+      serviceDescriptors.addAll(fileDescriptor.getServices());
+    }
+    return serviceDescriptors;
   }
 
   private ServiceResolver(Iterable<FileDescriptor> fileDescriptors) {
