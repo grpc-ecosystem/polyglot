@@ -56,7 +56,9 @@ def main():
             file.write(LIBRARY_TEMPLATE.format(library_name=jar_name, library_path=jar_path))
 
         # Jar entries in the main.iml & test.iml files
-        order_entries.append('    <orderEntry type="library" name="{library_name}" level="project" />'.format(library_name=jar_name))
+        order_entries.append(
+            '    <orderEntry type="library" name="{library_name}" level="project" />'
+            .format(library_name=jar_name))
 
     with open(IML_FILE, 'w') as file:
         file.write(IML_TEMPLATE.format(order_entries="\n".join(order_entries)))
