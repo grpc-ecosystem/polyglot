@@ -12,7 +12,7 @@ bazel-*
 out/
 .idea
 .settings
-main.iml
+project.iml
 
 // Phabricator stuff.
 .arcconfig

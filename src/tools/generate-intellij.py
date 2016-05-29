@@ -10,11 +10,16 @@ LIBRARY_JAR_ROOT = os.path.join('bazel-genfiles', 'external')
 BUILD_EVERYTHING_COMMAND = ['bazel', 'build', 'src/...']
 PROTO_JAR_ROOT = os.path.join('bazel-bin', 'src', 'main', 'proto')
 
+PROJECT_NAME = 'Polyglot'
+
 IDEA_TEMPLATE = 'src/tools/idea-template'
 IDEA_TARGET = '.idea'
+
+# This directory will contain the set of xml files describing the library dependencies
 LIBRARY_DIR = os.path.join(IDEA_TARGET, 'libraries')
-MAIN_IML_FILE = 'src/main/main.iml'
-PROJECT_NAME = 'Polyglot'
+
+# This path must match the module in modules.xml
+IML_FILE = 'src/project.iml'
 
 def main():
     # Using relative paths for certain things makes our lives much easier, but
@@ -50,11 +55,11 @@ def main():
         with open(os.path.join(LIBRARY_DIR, jar_name + '.xml'), 'w') as file:
             file.write(LIBRARY_TEMPLATE.format(library_name=jar_name, library_path=jar_path))
 
-        # Jar entries in the main.iml file
-        order_entries.append('<orderEntry type="library" name="{library_name}" level="project" />'.format(library_name=jar_name))
+        # Jar entries in the main.iml & test.iml files
+        order_entries.append('    <orderEntry type="library" name="{library_name}" level="project" />'.format(library_name=jar_name))
 
-    with open(MAIN_IML_FILE, 'w') as file:
-        file.write(MAIN_TEMPLATE.format(order_entries="\n".join(order_entries)))
+    with open(IML_FILE, 'w') as file:
+        file.write(IML_TEMPLATE.format(order_entries="\n".join(order_entries)))
 
     print('Done')
 
@@ -81,12 +86,13 @@ LIBRARY_TEMPLATE = """<component name="libraryTable">
 </component>
 """
 
-MAIN_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
+IML_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/main" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
