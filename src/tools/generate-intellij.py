@@ -4,7 +4,6 @@ import os
 import os.path
 import subprocess
 import shutil
-from xml.etree.ElementTree import Element, SubElement, tostring
 
 LIBRARY_JAR_ROOT = os.path.join('bazel-genfiles', 'external')
 BUILD_EVERYTHING_COMMAND = ['bazel', 'build', 'src/...']
@@ -20,6 +19,7 @@ LIBRARY_DIR = os.path.join(IDEA_TARGET, 'libraries')
 
 # This path must match the module in modules.xml
 IML_FILE = 'src/project.iml'
+
 
 def main():
     # Using relative paths for certain things makes our lives much easier, but
@@ -66,15 +66,15 @@ def main():
     print('Done')
 
 
-def discover_jars(root):
+def discover_jars(jar_root):
     jar_paths = []
 
     trees = [LIBRARY_JAR_ROOT, PROTO_JAR_ROOT]
     for tree in trees:
-        for root, _, files in os.walk(tree):
+        for jar_root, _, files in os.walk(tree):
             for file in files:
                 if os.path.splitext(file)[1] == '.jar':
-                    jar_paths.append(os.path.abspath(os.path.join(root, file)))
+                    jar_paths.append(os.path.abspath(os.path.join(jar_root, file)))
     return jar_paths
 
 LIBRARY_TEMPLATE = """<component name="libraryTable">
