@@ -8,8 +8,17 @@ bazel-*
 .classpath*
 .project*
 
+// Intell-J
+out/
+.idea
+.settings
+project.iml
+
 // Phabricator stuff.
 .arcconfig
 
 // The build output.
 output
+
+// Mac
+.DS_Store
