@@ -12,6 +12,7 @@ import me.dinowernli.grpc.polyglot.command.ServiceCall;
 import me.dinowernli.grpc.polyglot.command.ServiceList;
 import me.dinowernli.grpc.polyglot.config.CommandLineArgs;
 import me.dinowernli.grpc.polyglot.config.ConfigurationLoader;
+import me.dinowernli.grpc.polyglot.io.Output;
 import me.dinowernli.grpc.polyglot.protobuf.ProtocInvoker;
 import me.dinowernli.grpc.polyglot.protobuf.ProtocInvoker.ProtocInvocationException;
 import polyglot.ConfigProto.Configuration;
@@ -40,38 +41,43 @@ public class Main {
         ? configLoader.getNamedConfiguration(arguments.configName().get())
         : configLoader.getDefaultConfiguration();
     logger.info("Loaded configuration: " + config.getName());
-    
+
     FileDescriptorSet fileDescriptorSet = getFileDescriptorSet(config.getProtoConfig());
-    
+
     String command;
     if (arguments.command().isPresent()) {
       command = arguments.command().get();
-    } else {    
-      logger.warn("Missing --command flag - defaulting to 'call' (but please update you args)");
+    } else {
+      logger.warn("Missing --command flag - defaulting to 'call' (but please update your args)");
       command = CommandLineArgs.CALL_COMMAND;
     }
 
-    switch (command) {
-      case CommandLineArgs.LIST_SERVICES_COMMAND:
-        ServiceList.listServices(
-            fileDescriptorSet, config.getProtoConfig().getProtoDiscoveryRoot(), 
-            arguments.serviceFilter(), arguments.methodFilter(), arguments.withMessage());
-        break;
+    try(Output commandLineOutput = Output.forConfiguration(config.getOutputConfig())) {
+      switch (command) {
+        case CommandLineArgs.LIST_SERVICES_COMMAND:
+          ServiceList.listServices(
+              commandLineOutput,
+              fileDescriptorSet, config.getProtoConfig().getProtoDiscoveryRoot(),
+              arguments.serviceFilter(), arguments.methodFilter(), arguments.withMessage());
+          break;
 
-      case CommandLineArgs.CALL_COMMAND:
-        ServiceCall.callEndpoint(
-            fileDescriptorSet,
-            arguments.endpoint(),
-            arguments.fullMethod(),
-            arguments.protoDiscoveryRoot(), 
-            arguments.configSetPath(), 
-            arguments.additionalProtocIncludes(),
-            config.getCallConfig(), 
-            config.getOutputConfig());
-        break;
+        case CommandLineArgs.CALL_COMMAND:
+          ServiceCall.callEndpoint(
+              commandLineOutput,
+              fileDescriptorSet,
+              arguments.endpoint(),
+              arguments.fullMethod(),
+              arguments.protoDiscoveryRoot(),
+              arguments.configSetPath(),
+              arguments.additionalProtocIncludes(),
+              config.getCallConfig());
+          break;
 
-      default:
-        logger.warn("Unknown command: " + arguments.command().get());
+        default:
+          logger.warn("Unknown command: " + arguments.command().get());
+      }
+    } catch (Exception e) {
+      throw new RuntimeException("Caught excepction while closing output", e);
     }
   }
 

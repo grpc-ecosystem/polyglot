@@ -44,7 +44,7 @@ public class ProtocInvoker {
     ImmutableList.Builder<Path> includePaths = ImmutableList.builder();
     for (String includePathString : protoConfig.getIncludePathsList()) {
       Path path = Paths.get(includePathString);
-      Preconditions.checkArgument(Files.exists(path));
+      Preconditions.checkArgument(Files.exists(path), "Invalid proto include path: " + path);
       includePaths.add(path.toAbsolutePath());
     }
 

@@ -8,6 +8,7 @@ java_test(
     "//src/main/proto/testing:test_service_proto",
     "//src/main/java/me/dinowernli/grpc/polyglot/io",
     "//src/main/java/me/dinowernli/grpc/polyglot/io/testing",
+    "//src/main/java/me/dinowernli/grpc/polyglot/testing",
     "//third_party/grpc",
     "//third_party/guava",
     "//third_party/protobuf",

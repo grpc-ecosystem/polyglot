@@ -14,6 +14,7 @@ java_library(
   deps = [
     "//src/main/java/me/dinowernli/grpc/polyglot/command",
     "//src/main/java/me/dinowernli/grpc/polyglot/config",
+    "//src/main/java/me/dinowernli/grpc/polyglot/io",
     "//src/main/java/me/dinowernli/grpc/polyglot/protobuf",
     "//src/main/proto:config_proto",
     "//third_party/logging:logging-api",
