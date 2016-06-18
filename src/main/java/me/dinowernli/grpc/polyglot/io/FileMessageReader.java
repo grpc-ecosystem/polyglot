@@ -11,7 +11,7 @@ import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.util.JsonFormat;
 
-/** A utility class which knows how to read proto files written using {@link FileMessageWriter}. */
+/** A utility class which knows how to read proto files written using {@link MessageWriter}. */
 public class FileMessageReader {
   private final JsonFormat.Parser jsonParser;
   private final Descriptor descriptor;

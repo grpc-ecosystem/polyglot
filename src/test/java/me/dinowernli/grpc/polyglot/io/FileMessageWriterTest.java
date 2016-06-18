@@ -2,44 +2,45 @@ package me.dinowernli.grpc.polyglot.io;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintWriter;
-
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.protobuf.util.JsonFormat;
 
-import me.dinowernli.grpc.polyglot.io.FileMessageWriter;
 import me.dinowernli.grpc.polyglot.io.testing.TestData;
+import me.dinowernli.grpc.polyglot.testing.RecordingOutput;
 
-/** Unit tests for {@link FileMessageWriter}. */
+/** Unit tests for {@link MessageWriter}. */
 public class FileMessageWriterTest {
-  private ByteArrayOutputStream outputStream;
-  private FileMessageWriter writer;
+  private MessageWriter writer;
+  private RecordingOutput recordingOutput;
 
   @Before
   public void setUp() {
-    outputStream = new ByteArrayOutputStream();
-    writer = new FileMessageWriter(JsonFormat.printer(), new PrintWriter(outputStream));
+    recordingOutput = new RecordingOutput();
+    writer = new MessageWriter(JsonFormat.printer(), recordingOutput);
   }
 
   @Test
-  public void writesSingleMessage() {
+  public void writesSingleMessage() throws Throwable {
     writer.onNext(TestData.REQUEST);
     writer.onCompleted();
-    String result = outputStream.toString();
-    assertThat(result).isEqualTo(TestData.REQUEST_JSON);
+
+    recordingOutput.close();
+
+    assertThat(recordingOutput.getContentsAsString()).isEqualTo(TestData.REQUEST_JSON);
   }
 
   @Test
-  public void writesMultipleMessages() {
+  public void writesMultipleMessages() throws Throwable {
     writer.onNext(TestData.REQUEST);
     writer.onNext(TestData.REQUEST);
     writer.onNext(TestData.REQUEST);
     writer.onCompleted();
-    String result = outputStream.toString();
-    assertThat(result)
+
+    recordingOutput.close();
+
+    assertThat(recordingOutput.getContentsAsString())
         .isEqualTo(TestData.REQUEST_JSON + TestData.REQUEST_JSON + TestData.REQUEST_JSON);
   }
 }

@@ -12,65 +12,73 @@ import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.Descriptors.ServiceDescriptor;
 
+import me.dinowernli.grpc.polyglot.io.Output;
 import me.dinowernli.grpc.polyglot.protobuf.ServiceResolver;
 
 /** Utility to list the services, methods and message definitions for the known GRPC end-points */
 public class ServiceList {
 
-  /** Lists the GRPC services - filtered by service name (contains) or method name (contains) */ 
+  /** Lists the GRPC services - filtered by service name (contains) or method name (contains) */
   public static void listServices(
-      FileDescriptorSet fileDescriptorSet, String protoDiscoveryRoot, 
-      Optional<String> serviceFilter, Optional<String> methodFilter, 
+      Output output,
+      FileDescriptorSet fileDescriptorSet,
+      String protoDiscoveryRoot,
+      Optional<String> serviceFilter,
+      Optional<String> methodFilter,
       Optional<Boolean> withMessage) {
 
     ServiceResolver serviceResolver = ServiceResolver.fromFileDescriptorSet(fileDescriptorSet);
 
     // Add white-space before the rendered output
-    System.out.println();
+    output.newLine();
 
     for (ServiceDescriptor descriptor : serviceResolver.listServices()) {
-      boolean matchingDescriptor = 
+      boolean matchingDescriptor =
           !serviceFilter.isPresent()
           || descriptor.getFullName().toLowerCase().contains(serviceFilter.get().toLowerCase());
 
       if (matchingDescriptor) {
-        listMethods(protoDiscoveryRoot, descriptor, methodFilter, withMessage);
+        listMethods(output, protoDiscoveryRoot, descriptor, methodFilter, withMessage);
       }
     }
   }
 
   /** Lists the methods on the service (the methodFilter will be applied if non-empty)  */
-  private static void listMethods(String protoDiscoveryRoot, ServiceDescriptor descriptor,
-      Optional<String> methodFilter, Optional<Boolean> withMessage) {
+  private static void listMethods(
+      Output output,
+      String protoDiscoveryRoot,
+      ServiceDescriptor descriptor,
+      Optional<String> methodFilter,
+      Optional<Boolean> withMessage) {
 
     boolean printedService = false;
-    
-    // Due to the way the protos are discovered, the leaf directly of the  protoDiscoveryRoot 
+
+    // Due to the way the protos are discovered, the leaf directly of the  protoDiscoveryRoot
     // is the same as the root directory as the proto file
-    File protoDiscoveryDir = new File(protoDiscoveryRoot).getParentFile();    
+    File protoDiscoveryDir = new File(protoDiscoveryRoot).getParentFile();
 
     for (MethodDescriptor method : descriptor.getMethods()) {
       if (!methodFilter.isPresent() || method.getName().contains(methodFilter.get())) {
-        
+
         // Only print the service name once - and only if a method is going to be printed
         if (!printedService) {
           File pFile = new File(protoDiscoveryDir, descriptor.getFile().getName());
-          System.out.println(descriptor.getFullName() + " -> " + pFile.getAbsolutePath());
+          output.writeLine(descriptor.getFullName() + " -> " + pFile.getAbsolutePath());
           printedService = true;
         }
 
-        System.out.println("  " + descriptor.getFullName() + "/" + method.getName());
+        output.writeLine("  " + descriptor.getFullName() + "/" + method.getName());
 
         // If requested, add the message definition
         if (withMessage.isPresent() && withMessage.get()) {
-          System.out.println(renderDescriptor(method.getInputType(), "  "));
-          System.out.println();
+          output.writeLine(renderDescriptor(method.getInputType(), "  "));
+          output.newLine();
         }
       }
     }
 
     if (printedService) {
-      System.out.println();
+      output.newLine();
     }
   }
 
@@ -80,8 +88,7 @@ public class ServiceList {
       return indent + "<empty>";
     }
 
-    List<String> fieldsAsStrings = 
-        descriptor.getFields().stream()
+    List<String> fieldsAsStrings = descriptor.getFields().stream()
         .map(field -> renderDescriptor(field, indent + "  "))
         .collect(Collectors.toList());
 
@@ -95,9 +102,8 @@ public class ServiceList {
     String fieldPrefix = indent + descriptor.getJsonName() + "[" + isOpt + " " + isRep + "]";
 
     if (descriptor.getJavaType() == FieldDescriptor.JavaType.MESSAGE) {
-      return 
-          fieldPrefix + " {" + System.lineSeparator() 
-          + renderDescriptor(descriptor.getMessageType(), indent + "  ") 
+      return fieldPrefix + " {" + System.lineSeparator()
+          + renderDescriptor(descriptor.getMessageType(), indent + "  ")
           + System.lineSeparator() + indent + "}";
 
     } else if (descriptor.getJavaType() == FieldDescriptor.JavaType.ENUM) {

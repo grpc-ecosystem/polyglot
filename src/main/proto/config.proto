@@ -69,11 +69,14 @@ message OauthConfiguration {
 // Contains parameters controlling the output protos of polyglot.
 message OutputConfiguration {
   enum Destination {
-    // Dumps the result into the standard logs.
-    LOG = 0;
+    // Content is written to standard output.
+    STDOUT = 0;
+  
+    // Content is written to the execution log, i.e., to standard error.
+    LOG = 1;
 
-    // Writes the result to a file.
-    FILE = 1;
+    // Content is written to a file.
+    FILE = 2;
   }
   Destination destination = 1;
 

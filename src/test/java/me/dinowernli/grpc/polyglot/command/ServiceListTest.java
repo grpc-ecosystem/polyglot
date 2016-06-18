@@ -2,17 +2,14 @@ package me.dinowernli.grpc.polyglot.command;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.util.Optional;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
 
-import me.dinowernli.grpc.polyglot.command.ServiceList;
+import me.dinowernli.grpc.polyglot.testing.RecordingOutput;
 import polyglot.test.TestProto;
 import polyglot.test.foo.FooProto;
 
@@ -24,56 +21,70 @@ public class ServiceListTest {
       .build();
 
   private final String EXPECTED_SERVICE = "polyglot.test.TestService";
-
-  private PrintStream currentPrintStream;
-  private ByteArrayOutputStream baos;
+  private RecordingOutput recordingOutput;
 
   @Before
   public void setUp() throws Throwable {
-    currentPrintStream = System.out;
-    baos = new ByteArrayOutputStream();
-    System.setOut(new PrintStream(baos));
-  }
-
-  @After
-  public void tearDown() throws Throwable {
-    System.setOut(currentPrintStream);
+    recordingOutput = new RecordingOutput();
   }
 
   @Test
-  public void testServiceListOutput() {
+  public void testServiceListOutput() throws Throwable {
     ServiceList.listServices(
-        PROTO_FILE_DESCRIPTORS, "", Optional.empty(), Optional.empty(), Optional.empty());
+        recordingOutput,
+        PROTO_FILE_DESCRIPTORS,
+        "",
+        Optional.empty(),
+        Optional.empty(),
+        Optional.empty());
+    recordingOutput.close();
 
-    validateOutput(baos.toString(), EXPECTED_SERVICE,
+    validateOutput(recordingOutput.getContentsAsString(), EXPECTED_SERVICE,
         new String[] { "TestMethod", "TestMethodStream", "TestMethodBidi" });
   }
 
   @Test
-  public void testServiceListOutputWithServiceFilter() {
+  public void testServiceListOutputWithServiceFilter() throws Throwable {
     ServiceList.listServices(
-        PROTO_FILE_DESCRIPTORS, "", Optional.of("TestService"), Optional.empty(), Optional.empty());
+        recordingOutput,
+        PROTO_FILE_DESCRIPTORS,
+        "",
+        Optional.of("TestService"),
+        Optional.empty(),
+        Optional.empty());
+    recordingOutput.close();
 
-    validateOutput(baos.toString(), EXPECTED_SERVICE,
+    validateOutput(recordingOutput.getContentsAsString(), EXPECTED_SERVICE,
         new String[] { "TestMethod", "TestMethodStream", "TestMethodBidi" });
   }
 
   @Test
-  public void testServiceListOutputWithMethodFilter() {
+  public void testServiceListOutputWithMethodFilter() throws Throwable {
     ServiceList.listServices(
-        PROTO_FILE_DESCRIPTORS, "", Optional.of("TestService"), 
-        Optional.of("TestMethodStream"), Optional.empty());
+        recordingOutput,
+        PROTO_FILE_DESCRIPTORS,
+        "",
+        Optional.of("TestService"),
+        Optional.of("TestMethodStream"),
+        Optional.empty());
+    recordingOutput.close();
 
-    validateOutput(baos.toString(), EXPECTED_SERVICE, new String[] { "TestMethodStream" });
+    validateOutput(recordingOutput.getContentsAsString(),
+        EXPECTED_SERVICE, new String[] { "TestMethodStream" });
   }
 
   @Test
-  public void testServiceListOutputWithMessageDetail() {
+  public void testServiceListOutputWithMessageDetail() throws Throwable {
     ServiceList.listServices(
-        PROTO_FILE_DESCRIPTORS, "", Optional.of("TestService"), 
-        Optional.of("TestMethodStream"), Optional.of(true));
-    
-    validateMessageOutput(baos.toString());
+        recordingOutput,
+        PROTO_FILE_DESCRIPTORS,
+        "",
+        Optional.of("TestService"),
+        Optional.of("TestMethodStream"),
+        Optional.of(true));
+    recordingOutput.close();
+
+    validateMessageOutput(recordingOutput.getContentsAsString());
   }
 
   /** Compares the actual output with the expected output format */
@@ -117,11 +128,11 @@ public class ServiceListTest {
     // Parse the first line (always [ServiceName] -> [FileName]
     assertThat(lines[0]).startsWith("polyglot.test.TestService -> ");
 
-    String[] expectedLines = { 
-        "polyglot.test.TestService/TestMethodStream", 
+    String[] expectedLines = {
+        "polyglot.test.TestService/TestMethodStream",
         "message[<optional> <single>]: STRING",
-        "foo[<optional> <single>] {", 
-        "message[<optional> <single>]: STRING", 
+        "foo[<optional> <single>] {",
+        "message[<optional> <single>]: STRING",
         "}" };
 
     for (int i = 0; i < expectedLines.length; i++) {

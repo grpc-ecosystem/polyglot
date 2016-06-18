@@ -18,8 +18,6 @@ import org.mockito.junit.MockitoRule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
 
-import me.dinowernli.grpc.polyglot.config.CommandLineArgs;
-import me.dinowernli.grpc.polyglot.config.ConfigurationLoader;
 import polyglot.ConfigProto.Configuration;
 import polyglot.ConfigProto.ConfigurationSet;
 import polyglot.ConfigProto.OutputConfiguration.Destination;
@@ -51,7 +49,7 @@ public class ConfigurationLoaderTest {
     assertThat(defaultConfig).isEqualTo(Configuration.getDefaultInstance());
 
     assertThat(defaultConfig.getCallConfig().getUseTls()).isFalse();
-    assertThat(defaultConfig.getOutputConfig().getDestination()).isEqualTo(Destination.LOG);
+    assertThat(defaultConfig.getOutputConfig().getDestination()).isEqualTo(Destination.STDOUT);
   }
 
   @Test(expected = IllegalStateException.class)
