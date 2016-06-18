@@ -16,8 +16,8 @@ import org.junit.Test;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import com.google.protobuf.util.JsonFormat;
 
+import me.dinowernli.grpc.polyglot.io.MessageWriter;
 import me.dinowernli.grpc.polyglot.testing.TestServer;
 import me.dinowernli.grpc.polyglot.testing.TestUtils;
 import polyglot.test.TestProto.TestRequest;
@@ -60,7 +60,7 @@ public class TlsIntegrationTest {
         .add(makeArgument("tls_ca_cert_path", TestUtils.loadRootCaCert().getAbsolutePath()))
         .add(makeArgument("use_tls", "true"))
         .build();
-    setStdinContents(JsonFormat.printer().print(REQUEST));
+    setStdinContents(MessageWriter.writeJsonStream(ImmutableList.of(REQUEST)));
 
     // Run the full client.
     me.dinowernli.grpc.polyglot.Main.main(args.toArray(new String[0]));
@@ -72,7 +72,7 @@ public class TlsIntegrationTest {
   }
 
   private static ImmutableList<String> makeArgs(int port, String protoRoot, String method) {
-    return TestUtils.makePolyglotArgs(Joiner.on(':').join("localhost", port), protoRoot, method);
+    return TestUtils.makePolyglotCallArgs(Joiner.on(':').join("localhost", port), protoRoot, method);
   }
 
   private static void setStdinContents(String contents) {

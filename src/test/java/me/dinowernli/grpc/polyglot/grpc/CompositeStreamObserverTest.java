@@ -11,7 +11,6 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import io.grpc.stub.StreamObserver;
-import me.dinowernli.grpc.polyglot.grpc.CompositeStreamObserver;
 
 
 /** Unit tests for {@link CompositeStreamObserver}. */

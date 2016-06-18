@@ -5,7 +5,6 @@ import java.nio.file.Paths;
 
 import org.junit.Test;
 
-import me.dinowernli.grpc.polyglot.protobuf.ProtocInvoker;
 import me.dinowernli.grpc.polyglot.testing.TestUtils;
 import polyglot.ConfigProto.ProtoConfiguration;
 

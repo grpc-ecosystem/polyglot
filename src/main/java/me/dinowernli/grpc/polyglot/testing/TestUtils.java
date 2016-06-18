@@ -8,7 +8,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 
-import me.dinowernli.grpc.polyglot.io.FileMessageReader;
+import me.dinowernli.grpc.polyglot.io.MessageReader;
 import polyglot.test.TestProto.TestResponse;
 
 /** Utilities shared across tests. */
@@ -27,9 +27,10 @@ public class TestUtils {
     return Paths.get(".").toAbsolutePath();
   }
 
-  public static ImmutableList<String> makePolyglotArgs(
+  public static ImmutableList<String> makePolyglotCallArgs(
       String endpoint, String protoRoot, String method) {
     return ImmutableList.<String>builder()
+        .add(makeArgument("command", "call"))
         .add(makeArgument("endpoint", endpoint))
         .add(makeArgument("proto_discovery_root", TestUtils.TESTING_PROTO_ROOT.toString()))
         .add(makeArgument("full_method", method))
@@ -44,7 +45,7 @@ public class TestUtils {
   /** Attempts to read a response proto from the supplied file. */
   public static ImmutableList<TestResponse> readResponseFile(Path file)
       throws InvalidProtocolBufferException {
-    FileMessageReader reader = FileMessageReader.create(file, TestResponse.getDescriptor());
+    MessageReader reader = MessageReader.forFile(file, TestResponse.getDescriptor());
     ImmutableList<DynamicMessage> responses = reader.read();
 
     ImmutableList.Builder<TestResponse> resultBuilder = ImmutableList.builder();

@@ -11,8 +11,6 @@ import org.junit.Test;
 
 import com.google.auth.oauth2.OAuth2Credentials;
 
-import me.dinowernli.grpc.polyglot.oauth2.OauthCredentialsFactory;
-import me.dinowernli.grpc.polyglot.oauth2.RefreshTokenCredentials;
 import polyglot.ConfigProto.OauthConfiguration;
 import polyglot.ConfigProto.OauthConfiguration.AccessTokenCredentials;
 

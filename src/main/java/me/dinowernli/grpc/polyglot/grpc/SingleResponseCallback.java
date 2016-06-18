@@ -8,10 +8,10 @@ import io.grpc.stub.StreamObserver;
  * A {@link FutureCallback} which provides an adapter from a future to a stream with a single
  * response.
  */
-class UnaryStreamCallback<T> implements FutureCallback<T> {
+class SingleResponseCallback<T> implements FutureCallback<T> {
   private final StreamObserver<T> streamObserver;
 
-  UnaryStreamCallback(StreamObserver<T> streamObserver) {
+  SingleResponseCallback(StreamObserver<T> streamObserver) {
     this.streamObserver = streamObserver;
   }
 
