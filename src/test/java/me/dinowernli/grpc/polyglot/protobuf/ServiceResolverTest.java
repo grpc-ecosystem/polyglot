@@ -5,8 +5,6 @@ import org.junit.Test;
 
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
 
-import me.dinowernli.grpc.polyglot.protobuf.ProtoMethodName;
-import me.dinowernli.grpc.polyglot.protobuf.ServiceResolver;
 import polyglot.test.TestProto;
 import polyglot.test.foo.FooProto;
 

@@ -1,5 +1,6 @@
 package me.dinowernli.grpc.polyglot.io;
 
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -27,7 +28,7 @@ public interface Output extends AutoCloseable {
    * Creates a new {@link OutputImpl} instance for the supplied config. The retruned instance must ]
    * be closed after use or written content could go missing.
    */
-  public static OutputImpl forConfiguration(OutputConfiguration outputConfig) {
+  public static Output forConfiguration(OutputConfiguration outputConfig) {
     Destination destination = outputConfig.getDestination();
     switch(destination) {
       case STDOUT:
@@ -40,5 +41,9 @@ public interface Output extends AutoCloseable {
       default:
         throw new IllegalArgumentException("Unrecognized output destination " + destination);
     }
+  }
+
+  public static Output forStream(PrintStream printStream) {
+    return new OutputImpl(PrintStreamWriter.forStream(printStream));
   }
 }

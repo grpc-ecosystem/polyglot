@@ -23,10 +23,12 @@ class OutputImpl implements Output {
     writer.write(content);
   }
 
+  @Override
   public void writeLine(String content) {
     write(content + "\n");
   }
 
+  @Override
   public void newLine() {
     write("\n");
   }
@@ -60,7 +62,11 @@ class OutputImpl implements Output {
     private final PrintStream printStream;
 
     static PrintStreamWriter forStdout() {
-      return new PrintStreamWriter(System.out);
+      return PrintStreamWriter.forStream(System.out);
+    }
+
+    static PrintStreamWriter forStream(PrintStream printStream) {
+      return new PrintStreamWriter(printStream);
     }
 
     static PrintStreamWriter forFile(Path path) {

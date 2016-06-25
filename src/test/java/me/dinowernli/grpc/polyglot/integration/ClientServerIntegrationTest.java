@@ -16,8 +16,8 @@ import org.junit.Test;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import com.google.protobuf.util.JsonFormat;
 
+import me.dinowernli.grpc.polyglot.io.MessageWriter;
 import me.dinowernli.grpc.polyglot.testing.RecordingTestService;
 import me.dinowernli.grpc.polyglot.testing.TestServer;
 import me.dinowernli.grpc.polyglot.testing.TestUtils;
@@ -60,7 +60,7 @@ public class ClientServerIntegrationTest {
         .addAll(makeArgs(serverPort, TestUtils.TESTING_PROTO_ROOT.toString(), TEST_UNARY_METHOD))
         .add(makeArgument("output_file_path", responseFilePath.toString()))
         .build();
-    setStdinContents(JsonFormat.printer().print(REQUEST));
+    setStdinContents(MessageWriter.writeJsonStream(ImmutableList.of(REQUEST)));
 
     // Run the full client.
     me.dinowernli.grpc.polyglot.Main.main(args.toArray(new String[0]));
@@ -78,7 +78,7 @@ public class ClientServerIntegrationTest {
         .addAll(makeArgs(serverPort, TestUtils.TESTING_PROTO_ROOT.toString(), TEST_STREAM_METHOD))
         .add(makeArgument("output_file_path", responseFilePath.toString()))
         .build();
-    setStdinContents(JsonFormat.printer().print(REQUEST));
+    setStdinContents(MessageWriter.writeJsonStream(ImmutableList.of(REQUEST)));
 
     // Run the full client.
     me.dinowernli.grpc.polyglot.Main.main(args.toArray(new String[0]));
@@ -104,7 +104,8 @@ public class ClientServerIntegrationTest {
   }
 
   private static ImmutableList<String> makeArgs(int port, String protoRoot, String method) {
-    return TestUtils.makePolyglotArgs(Joiner.on(':').join("localhost", port), protoRoot, method);
+    return TestUtils.makePolyglotCallArgs(
+        Joiner.on(':').join("localhost", port), protoRoot, method);
   }
 
   private static void setStdinContents(String contents) {

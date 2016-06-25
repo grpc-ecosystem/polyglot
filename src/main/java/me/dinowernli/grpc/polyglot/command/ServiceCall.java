@@ -1,8 +1,5 @@
 package me.dinowernli.grpc.polyglot.command;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -13,24 +10,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.auth.Credentials;
-import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.CharStreams;
 import com.google.common.net.HostAndPort;
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
-import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.DynamicMessage;
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.util.JsonFormat;
 
 import io.grpc.CallOptions;
 import io.grpc.stub.StreamObserver;
 import me.dinowernli.grpc.polyglot.grpc.CompositeStreamObserver;
 import me.dinowernli.grpc.polyglot.grpc.DynamicGrpcClient;
 import me.dinowernli.grpc.polyglot.io.LoggingStatsWriter;
+import me.dinowernli.grpc.polyglot.io.MessageReader;
 import me.dinowernli.grpc.polyglot.io.MessageWriter;
 import me.dinowernli.grpc.polyglot.io.Output;
 import me.dinowernli.grpc.polyglot.oauth2.OauthCredentialsFactory;
@@ -61,7 +53,6 @@ public class ServiceCall {
     validatePaths(additionalProtocIncludes);
 
     HostAndPort hostAndPort = HostAndPort.fromString(endpoint.get());
-
     ProtoMethodName grpcMethodName =
         ProtoMethodName.parseFullGrpcMethodName(fullMethod.get());
 
@@ -81,12 +72,14 @@ public class ServiceCall {
       dynamicClient = DynamicGrpcClient.create(methodDescriptor, hostAndPort, callConfig);
     }
 
-    logger.info("Making rpc call to endpoint: " + endpoint);
-    DynamicMessage requestMessage = getProtoFromStdin(methodDescriptor.getInputType());
+    ImmutableList<DynamicMessage> requestMessages =
+        MessageReader.forStdin(methodDescriptor.getInputType()).read();
     StreamObserver<DynamicMessage> streamObserver =
         CompositeStreamObserver.of(new LoggingStatsWriter(), MessageWriter.create(output));
+    logger.info(String.format(
+        "Making rpc with %d request(s) to endpoint [%s]", requestMessages.size(), hostAndPort));
     try {
-      dynamicClient.call(requestMessage, streamObserver, callOptions(callConfig)).get();
+      dynamicClient.call(requestMessages, streamObserver, callOptions(callConfig)).get();
     } catch (InterruptedException | ExecutionException e) {
       throw new RuntimeException("Caught exeception while waiting for rpc", e);
     }
@@ -98,24 +91,6 @@ public class ServiceCall {
       result = result.withDeadlineAfter(callConfig.getDeadlineMs(), TimeUnit.MILLISECONDS);
     }
     return result;
-  }
-
-  private static DynamicMessage getProtoFromStdin(Descriptor protoDescriptor) {
-    final String protoText;
-    try {
-      BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, Charsets.UTF_8));
-      protoText = Joiner.on("\n").join(CharStreams.readLines(reader));
-    } catch (IOException e) {
-      throw new RuntimeException("Unable to read text proto input stream", e);
-    }
-
-    DynamicMessage.Builder resultBuilder = DynamicMessage.newBuilder(protoDescriptor);
-    try {
-      JsonFormat.parser().merge(protoText, resultBuilder);
-    } catch (InvalidProtocolBufferException e) {
-      throw new RuntimeException("Unable to parse text proto", e);
-    }
-    return resultBuilder.build();
   }
 
   private static void validatePath(Optional<Path> maybePath) {

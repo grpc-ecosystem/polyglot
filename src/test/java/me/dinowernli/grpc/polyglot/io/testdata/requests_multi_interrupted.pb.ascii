@@ -1,0 +1,13 @@
+{
+  'message': 'message!'
+}
+
+{
+  'message': 'more message!'
+}
+
+{ 'message': 'even more message' }
+
+
+{ 'message': 'this does not count, happens after two empty lines' }
+this won't even parse, but that's ok!

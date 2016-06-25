@@ -11,8 +11,6 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
 
-import me.dinowernli.grpc.polyglot.config.CommandLineArgs;
-
 /** Unit tests for {@link CommandLineArgs}. */
 public class CommandLineArgsTest {
   private Path tempFile1;

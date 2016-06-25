@@ -12,6 +12,7 @@ import javax.net.ssl.SSLException;
 import com.google.auth.Credentials;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.net.HostAndPort;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -23,6 +24,7 @@ import com.google.protobuf.DynamicMessage;
 
 import io.grpc.CallOptions;
 import io.grpc.Channel;
+import io.grpc.ClientCall;
 import io.grpc.ClientInterceptors;
 import io.grpc.MethodDescriptor.MethodType;
 import io.grpc.auth.ClientAuthInterceptor;
@@ -81,51 +83,98 @@ public class DynamicGrpcClient {
    * terminates once the call has ended.
    */
   public ListenableFuture<Void> call(
-      DynamicMessage request, StreamObserver<DynamicMessage> streamObserver) {
-    return call(request, streamObserver, CallOptions.DEFAULT);
+      ImmutableList<DynamicMessage> requests, StreamObserver<DynamicMessage> streamObserver) {
+    return call(requests, streamObserver, CallOptions.DEFAULT);
   }
 
   /**
    * Makes an rpc to the remote endpoint and respects the supplied callback. Returns a future which
-   * terminates once the call has ended.
+   * terminates once the call has ended. For calls which are single-request, this throws
+   * {@link IllegalArgumentException} if the size of {@code requests} is not exactly 1.
    */
   public ListenableFuture<Void> call(
-      DynamicMessage request,
+      ImmutableList<DynamicMessage> requests,
       StreamObserver<DynamicMessage> streamObserver,
       CallOptions callOptions) {
+    Preconditions.checkArgument(!requests.isEmpty(), "Can't make call without any requests");
     MethodType methodType = getMethodType();
+    long numRequests = requests.size();
     if (methodType == MethodType.UNARY) {
-      return callUnary(request, streamObserver, callOptions);
+      Preconditions.checkArgument(numRequests == 1,
+          "Need exactly 1 request for unary call, but got: " + numRequests);
+      return callUnary(requests.get(0), streamObserver, callOptions);
+    } else if (methodType == MethodType.SERVER_STREAMING) {
+      Preconditions.checkArgument(numRequests == 1,
+          "Need exactly 1 request for server streaming call, but got: " + numRequests);
+      return callServerStreaming(requests.get(0), streamObserver, callOptions);
+    } else if (methodType == MethodType.CLIENT_STREAMING) {
+      return callClientStreaming(requests, streamObserver, callOptions);
     } else {
-      return callServerStreaming(request, streamObserver, callOptions);
+      // Bidi streaming.
+      return callBidiStreaming(requests, streamObserver, callOptions);
     }
+  }
+
+  private ListenableFuture<Void> callBidiStreaming(
+      ImmutableList<DynamicMessage> requests,
+      StreamObserver<DynamicMessage> responseObserver,
+      CallOptions callOptions) {
+    DoneObserver<DynamicMessage> doneObserver = new DoneObserver<>();
+    StreamObserver<DynamicMessage> requestObserver = ClientCalls.asyncBidiStreamingCall(
+        createCall(callOptions),
+        CompositeStreamObserver.of(responseObserver, doneObserver));
+    for (DynamicMessage request : requests) {
+      requestObserver.onNext(request);
+    }
+    requestObserver.onCompleted();
+    return submitWaitTask(doneObserver);
+  }
+
+  private ListenableFuture<Void> callClientStreaming(
+      ImmutableList<DynamicMessage> requests,
+      StreamObserver<DynamicMessage> responseObserver,
+      CallOptions callOptions) {
+    DoneObserver<DynamicMessage> doneObserver = new DoneObserver<>();
+    StreamObserver<DynamicMessage> requestObserver = ClientCalls.asyncClientStreamingCall(
+        createCall(callOptions),
+        CompositeStreamObserver.of(responseObserver, doneObserver));
+    for (DynamicMessage request : requests) {
+      requestObserver.onNext(request);
+    }
+    requestObserver.onCompleted();
+    return submitWaitTask(doneObserver);
   }
 
   private ListenableFuture<Void> callServerStreaming(
       DynamicMessage request,
-      StreamObserver<DynamicMessage> streamObserver,
+      StreamObserver<DynamicMessage> responseObserver,
       CallOptions callOptions) {
     DoneObserver<DynamicMessage> doneObserver = new DoneObserver<>();
     ClientCalls.asyncServerStreamingCall(
-        channel.newCall(createGrpcMethodDescriptor(), callOptions),
+        createCall(callOptions),
         request,
-        CompositeStreamObserver.of(streamObserver, doneObserver));
+        CompositeStreamObserver.of(responseObserver, doneObserver));
     return submitWaitTask(doneObserver);
   }
 
   private ListenableFuture<Void> callUnary(
       DynamicMessage request,
-      StreamObserver<DynamicMessage> streamObserver,
+      StreamObserver<DynamicMessage> responseObserver,
       CallOptions callOptions) {
-    ListenableFuture<DynamicMessage> response = ClientCalls.futureUnaryCall(
-        channel.newCall(createGrpcMethodDescriptor(), callOptions),
-        request);
+    ListenableFuture<DynamicMessage> response =
+        ClientCalls.futureUnaryCall(createCall(callOptions), request);
+
+    // TODO(dino): Consider using asyncUnaryCall for symmetry with the other calls.
 
     DoneObserver<DynamicMessage> doneObserver = new DoneObserver<>();
-    UnaryStreamCallback<DynamicMessage> callback = new UnaryStreamCallback<>(
-        CompositeStreamObserver.of(streamObserver, doneObserver));
+    SingleResponseCallback<DynamicMessage> callback = new SingleResponseCallback<>(
+        CompositeStreamObserver.of(responseObserver, doneObserver));
     Futures.addCallback(response, callback);
     return submitWaitTask(doneObserver);
+  }
+
+  private ClientCall<DynamicMessage, DynamicMessage> createCall(CallOptions callOptions) {
+    return channel.newCall(createGrpcMethodDescriptor(), callOptions);
   }
 
   /** Returns a {@ListenableFuture} which completes when the supplied observer is done. */
@@ -158,15 +207,16 @@ public class DynamicGrpcClient {
   /** Returns the appropriate method type based on whether the client or server expect streams. */
   private MethodType getMethodType() {
     boolean clientStreaming = protoMethodDescriptor.toProto().getClientStreaming();
-    if (clientStreaming) {
-      throw new UnsupportedOperationException("Requests with streaming clients not yet supported");
-    }
-
     boolean serverStreaming = protoMethodDescriptor.toProto().getServerStreaming();
-    if (serverStreaming) {
-      return MethodType.SERVER_STREAMING;
-    } else {
+
+    if (!clientStreaming && !serverStreaming) {
       return MethodType.UNARY;
+    } else if (!clientStreaming && serverStreaming) {
+      return MethodType.SERVER_STREAMING;
+    } else if (clientStreaming && !serverStreaming) {
+      return MethodType.CLIENT_STREAMING;
+    } else {
+      return MethodType.BIDI_STREAMING;
     }
   }
 

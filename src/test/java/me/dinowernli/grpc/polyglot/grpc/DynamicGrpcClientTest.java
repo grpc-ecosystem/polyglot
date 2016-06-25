@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.DynamicMessage;
@@ -22,7 +23,6 @@ import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
 import io.grpc.stub.StreamObserver;
-import me.dinowernli.grpc.polyglot.grpc.DynamicGrpcClient;
 import polyglot.test.TestProto;
 import polyglot.test.TestProto.TestRequest;
 
@@ -52,12 +52,10 @@ public class DynamicGrpcClientTest {
       .build();
 
   @Rule public MockitoRule mockitoJunitRule = MockitoJUnit.rule();
-
   @Mock private Channel mockChannel;
   @Mock private ListeningExecutorService mockExecutor;
   @Mock private StreamObserver<DynamicMessage> mockStreamObserver;
   @Mock private ClientCall<DynamicMessage, DynamicMessage> mockClientCall;
-
   @Captor private ArgumentCaptor<CallOptions> callOptionsCaptor;
 
   private DynamicGrpcClient client;
@@ -73,14 +71,14 @@ public class DynamicGrpcClientTest {
   @Test
   public void unaryMethodCall() {
     client = new DynamicGrpcClient(UNARY_METHOD, mockChannel, mockExecutor);
-    client.call(REQUEST, mockStreamObserver, CALL_OPTIONS);
+    client.call(ImmutableList.of(REQUEST), mockStreamObserver, CALL_OPTIONS);
     // No crash.
   }
 
   @Test
   public void passesCallOptions() {
     client = new DynamicGrpcClient(UNARY_METHOD, mockChannel, mockExecutor);
-    client.call(REQUEST, mockStreamObserver, CALL_OPTIONS);
+    client.call(ImmutableList.of(REQUEST), mockStreamObserver, CALL_OPTIONS);
 
     verify(mockChannel).newCall(
         Matchers.<io.grpc.MethodDescriptor<DynamicMessage, DynamicMessage>>any(),

@@ -1,20 +1,24 @@
 package me.dinowernli.grpc.polyglot.io;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.protobuf.DynamicMessage;
+import com.google.common.collect.ImmutableList;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.Message;
 import com.google.protobuf.util.JsonFormat;
 
 import io.grpc.stub.StreamObserver;
 
 /**
- * A {@link StreamObserver} which writes the contents of the received response messages to an
- * {@link OutputImpl}.
+ * A {@link StreamObserver} which writes the contents of the received messages to an
+ * {@link Output}. The messages are writting in a newline-separated json format.
  */
-public class MessageWriter implements StreamObserver<DynamicMessage> {
+public class MessageWriter<T extends Message> implements StreamObserver<T> {
   private static final Logger logger = LoggerFactory.getLogger(MessageWriter.class);
 
   /** Used to separate the individual plaintext json proto messages. */
@@ -23,8 +27,23 @@ public class MessageWriter implements StreamObserver<DynamicMessage> {
   private final JsonFormat.Printer jsonPrinter;
   private final Output output;
 
-  public static MessageWriter create(Output output) {
-    return new MessageWriter(JsonFormat.printer(), output);
+  /**
+   * Creates a new {@link MessageWriter} which writes the messages it sees to the supplied
+   * {@link Output}.
+   */
+  public static <T extends Message> MessageWriter<T> create(Output output) {
+    return new MessageWriter<T>(JsonFormat.printer(), output);
+  }
+
+  /**
+   * Returns the string representation of the stream of supplied messages. Each individual message
+   * is represented as valid json, but not that the whole result is, itself, *not* valid json.
+   */
+  public static <M extends Message> String writeJsonStream(ImmutableList<M> messages) {
+    ByteArrayOutputStream resultStream = new ByteArrayOutputStream();
+    MessageWriter<M> writer = MessageWriter.create(Output.forStream(new PrintStream(resultStream)));
+    writer.writeAll(messages);
+    return resultStream.toString();
   }
 
   @VisibleForTesting
@@ -44,11 +63,17 @@ public class MessageWriter implements StreamObserver<DynamicMessage> {
   }
 
   @Override
-  public void onNext(DynamicMessage message) {
+  public void onNext(T message) {
     try {
       output.write(jsonPrinter.print(message) + MESSAGE_SEPARATOR);
     } catch (InvalidProtocolBufferException e) {
       logger.error("Skipping invalid response message", e);
     }
+  }
+
+  /** Writes all the supplied messages and closes the stream. */
+  public void writeAll(ImmutableList<? extends T> messages) {
+    messages.forEach(this::onNext);
+    onCompleted();
   }
 }
