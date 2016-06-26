@@ -29,7 +29,13 @@ public class Main {
     try {
       arguments = CommandLineArgs.parse(args);
     } catch (RuntimeException e) {
-      logger.info("Usage: polyglot " + CommandLineArgs.getUsage(), e);
+      logger.info("Unable to parse flags", e);
+      return;
+    }
+
+    // Catch the help case.
+    if (arguments.isHelp()) {
+      logger.info("Usage: " + CommandLineArgs.getUsage());
       return;
     }
 
