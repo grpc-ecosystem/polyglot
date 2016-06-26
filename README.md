@@ -27,13 +27,13 @@ $ echo <json-request> | java -jar polyglot.jar \
 
 Note that on Linux you should be able to just run `./polyglot.jar` as long as you have `binfmt-support` installed.
 
-For more invocation examples, see the [examples](https://github.com/grpc-ecosystem/polyglot/tree/master/src/tools/example)) directory.
+For more invocation examples, see the [examples](https://github.com/grpc-ecosystem/polyglot/tree/master/src/tools/example) directory.
 
 ### Configuration
 
 Some of the features of Polyglot (such as Oauth, see below) require some configuration. Moreover, that sort of configuration tends to remain identical across multiple Polyglot runs. In order to improve usability, Polyglot supports loading a configuration set from a file at runtime. This configuration set can contain multiple named `Configuration` objects (schema defined [here](https://github.com/dinowernli/polyglot/blob/master/src/main/proto/config.proto#L14)). An example configuration could look like this:
 
-```
+```json
 {
   "configurations": [
     {
@@ -128,15 +128,9 @@ a different platform, you can specify the platform explicitly as follows:
 
 `$ bazel build src/main/java/polyglot --define=target=osx`
 
-## Running the example
+## Running the examples
 
-First, start the server: 
-
-`$ ./run-server.sh`
-
-Then, in a different terminal, run the client example:
-
-`$ ./run-client-example.sh`
+Example invocations can be found in the [examples](https://github.com/grpc-ecosystem/polyglot/tree/master/src/tools/example) directory. In order to run a simple rpc call, invoke [`run-server.sh`](https://github.com/grpc-ecosystem/polyglot/tree/master/src/tools/example/run-server.sh) followed by (in a different terminal) [`call-command-example.sh`](https://github.com/grpc-ecosystem/polyglot/tree/master/src/tools/example/call-command-example.sh).
 
 ## Building and running tests
 
