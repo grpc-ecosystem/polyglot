@@ -22,7 +22,7 @@ $ echo <json-request> | java -jar polyglot.jar \
     --command=call \
     --endpoint=<host>:<port> \
     --full_method=<some.package.Service/doSomething> \
-    --proto_discovery_root=<path> \
+    --proto_discovery_root=<path>
 ```
 
 Note that on Linux you should be able to just run `./polyglot.jar` as long as you have `binfmt-support` installed.
