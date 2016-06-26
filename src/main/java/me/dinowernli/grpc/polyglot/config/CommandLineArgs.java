@@ -47,40 +47,43 @@ public class CommandLineArgs {
   @Option(name = "--tls_ca_cert_path", metaVar = "<path>")
   private String tlsCaCertPath;
 
+  @Option(name = "--help")
+  private Boolean help;
+
   // *************************************************************************
   // * Initial step towards the migration to "polyglot <command> [flagz...]" *
   // *************************************************************************
-  
+
   /** Command to make a GRPC call to an endpoint */
   public static final String CALL_COMMAND = "call";
-  
-  /** Command to list all known services defined in the proto files*/ 
+
+  /** Command to list all known services defined in the proto files*/
   public static final String LIST_SERVICES_COMMAND = "list_services";
-  
+
   @Option(name = "--command", metaVar = "<call|list_services>")
   private String commandArg;
-  
+
   // TODO: Move to a "list_services"-specific flag container
   @Option(
-      name = "--service_filter", 
-      metaVar = "service_name", 
+      name = "--service_filter",
+      metaVar = "service_name",
       usage="Filters service names containing this string e.g. --service_filter TestService")
   private String serviceFilterArg;
-  
+
   // TODO: Move to a "list_services"-specific flag container
   @Option(
-      name = "--method_filter", 
-      metaVar = "method_name", 
+      name = "--method_filter",
+      metaVar = "method_name",
       usage="Filters service methods to those containing this string e.g. --method_name List")
   private String methodFilterArg;
-  
+
   //TODO: Move to a "list_services"-specific flag container
   @Option(
-      name = "--with_message", 
-      metaVar = "true|false", 
+      name = "--with_message",
+      metaVar = "true|false",
       usage="If true, then the message specification for the method is rendered")
   private String withMessageArg;
-  
+
   // *************************************************************************
 
   /**
@@ -115,7 +118,7 @@ public class CommandLineArgs {
   public Optional<String >endpoint() {
     return Optional.ofNullable(endpointArg);
   }
-  
+
   /** Returns the endpoint method */
   public Optional<String >fullMethod() {
     return Optional.ofNullable(fullMethodArg);
@@ -149,16 +152,16 @@ public class CommandLineArgs {
   public Optional<Path> tlsCaCertPath() {
     return maybePath(tlsCaCertPath);
   }
-  
-  /**    
+
+  /**
    * First stage of a migration towards a "command"-based instantiation of polyglot.
    * Supported commands:
-   *    list_services [--service_filter XXX] [--method_filter YYY] 
+   *    list_services [--service_filter XXX] [--method_filter YYY]
    */
   public Optional<String> command() {
     return Optional.ofNullable(commandArg);
   }
-  
+
   // **********************************************
   // * Flags supporting the list_services command *
   // **********************************************
@@ -166,12 +169,12 @@ public class CommandLineArgs {
   public Optional<String> serviceFilter() {
     return Optional.ofNullable(serviceFilterArg);
   }
-  
+
   // TODO: Move to a "list_services"-specific flag container
   public Optional<String> methodFilter() {
     return Optional.ofNullable(methodFilterArg);
   }
-  
+
   //TODO: Move to a "list_services"-specific flag container
   public Optional<Boolean> withMessage() {
     if (withMessageArg == null) {
@@ -197,6 +200,10 @@ public class CommandLineArgs {
 
   public Optional<Integer> getRpcDeadlineMs() {
     return Optional.ofNullable(deadlineMs);
+  }
+
+  public boolean isHelp() {
+    return help != null && help;
   }
 
   private static Optional<Path> maybePath(String rawPath) {

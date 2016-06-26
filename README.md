@@ -15,16 +15,19 @@ All you need to run Polyglot is a Java runtime. Binaries for Mac, Linux, and Win
 
 ### Making a grpc request
 
-Polyglot can be invoked as follows:
+The "Hello World" of using Polyglot is to make an rpc call. This can be done using `call` command as follows:
 
 ```
 $ echo <json-request> | java -jar polyglot.jar \
+    --command=call \
     --endpoint=<host>:<port> \
     --full_method=<some.package.Service/doSomething> \
-    --proto_discovery_root=<path>
+    --proto_discovery_root=<path> \
 ```
 
-Note that on Linux you should be able to just run `./polyglot.jar` as long as you have `binfmt-support` installed. For a more detailed execution example, see `run-client-example.sh`.
+Note that on Linux you should be able to just run `./polyglot.jar` as long as you have `binfmt-support` installed.
+
+For more invocation examples, see the [examples](https://github.com/grpc-ecosystem/polyglot/tree/master/src/tools/example)) directory.
 
 ### Configuration
 
@@ -91,6 +94,18 @@ Polyglot has built-in support for authentication of requests using OAuth tokens 
 
 In order to use this feature, Polyglot needs an `OauthConfiguration` inside its `Configuration`. For details on how to populate the `OauthConfiguration`, please see the documentation of the fields in [`config.proto`](https://github.com/dinowernli/polyglot/blob/master/src/main/proto/config.proto#L14).
 
+### Listing services
+
+Polyglot supports printing a list of all the discovered services using the `list_services` command. This command can be invoked as follows:
+
+```
+$ java -jar polyglot.jar \
+    --command=list_services \
+    --proto_discovery_root=<path> \
+```
+
+The printed services can be filtered using `--service_filter=<service_name>` and the `--with_message` flag can be used to also print the exact format of the requests.
+
 ## Build requirements
 
 In order to build Polyglot from source, you will need:
@@ -127,8 +142,6 @@ Then, in a different terminal, run the client example:
 
 `$ bazel test ...`
 
-## Features
+## Main contributors
 
-* OAuth integration for authenticated requests
-* Ability to parse .proto files at runtime
-* Support for receiving streams of responses
+* [Dino Wernli](https://github.com/dinowernli)

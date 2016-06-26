@@ -6,6 +6,7 @@ if [ ! -f WORKSPACE ]; then
 fi
 
 bazel build src/main/java/me/dinowernli/grpc/polyglot && cat src/tools/example/request.pb.ascii | ./bazel-bin/src/main/java/me/dinowernli/grpc/polyglot/polyglot \
+  --command=call \
   --full_method=polyglot.HelloService/SayHello \
   --endpoint=localhost:12345 \
   --proto_discovery_root=./src/main/proto \
