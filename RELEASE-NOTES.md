@@ -1,5 +1,9 @@
 # Polyglot Release Notes
 
+Quick links:
+
+* [Releases page](https://github.com/dinowernli/polyglot/releases)
+
 ## 1.1.0
 
 * Added a new command, called `list` as well as a documentation section in the README. The default command is `call`, which makes an rpc call to a remote endpoint.
