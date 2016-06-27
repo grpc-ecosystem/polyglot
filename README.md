@@ -104,7 +104,7 @@ $ java -jar polyglot.jar \
     --proto_discovery_root=<path> \
 ```
 
-The printed services can be filtered using `--service_filter=<service_name>` and the `--with_message` flag can be used to also print the exact format of the requests.
+The printed services can be filtered using `--service_filter=<service_name>` or `--method_filter=<method_name>`, and the `--with_message` flag can be used to also print the exact format of the requests.
 
 ## Build requirements
 

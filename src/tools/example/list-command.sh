@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [ ! -f WORKSPACE ]; then
-    echo "This must be invoked from the WORKSPACE root"
+    echo "Could not find WORKSPACE file - this must be run from the project root directory"
     exit 1
 fi
 
