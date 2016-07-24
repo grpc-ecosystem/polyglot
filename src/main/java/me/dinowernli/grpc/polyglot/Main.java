@@ -83,7 +83,7 @@ public class Main {
           logger.warn("Unknown command: " + arguments.command().get());
       }
     } catch (Exception e) {
-      throw new RuntimeException("Caught excepction while closing output", e);
+      throw new RuntimeException("Caught exception during command execution", e);
     }
   }
 

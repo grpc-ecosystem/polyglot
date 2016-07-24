@@ -1,28 +1,28 @@
 package me.dinowernli.grpc.polyglot.integration;
 
-import static com.google.common.truth.Truth.assertThat;
-import static me.dinowernli.grpc.polyglot.testing.TestUtils.makeArgument;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-
 import me.dinowernli.grpc.polyglot.io.MessageWriter;
 import me.dinowernli.grpc.polyglot.testing.RecordingTestService;
 import me.dinowernli.grpc.polyglot.testing.TestServer;
 import me.dinowernli.grpc.polyglot.testing.TestUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import polyglot.test.TestProto.TestRequest;
 import polyglot.test.TestProto.TestResponse;
+
+import static com.google.common.truth.Truth.assertThat;
+import static me.dinowernli.grpc.polyglot.testing.TestUtils.makeArgument;
 
 /**
  * An integration test suite which has the Polyglot client talk to a server which records requests.
@@ -30,6 +30,9 @@ import polyglot.test.TestProto.TestResponse;
 public class ClientServerIntegrationTest {
   private static final String TEST_UNARY_METHOD = "polyglot.test.TestService/TestMethod";
   private static final String TEST_STREAM_METHOD = "polyglot.test.TestService/TestMethodStream";
+  private static final String TEST_CLIENT_STREAM_METHOD =
+      "polyglot.test.TestService/TestMethodClientStream";
+  private static final String TEST_BIDI_METHOD = "polyglot.test.TestService/TestMethodBidi";
 
   private static final TestRequest REQUEST = TestRequest.newBuilder()
       .setMessage("i am totally a message")
@@ -72,7 +75,7 @@ public class ClientServerIntegrationTest {
   }
 
   @Test
-  public void makesRoundTripStream() throws Throwable {
+  public void makesRoundTripServerStream() throws Throwable {
     int serverPort = testServer.getGrpcServerPort();
     ImmutableList<String> args = ImmutableList.<String>builder()
         .addAll(makeArgs(serverPort, TestUtils.TESTING_PROTO_ROOT.toString(), TEST_STREAM_METHOD))
@@ -85,8 +88,46 @@ public class ClientServerIntegrationTest {
 
     // Make sure we can parse the response from the file.
     ImmutableList<TestResponse> responses = TestUtils.readResponseFile(responseFilePath);
-    assertThat(responses).hasSize(1);
-    assertThat(responses.get(0)).isEqualTo(TestServer.STREAMING_SERVER_RESPONSE);
+    assertThat(responses).containsExactly(TestServer.STREAMING_SERVER_RESPONSE);
+  }
+
+  @Test
+  public void makesRoundTripClientStream() throws Throwable {
+    int serverPort = testServer.getGrpcServerPort();
+    ImmutableList<String> args = ImmutableList.<String>builder()
+        .addAll(makeArgs(
+            serverPort, TestUtils.TESTING_PROTO_ROOT.toString(), TEST_CLIENT_STREAM_METHOD))
+        .add(makeArgument("output_file_path", responseFilePath.toString()))
+        .build();
+    setStdinContents(MessageWriter.writeJsonStream(ImmutableList.of(REQUEST, REQUEST, REQUEST)));
+
+    // Run the full client.
+    me.dinowernli.grpc.polyglot.Main.main(args.toArray(new String[0]));
+
+    // Make sure we can parse the response from the file.
+    ImmutableList<TestResponse> responses = TestUtils.readResponseFile(responseFilePath);
+    assertThat(responses).containsExactly(TestServer.CLIENT_STREAMING_SERVER_RESPONSE);
+  }
+
+  @Test
+  public void makesRoundTripBidiStream() throws Throwable {
+    int serverPort = testServer.getGrpcServerPort();
+    ImmutableList<String> args = ImmutableList.<String>builder()
+        .addAll(makeArgs(
+            serverPort, TestUtils.TESTING_PROTO_ROOT.toString(), TEST_BIDI_METHOD))
+        .add(makeArgument("output_file_path", responseFilePath.toString()))
+        .build();
+    setStdinContents(MessageWriter.writeJsonStream(ImmutableList.of(REQUEST, REQUEST, REQUEST)));
+
+    // Run the full client.
+    me.dinowernli.grpc.polyglot.Main.main(args.toArray(new String[0]));
+
+    // Make sure we can parse the response from the file.
+    ImmutableList<TestResponse> responses = TestUtils.readResponseFile(responseFilePath);
+    assertThat(responses).containsExactly(
+        TestServer.BIDI_SERVER_RESPONSE,
+        TestServer.BIDI_SERVER_RESPONSE,
+        TestServer.BIDI_SERVER_RESPONSE);
   }
 
   @Test(expected = RuntimeException.class)

@@ -1,17 +1,16 @@
 package me.dinowernli.grpc.polyglot.command;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import java.util.Optional;
 
+import com.google.common.collect.ImmutableList;
+import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
+import me.dinowernli.grpc.polyglot.testing.RecordingOutput;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
-
-import me.dinowernli.grpc.polyglot.testing.RecordingOutput;
 import polyglot.test.TestProto;
 import polyglot.test.foo.FooProto;
+
+import static com.google.common.truth.Truth.assertThat;
 
 /** Unit tests for {@link ServiceList}. */
 public class ServiceListTest {
@@ -20,7 +19,10 @@ public class ServiceListTest {
       .addFile(FooProto.getDescriptor().toProto())
       .build();
 
-  private final String EXPECTED_SERVICE = "polyglot.test.TestService";
+  private static final String EXPECTED_SERVICE = "polyglot.test.TestService";
+  private static final ImmutableList<String> EXPECTED_METHOD_NAMES = ImmutableList.of(
+      "TestMethod", "TestMethodStream", "TestMethodClientStream", "TestMethodBidi");
+
   private RecordingOutput recordingOutput;
 
   @Before
@@ -39,8 +41,7 @@ public class ServiceListTest {
         Optional.empty());
     recordingOutput.close();
 
-    validateOutput(recordingOutput.getContentsAsString(), EXPECTED_SERVICE,
-        new String[] { "TestMethod", "TestMethodStream", "TestMethodBidi" });
+    validateOutput(recordingOutput.getContentsAsString(), EXPECTED_SERVICE, EXPECTED_METHOD_NAMES);
   }
 
   @Test
@@ -54,8 +55,7 @@ public class ServiceListTest {
         Optional.empty());
     recordingOutput.close();
 
-    validateOutput(recordingOutput.getContentsAsString(), EXPECTED_SERVICE,
-        new String[] { "TestMethod", "TestMethodStream", "TestMethodBidi" });
+    validateOutput(recordingOutput.getContentsAsString(), EXPECTED_SERVICE, EXPECTED_METHOD_NAMES);
   }
 
   @Test
@@ -69,8 +69,10 @@ public class ServiceListTest {
         Optional.empty());
     recordingOutput.close();
 
-    validateOutput(recordingOutput.getContentsAsString(),
-        EXPECTED_SERVICE, new String[] { "TestMethodStream" });
+    validateOutput(
+        recordingOutput.getContentsAsString(),
+        EXPECTED_SERVICE,
+        ImmutableList.of("TestMethodStream"));
   }
 
   @Test
@@ -88,7 +90,8 @@ public class ServiceListTest {
   }
 
   /** Compares the actual output with the expected output format */
-  private void validateOutput(String output, String serviceName, String[] methodNames) {
+  private void validateOutput(
+      String output, String serviceName, ImmutableList<String> methodNames) {
     // Assuming no filters, we expect output of the form (note that [tmp_path]
     // is a placeholder):
     //
@@ -99,14 +102,14 @@ public class ServiceListTest {
     // polyglot.test.TestService/TestMethodBidi
 
     String[] lines = output.trim().split("\n");
-    assertThat(lines.length).isEqualTo(methodNames.length + 1);
+    assertThat(lines.length).isEqualTo(methodNames.size() + 1);
 
     // Parse the first line (always [ServiceName] -> [FileName]
     assertThat(lines[0]).startsWith(serviceName + " -> ");
 
     // Parse the subsequent lines (always [ServiceName]/[MethodName])
-    for (int i = 0; i < methodNames.length; i++) {
-      assertThat(lines[i + 1].trim()).isEqualTo(serviceName + "/" + methodNames[i]);
+    for (int i = 0; i < methodNames.size(); i++) {
+      assertThat(lines[i + 1].trim()).isEqualTo(serviceName + "/" + methodNames.get(i));
     }
   }
 
@@ -128,15 +131,15 @@ public class ServiceListTest {
     // Parse the first line (always [ServiceName] -> [FileName]
     assertThat(lines[0]).startsWith("polyglot.test.TestService -> ");
 
-    String[] expectedLines = {
+    ImmutableList<String> expectedLines = ImmutableList.of(
         "polyglot.test.TestService/TestMethodStream",
         "message[<optional> <single>]: STRING",
         "foo[<optional> <single>] {",
         "message[<optional> <single>]: STRING",
-        "}" };
+        "}");
 
-    for (int i = 0; i < expectedLines.length; i++) {
-      assertThat(lines[i + 1].trim()).isEqualTo(expectedLines[i]);
+    for (int i = 0; i < expectedLines.size(); i++) {
+      assertThat(lines[i + 1].trim()).isEqualTo(expectedLines.get(i));
     }
   }
 }

@@ -18,5 +18,6 @@ message TestResponse {
 service TestService {
   rpc TestMethod (TestRequest) returns (TestResponse) {}
   rpc TestMethodStream (TestRequest) returns (stream TestResponse) {}
+  rpc TestMethodClientStream (stream TestRequest) returns (TestResponse) {}
   rpc TestMethodBidi (stream TestRequest) returns (stream TestResponse) {}
 }

@@ -21,7 +21,6 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.DynamicMessage;
-
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
@@ -36,10 +35,13 @@ import io.grpc.stub.StreamObserver;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import me.dinowernli.grpc.polyglot.protobuf.DynamicMessageMarshaller;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import polyglot.ConfigProto.CallConfiguration;
 
 /** A grpc client which operates on dynamic messages. */
 public class DynamicGrpcClient {
+  private static final Logger logger = LoggerFactory.getLogger(DynamicGrpcClient.class);
   private final MethodDescriptor protoMethodDescriptor;
   private final Channel channel;
   private final ListeningExecutorService executor;
@@ -80,38 +82,33 @@ public class DynamicGrpcClient {
 
   /**
    * Makes an rpc to the remote endpoint and respects the supplied callback. Returns a future which
-   * terminates once the call has ended.
-   */
-  public ListenableFuture<Void> call(
-      ImmutableList<DynamicMessage> requests, StreamObserver<DynamicMessage> streamObserver) {
-    return call(requests, streamObserver, CallOptions.DEFAULT);
-  }
-
-  /**
-   * Makes an rpc to the remote endpoint and respects the supplied callback. Returns a future which
    * terminates once the call has ended. For calls which are single-request, this throws
    * {@link IllegalArgumentException} if the size of {@code requests} is not exactly 1.
    */
   public ListenableFuture<Void> call(
       ImmutableList<DynamicMessage> requests,
-      StreamObserver<DynamicMessage> streamObserver,
+      StreamObserver<DynamicMessage> responseObserver,
       CallOptions callOptions) {
     Preconditions.checkArgument(!requests.isEmpty(), "Can't make call without any requests");
     MethodType methodType = getMethodType();
     long numRequests = requests.size();
     if (methodType == MethodType.UNARY) {
+      logger.info("Making unary call");
       Preconditions.checkArgument(numRequests == 1,
           "Need exactly 1 request for unary call, but got: " + numRequests);
-      return callUnary(requests.get(0), streamObserver, callOptions);
+      return callUnary(requests.get(0), responseObserver, callOptions);
     } else if (methodType == MethodType.SERVER_STREAMING) {
+      logger.info("Making server streaming call");
       Preconditions.checkArgument(numRequests == 1,
           "Need exactly 1 request for server streaming call, but got: " + numRequests);
-      return callServerStreaming(requests.get(0), streamObserver, callOptions);
+      return callServerStreaming(requests.get(0), responseObserver, callOptions);
     } else if (methodType == MethodType.CLIENT_STREAMING) {
-      return callClientStreaming(requests, streamObserver, callOptions);
+      logger.info("Making client streaming call with " + requests.size() + " requests");
+      return callClientStreaming(requests, responseObserver, callOptions);
     } else {
       // Bidi streaming.
-      return callBidiStreaming(requests, streamObserver, callOptions);
+      logger.info("Making bidi streaming call with " + requests.size() + " requests");
+      return callBidiStreaming(requests, responseObserver, callOptions);
     }
   }
 
@@ -123,9 +120,7 @@ public class DynamicGrpcClient {
     StreamObserver<DynamicMessage> requestObserver = ClientCalls.asyncBidiStreamingCall(
         createCall(callOptions),
         CompositeStreamObserver.of(responseObserver, doneObserver));
-    for (DynamicMessage request : requests) {
-      requestObserver.onNext(request);
-    }
+    requests.forEach(requestObserver::onNext);
     requestObserver.onCompleted();
     return submitWaitTask(doneObserver);
   }
@@ -138,9 +133,7 @@ public class DynamicGrpcClient {
     StreamObserver<DynamicMessage> requestObserver = ClientCalls.asyncClientStreamingCall(
         createCall(callOptions),
         CompositeStreamObserver.of(responseObserver, doneObserver));
-    for (DynamicMessage request : requests) {
-      requestObserver.onNext(request);
-    }
+    requests.forEach(requestObserver::onNext);
     requestObserver.onCompleted();
     return submitWaitTask(doneObserver);
   }
@@ -177,7 +170,7 @@ public class DynamicGrpcClient {
     return channel.newCall(createGrpcMethodDescriptor(), callOptions);
   }
 
-  /** Returns a {@ListenableFuture} which completes when the supplied observer is done. */
+  /** Returns a {@link ListenableFuture} which completes when the supplied observer is done. */
   private ListenableFuture<Void> submitWaitTask(DoneObserver<?> doneObserver) {
     return executor.submit(new Callable<Void>() {
       @Override

@@ -32,7 +32,6 @@ import polyglot.ConfigProto.CallConfiguration;
 
 /** Makes a call to an endpoint, rendering the result */
 public class ServiceCall {
-
   private static final Logger logger = LoggerFactory.getLogger(ServiceCall.class);
 
   /** Calls the endpoint specified in the arguments */
