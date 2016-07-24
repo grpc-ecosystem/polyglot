@@ -120,9 +120,7 @@ public class DynamicGrpcClient {
     StreamObserver<DynamicMessage> requestObserver = ClientCalls.asyncBidiStreamingCall(
         createCall(callOptions),
         CompositeStreamObserver.of(responseObserver, doneObserver));
-    for (DynamicMessage request : requests) {
-      requestObserver.onNext(request);
-    }
+    requests.forEach(requestObserver::onNext);
     requestObserver.onCompleted();
     return submitWaitTask(doneObserver);
   }
@@ -135,9 +133,7 @@ public class DynamicGrpcClient {
     StreamObserver<DynamicMessage> requestObserver = ClientCalls.asyncClientStreamingCall(
         createCall(callOptions),
         CompositeStreamObserver.of(responseObserver, doneObserver));
-    for (DynamicMessage request : requests) {
-      requestObserver.onNext(request);
-    }
+    requests.forEach(requestObserver::onNext);
     requestObserver.onCompleted();
     return submitWaitTask(doneObserver);
   }
@@ -174,7 +170,7 @@ public class DynamicGrpcClient {
     return channel.newCall(createGrpcMethodDescriptor(), callOptions);
   }
 
-  /** Returns a {@ListenableFuture} which completes when the supplied observer is done. */
+  /** Returns a {@link ListenableFuture} which completes when the supplied observer is done. */
   private ListenableFuture<Void> submitWaitTask(DoneObserver<?> doneObserver) {
     return executor.submit(new Callable<Void>() {
       @Override
