@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.Random;
 
 import com.google.common.base.Throwables;
-
 import io.grpc.Server;
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NettyServerBuilder;
@@ -30,6 +29,16 @@ public class TestServer {
       .setMessage("some other message")
       .build();
 
+  /** A response sent whenever the test server sees a request to its client streaming method. */
+  public static final TestResponse CLIENT_STREAMING_SERVER_RESPONSE = TestResponse.newBuilder()
+      .setMessage("woohoo client stream")
+      .build();
+
+  /** A response sent whenever the test server sees a request to its client streaming method. */
+  public static final TestResponse BIDI_SERVER_RESPONSE = TestResponse.newBuilder()
+      .setMessage("woohoo bidi stream")
+      .build();
+
   private static final long NUM_SERVER_START_TRIES = 3;
   private static final int MIN_SERVER_PORT = 50_000;
   private static final int MAX_SERVER_PORT = 60_000;
@@ -44,7 +53,10 @@ public class TestServer {
    */
   public static TestServer createAndStart(Optional<SslContext> sslContext) {
     RecordingTestService recordingTestService = new RecordingTestService(
-        UNARY_SERVER_RESPONSE, STREAMING_SERVER_RESPONSE);
+        UNARY_SERVER_RESPONSE,
+        STREAMING_SERVER_RESPONSE,
+        CLIENT_STREAMING_SERVER_RESPONSE,
+        BIDI_SERVER_RESPONSE);
 
     Random random = new Random();
     for (int i = 0; i < NUM_SERVER_START_TRIES; ++i) {
@@ -69,10 +81,6 @@ public class TestServer {
     this.grpcServer = grpcServer;
     this.grpcServerPort = grpcServerPort;
     this.recordingService = recordingTestService;
-  }
-
-  public Server getGrpcServer() {
-    return grpcServer;
   }
 
   public int getGrpcServerPort() {
