@@ -39,8 +39,8 @@ public class HelloServiceImpl implements HelloService {
       @Override
       public void onNext(HelloRequest request) {
         responseStream.onNext(HelloResponse.newBuilder()
-                                 .setMessage("Hello, " + request.getRecipient())
-                                 .build());
+          .setMessage("Hello, " + request.getRecipient())
+          .build());
       }
 
       @Override

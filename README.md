@@ -136,7 +136,7 @@ After calling this, you should have a fresh binary at:
 By default, the built binaries target 64-bit Linux platforms. If you are planning to run on
 a different platform, you can specify the platform explicitly as follows:
 
-`$ bazel build ssrc/main/java/me/dinowernli/grpc/polyglot --define=target=windows`
+`$ bazel build src/main/java/me/dinowernli/grpc/polyglot --define=target=windows`
 
 `$ bazel build src/main/java/me/dinowernli/grpc/polyglot --define=target=osx`
 

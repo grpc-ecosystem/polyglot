@@ -2,9 +2,9 @@
 
 Before running any example, make sure you are in the project root directory.
 
-### Starting test server
+### Starting the test server
 
-In order to run example Polyglot invocations we need to run example hello server. Use [`run-server.sh`](https://github.com/grpc-ecosystem/polyglot/tree/master/src/tools/example/run-server.sh) to start server:
+In order to run the example Polyglot invocations we need to run example hello server. Use [`run-server.sh`](https://github.com/grpc-ecosystem/polyglot/tree/master/src/tools/example/run-server.sh) to start server:
 
 `$ bash src/tools/example/run-server.sh`
 
