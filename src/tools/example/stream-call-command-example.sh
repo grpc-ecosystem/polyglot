@@ -8,9 +8,12 @@ if [ ! -f WORKSPACE ]; then
     exit 1
 fi
 
-bazel build ${POLYGLOT_PATH} && ${POLYGLOT_BIN}  \
-  --command=list_services \
+bazel build ${POLYGLOT_PATH} && \
+cat src/tools/example/requests_multi.pb.ascii | ${POLYGLOT_BIN}  \
+  --command=call \
+  --full_method=polyglot.HelloService/SayHelloBidi \
+  --endpoint=localhost:12345 \
   --proto_discovery_root=./src/main/proto \
   --add_protoc_includes=. \
-  --service_filter=HelloService \
-  --with_message=true
+  --config_set_path=config.pb.json \
+  --deadline_ms=3000
