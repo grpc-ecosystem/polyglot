@@ -5,4 +5,5 @@ if [ ! -f WORKSPACE ]; then
     exit 1
 fi
 
-bazel build src/main/java/me/dinowernli/grpc/polyglot/server:main && ./bazel-bin/src/main/java/me/dinowernli/grpc/polyglot/server/main
+bazel build src/main/java/me/dinowernli/grpc/polyglot/server:main && \
+./bazel-bin/src/main/java/me/dinowernli/grpc/polyglot/server/main

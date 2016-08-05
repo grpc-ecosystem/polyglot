@@ -27,6 +27,16 @@ $ echo <json-request> | java -jar polyglot.jar \
     --proto_discovery_root=<path>
 ```
 
+For stream requests double newlines `\n\n` are used to separate your json requests as follows:
+
+```
+$ echo '<json-request-1> \n\n <json-request-2> ... \n\n <json-request-n>' | java -jar polyglot.jar \
+    --command=call \
+    --endpoint=<host>:<port> \
+    --full_method=<some.package.Service/doSomething> \
+    --proto_discovery_root=<path>
+```
+
 Note that on Linux you should be able to just run `./polyglot.jar` as long as you have `binfmt-support` installed.
 
 For more invocation examples, see the [examples](https://github.com/grpc-ecosystem/polyglot/tree/master/src/tools/example) directory.
@@ -117,18 +127,18 @@ In order to build Polyglot from source, you will need:
 
 ## Building a binary
 
-`$ bazel build src/main/java/polyglot`
+`$ bazel build src/main/java/me/dinowernli/grpc/polyglot`
 
 After calling this, you should have a fresh binary at:
 
-`./bazel-bin/src/main/java/polyglot/polyglot`
+`./bazel-bin/src/main/java/me/dinowernli/grpc/polyglot`
 
 By default, the built binaries target 64-bit Linux platforms. If you are planning to run on
 a different platform, you can specify the platform explicitly as follows:
 
-`$ bazel build src/main/java/polyglot --define=target=windows`
+`$ bazel build ssrc/main/java/me/dinowernli/grpc/polyglot --define=target=windows`
 
-`$ bazel build src/main/java/polyglot --define=target=osx`
+`$ bazel build src/main/java/me/dinowernli/grpc/polyglot --define=target=osx`
 
 ## Running the examples
 
@@ -136,7 +146,7 @@ Example invocations can be found in the [examples](https://github.com/grpc-ecosy
 
 ## Building and running tests
 
-`$ bazel test ...`
+`$ bazel test ./src/...`
 
 ## Main contributors
 
