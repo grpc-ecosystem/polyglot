@@ -40,6 +40,17 @@ http_file(
   sha256 = "314dfcbfe1e816aa07cff4fd254f69b482778c089e47ff565222ff2daccfc188",
 )
 
+maven_server(
+  name = "mwitkow",
+  url = "https://raw.github.com/mwitkow/maven-repos/master",
+)
+
+maven_jar(
+  name = "flagz_core_artifact",
+  artifact = "org.flagz:flagz:2.2.0",
+  server = "mwitkow",
+)
+
 maven_jar(
   name = "grpc_artifact",
   artifact = "io.grpc:grpc-all:0.13.2",

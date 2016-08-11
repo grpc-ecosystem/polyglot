@@ -11,5 +11,6 @@ java_library(
     "//third_party/guava",
     "//third_party/netty",
     "//third_party/protobuf",
+    "@flagz_core_artifact//jar",
   ],
 )
