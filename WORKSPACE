@@ -139,3 +139,8 @@ maven_jar(
   name = "google_gson_artifact",
   artifact = "com.google.code.gson:gson:2.6.2",
 )
+
+maven_jar(
+  name = "apache_commons_lang3_artifact",
+  artifact = "org.apache.commons:commons-lang3:3.4",
+)

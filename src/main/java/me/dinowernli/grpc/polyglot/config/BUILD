@@ -7,6 +7,7 @@ java_library(
     "//src/main/proto:config_proto",
     "//src/main/java/me/dinowernli/grpc/polyglot/protobuf",
     "//third_party/args4j",
+    "//third_party/commons-lang",
     "//third_party/grpc",
     "//third_party/guava",
     "//third_party/netty",
