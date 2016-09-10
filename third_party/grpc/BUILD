@@ -65,8 +65,22 @@ java_import(
 java_library(
   name = "grpc",
   exports = [
-    "@grpc_artifact//jar",
+    "@grpc_auth_artifact//jar",
+    "@grpc_benchmarks_artifact//jar",
+    "@grpc_core_artifact//jar",
+    "@grpc_netty_artifact//jar",
+    "@grpc_protobuf_artifact//jar",
+    "@grpc_protobuf_lite_artifact//jar",
+    "@grpc_stub_artifact//jar",
     ":tcnative-jar",
+  ],
+  licenses = ["permissive"],
+)
+
+java_library(
+  name = "testing",
+  exports = [
+    "@grpc_testing_artifact//jar",
   ],
   licenses = ["permissive"],
 )

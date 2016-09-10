@@ -2,12 +2,7 @@ package me.dinowernli.grpc.polyglot;
 
 import java.util.logging.LogManager;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.bridge.SLF4JBridgeHandler;
-
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
-
 import me.dinowernli.grpc.polyglot.command.ServiceCall;
 import me.dinowernli.grpc.polyglot.command.ServiceList;
 import me.dinowernli.grpc.polyglot.config.CommandLineArgs;
@@ -15,6 +10,9 @@ import me.dinowernli.grpc.polyglot.config.ConfigurationLoader;
 import me.dinowernli.grpc.polyglot.io.Output;
 import me.dinowernli.grpc.polyglot.protobuf.ProtocInvoker;
 import me.dinowernli.grpc.polyglot.protobuf.ProtocInvoker.ProtocInvocationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 import polyglot.ConfigProto.Configuration;
 import polyglot.ConfigProto.ProtoConfiguration;
 

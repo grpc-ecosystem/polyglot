@@ -12,37 +12,72 @@ http_file(
 
 http_file(
   name = "tcnative_boringssl_static_linux_x86_64",
-  url = "http://search.maven.org/remotecontent?filepath=io/netty/netty-tcnative-boringssl-static/1.1.33.Fork14/netty-tcnative-boringssl-static-1.1.33.Fork14-linux-x86_64.jar",
-  sha256 = "dea9f7e6f540390d60641515a8d078db281bc4cced333dbf229c1525ba842b33",
+  url = "http://search.maven.org/remotecontent?filepath=io/netty/netty-tcnative-boringssl-static/1.1.33.Fork19/netty-tcnative-boringssl-static-1.1.33.Fork19-linux-x86_64.jar",
+  sha256 = "35087663007cd921222d6bd46c18fabb3a1f5d37bf617b0853f80291e3df858e",
 )
 
 http_file(
   name = "tcnative_boringssl_static_windows_x86_64",
-  url = "http://search.maven.org/remotecontent?filepath=io/netty/netty-tcnative-boringssl-static/1.1.33.Fork14/netty-tcnative-boringssl-static-1.1.33.Fork14-windows-x86_64.jar",
-  sha256 = "40466538b8b264e003639f54e2549da89bad016d2e680c5d3b94c451e932741b",
+  url = "http://search.maven.org/remotecontent?filepath=io/netty/netty-tcnative-boringssl-static/1.1.33.Fork19/netty-tcnative-boringssl-static-1.1.33.Fork19-windows-x86_64.jar",
+  sha256 = "f6eeb29901b2d019984fcbf8104334a3f1422ba42462fc09204ebb7772943f95",
 )
 
 http_file(
   name = "tcnative_boringssl_static_osx_x86_64",
-  url = "http://search.maven.org/remotecontent?filepath=io/netty/netty-tcnative-boringssl-static/1.1.33.Fork14/netty-tcnative-boringssl-static-1.1.33.Fork14-osx-x86_64.jar",
-  sha256 = "7b8a730655f271cb52e0e6e4fba23fbabd6f989041b77491fcfec3e61699f83e",
+  url = "http://search.maven.org/remotecontent?filepath=io/netty/netty-tcnative-boringssl-static/1.1.33.Fork19/netty-tcnative-boringssl-static-1.1.33.Fork19-osx-x86_64.jar",
+  sha256 = "bd9e088ca8ef52ed27fcfe12edabcf3511832e72cef8a0b88f1222bbe437ba63",
 )
 
 http_file(
   name = "protoc_osx_x86_64",
-  url = "https://repo1.maven.org/maven2/com/google/protobuf/protoc/3.0.0-beta-2/protoc-3.0.0-beta-2-osx-x86_64.exe",
-  sha256 = "dd275c9c22a160adac20b4e0c049270b2ebd29b1a8803c0f286c228a4fe13092",
+  url = "https://repo1.maven.org/maven2/com/google/protobuf/protoc/3.0.0-beta-3/protoc-3.0.0-beta-3-osx-x86_64.exe",
+  sha256 = "3e197d491ba3e798bbe93b1b41f451ba1a15a731eb4da347e29b132bfbd814bc",
 )
 
 http_file(
   name = "protoc_linux_x86_64",
-  url = "http://search.maven.org/remotecontent?filepath=com/google/protobuf/protoc/3.0.0-beta-2/protoc-3.0.0-beta-2-linux-x86_64.exe",
-  sha256 = "314dfcbfe1e816aa07cff4fd254f69b482778c089e47ff565222ff2daccfc188",
+  url = "http://search.maven.org/remotecontent?filepath=com/google/protobuf/protoc/3.0.0-beta-3/protoc-3.0.0-beta-3-linux-x86_64.exe",
+  sha256 = "3d93855585bf8e8b152f6cec494f2d62932d4afa34c646bf1f73f7a09425e04c",
 )
 
 maven_jar(
-  name = "grpc_artifact",
-  artifact = "io.grpc:grpc-all:0.13.2",
+  name = "grpc_auth_artifact",
+  artifact = "io.grpc:grpc-auth:1.0.0",
+)
+
+maven_jar(
+  name = "grpc_benchmarks_artifact",
+  artifact = "io.grpc:grpc-benchmarks:1.0.0",
+)
+
+maven_jar(
+  name = "grpc_core_artifact",
+  artifact = "io.grpc:grpc-core:1.0.0",
+)
+
+maven_jar(
+  name = "grpc_netty_artifact",
+  artifact = "io.grpc:grpc-netty:1.0.0",
+)
+
+maven_jar(
+  name = "grpc_protobuf_artifact",
+  artifact = "io.grpc:grpc-protobuf:1.0.0",
+)
+
+maven_jar(
+  name = "grpc_protobuf_lite_artifact",
+  artifact = "io.grpc:grpc-protobuf-lite:1.0.0",
+)
+
+maven_jar(
+  name = "grpc_stub_artifact",
+  artifact = "io.grpc:grpc-stub:1.0.0",
+)
+
+maven_jar(
+  name = "grpc_testing_artifact",
+  artifact = "io.grpc:grpc-testing:1.0.0",
 )
 
 maven_jar(
@@ -57,17 +92,17 @@ maven_jar(
 
 maven_jar(
   name = "netty_artifact",
-  artifact = "io.netty:netty-all:4.1.0.CR3",
+  artifact = "io.netty:netty-all:4.1.3.Final",
 )
 
 maven_jar(
   name = "protobuf_java_artifact",
-  artifact = "com.google.protobuf:protobuf-java:3.0.0-beta-2"
+  artifact = "com.google.protobuf:protobuf-java:3.0.0-beta-3"
 )
 
 maven_jar(
   name = "protobuf_java_util_artifact",
-  artifact = "com.google.protobuf:protobuf-java-util:3.0.0-beta-2",
+  artifact = "com.google.protobuf:protobuf-java-util:3.0.0-beta-3",
 )
 
 maven_jar(
