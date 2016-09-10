@@ -12,20 +12,20 @@ http_file(
 
 http_file(
   name = "tcnative_boringssl_static_linux_x86_64",
-  url = "http://search.maven.org/remotecontent?filepath=io/netty/netty-tcnative-boringssl-static/1.1.33.Fork14/netty-tcnative-boringssl-static-1.1.33.Fork14-linux-x86_64.jar",
-  sha256 = "dea9f7e6f540390d60641515a8d078db281bc4cced333dbf229c1525ba842b33",
+  url = "http://search.maven.org/remotecontent?filepath=io/netty/netty-tcnative-boringssl-static/1.1.33.Fork19/netty-tcnative-boringssl-static-1.1.33.Fork19-linux-x86_64.jar",
+  sha256 = "35087663007cd921222d6bd46c18fabb3a1f5d37bf617b0853f80291e3df858e",
 )
 
 http_file(
   name = "tcnative_boringssl_static_windows_x86_64",
-  url = "http://search.maven.org/remotecontent?filepath=io/netty/netty-tcnative-boringssl-static/1.1.33.Fork14/netty-tcnative-boringssl-static-1.1.33.Fork14-windows-x86_64.jar",
-  sha256 = "40466538b8b264e003639f54e2549da89bad016d2e680c5d3b94c451e932741b",
+  url = "http://search.maven.org/remotecontent?filepath=io/netty/netty-tcnative-boringssl-static/1.1.33.Fork19/netty-tcnative-boringssl-static-1.1.33.Fork19-windows-x86_64.jar",
+  sha256 = "f6eeb29901b2d019984fcbf8104334a3f1422ba42462fc09204ebb7772943f95",
 )
 
 http_file(
   name = "tcnative_boringssl_static_osx_x86_64",
-  url = "http://search.maven.org/remotecontent?filepath=io/netty/netty-tcnative-boringssl-static/1.1.33.Fork14/netty-tcnative-boringssl-static-1.1.33.Fork14-osx-x86_64.jar",
-  sha256 = "7b8a730655f271cb52e0e6e4fba23fbabd6f989041b77491fcfec3e61699f83e",
+  url = "http://search.maven.org/remotecontent?filepath=io/netty/netty-tcnative-boringssl-static/1.1.33.Fork19/netty-tcnative-boringssl-static-1.1.33.Fork19-osx-x86_64.jar",
+  sha256 = "bd9e088ca8ef52ed27fcfe12edabcf3511832e72cef8a0b88f1222bbe437ba63",
 )
 
 http_file(
