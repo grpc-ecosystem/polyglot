@@ -1,31 +1,13 @@
 http_file(
   name = "gen_java_grpc_linux_x86_64",
-  url = "https://repo1.maven.org/maven2/io/grpc/protoc-gen-grpc-java/0.13.2/protoc-gen-grpc-java-0.13.2-linux-x86_64.exe",
-  sha256 = "188fe7e975f75af6931dd36427dca1b5f7b43797dc406ef8d852b31df846f1d6",
+  url = "https://repo1.maven.org/maven2/io/grpc/protoc-gen-grpc-java/1.0.0/protoc-gen-grpc-java-1.0.0-linux-x86_64.exe",
+  sha256 = "4c16cd65e63a92f11f8a24c26a8b418ea6312484d341f66e94d4b5aa27e6e57b",
 )
 
 http_file(
   name = "gen_java_grpc_osx_x86_64",
-  url = "https://repo1.maven.org/maven2/io/grpc/protoc-gen-grpc-java/0.13.2/protoc-gen-grpc-java-0.13.2-osx-x86_64.exe",
-  sha256 = "6318405813e19b62d0555b569df7dcd6bbddcfe8c3b58c9aed6ca0d3737ab9e3",
-)
-
-http_file(
-  name = "tcnative_boringssl_static_linux_x86_64",
-  url = "http://search.maven.org/remotecontent?filepath=io/netty/netty-tcnative-boringssl-static/1.1.33.Fork19/netty-tcnative-boringssl-static-1.1.33.Fork19-linux-x86_64.jar",
-  sha256 = "35087663007cd921222d6bd46c18fabb3a1f5d37bf617b0853f80291e3df858e",
-)
-
-http_file(
-  name = "tcnative_boringssl_static_windows_x86_64",
-  url = "http://search.maven.org/remotecontent?filepath=io/netty/netty-tcnative-boringssl-static/1.1.33.Fork19/netty-tcnative-boringssl-static-1.1.33.Fork19-windows-x86_64.jar",
-  sha256 = "f6eeb29901b2d019984fcbf8104334a3f1422ba42462fc09204ebb7772943f95",
-)
-
-http_file(
-  name = "tcnative_boringssl_static_osx_x86_64",
-  url = "http://search.maven.org/remotecontent?filepath=io/netty/netty-tcnative-boringssl-static/1.1.33.Fork19/netty-tcnative-boringssl-static-1.1.33.Fork19-osx-x86_64.jar",
-  sha256 = "bd9e088ca8ef52ed27fcfe12edabcf3511832e72cef8a0b88f1222bbe437ba63",
+  url = "https://repo1.maven.org/maven2/io/grpc/protoc-gen-grpc-java/1.0.0/protoc-gen-grpc-java-1.0.0-osx-x86_64.exe",
+  sha256 = "306ea54a8c84874c880edeb454d92b4c8eed6f60affb1dfb0047532c62754253",
 )
 
 http_file(
@@ -38,6 +20,12 @@ http_file(
   name = "protoc_linux_x86_64",
   url = "http://search.maven.org/remotecontent?filepath=com/google/protobuf/protoc/3.0.0-beta-3/protoc-3.0.0-beta-3-linux-x86_64.exe",
   sha256 = "3d93855585bf8e8b152f6cec494f2d62932d4afa34c646bf1f73f7a09425e04c",
+)
+
+http_file(
+  name = "tcnative_boringssl_static_uberjar",
+  url = "http://search.maven.org/remotecontent?filepath=io/netty/netty-tcnative-boringssl-static/1.1.33.Fork19/netty-tcnative-boringssl-static-1.1.33.Fork19.jar",
+  sha256 = "929a451198f342ef0f6c4600aa7d3448670348e294ef09b022f2bf63510fe3a5",
 )
 
 maven_jar(
