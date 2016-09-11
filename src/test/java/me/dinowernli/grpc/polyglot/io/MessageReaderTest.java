@@ -1,22 +1,20 @@
 package me.dinowernli.grpc.polyglot.io;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.junit.Test;
-
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.util.JsonFormat;
-
 import me.dinowernli.grpc.polyglot.io.testing.TestData;
 import me.dinowernli.grpc.polyglot.testing.TestUtils;
+import org.junit.Test;
 import polyglot.test.TestProto.TestRequest;
+
+import static com.google.common.truth.Truth.assertThat;
 
 /** Unit tests for {@link MessageReader}. */
 public class MessageReaderTest {
@@ -53,6 +51,13 @@ public class MessageReaderTest {
     reader = MessageReader.forFile(dataFilePath("request_empty.pb.ascii"), DESCRIPTOR);
     ImmutableList<DynamicMessage> result = reader.read();
     assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void handlePrimitives() {
+    reader = MessageReader.forFile(dataFilePath("request_with_primitives.pb.ascii"), DESCRIPTOR);
+    ImmutableList<DynamicMessage> result = reader.read();
+    assertThat(result).isNotEmpty();
   }
 
   @Test

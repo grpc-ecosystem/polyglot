@@ -1,21 +1,19 @@
 package me.dinowernli.grpc.polyglot.io;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import com.google.protobuf.Message;
 import com.google.protobuf.util.JsonFormat;
-
 import me.dinowernli.grpc.polyglot.io.testing.TestData;
 import me.dinowernli.grpc.polyglot.testing.RecordingOutput;
 import me.dinowernli.grpc.polyglot.testing.TestUtils;
+import org.junit.Before;
+import org.junit.Test;
+
+import static com.google.common.truth.Truth.assertThat;
 
 /** Unit tests for {@link MessageWriter}. */
 public class MessageWriterTest {
@@ -28,7 +26,7 @@ public class MessageWriterTest {
   @Before
   public void setUp() {
     recordingOutput = new RecordingOutput();
-    writer = new MessageWriter<Message>(JsonFormat.printer(), recordingOutput);
+    writer = new MessageWriter<>(JsonFormat.printer(), recordingOutput);
   }
 
   @Test
