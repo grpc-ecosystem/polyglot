@@ -8,13 +8,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import polyglot.test.TestProto.TestRequest;
 import polyglot.test.TestProto.TestResponse;
-import polyglot.test.TestServiceGrpc.TestService;
+import polyglot.test.TestServiceGrpc.TestServiceImplBase;
 
 /**
- * An implementation of {@link TestService} which records the calls and produces a constant
+ * An implementation of {@link TestServiceImplBase} which records the calls and produces a constant
  * response.
  */
-public class RecordingTestService implements TestService {
+public class RecordingTestService extends TestServiceImplBase {
   private static final Logger logger = LoggerFactory.getLogger(RecordingTestService.class);
 
   /** The number of messages to wait for from client stream before ending the rpc. */

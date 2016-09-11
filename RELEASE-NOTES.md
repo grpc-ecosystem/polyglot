@@ -6,6 +6,9 @@ Quick links:
 
 ## Upcoming release
 
+* Upgraded to grpc 1.0.0.
+* Removed the separate per-platform binaries, the same binary can now be used on all platforms.
+
 ## 1.1.0
 
 * Added a new command, called `list` as well as a documentation section in the README. The default command is `call`, which makes an rpc call to a remote endpoint.

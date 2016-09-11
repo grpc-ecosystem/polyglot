@@ -11,8 +11,7 @@ import io.grpc.netty.NettyServerBuilder;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslProvider;
 import polyglot.test.TestProto.TestResponse;
-import polyglot.test.TestServiceGrpc;
-import polyglot.test.TestServiceGrpc.TestService;
+import polyglot.test.TestServiceGrpc.TestServiceImplBase;
 
 /**
  * Holds a real grpc server for use in tests. The server returns canned responses for a fixed set of
@@ -111,9 +110,10 @@ public class TestServer {
 
   /** Starts a grpc server on the given port, throws {@link IOException} on failure. */
   private static Server tryStartServer(
-      int port, TestService testService, Optional<SslContext> sslContext) throws IOException {
-    NettyServerBuilder serverBuilder = NettyServerBuilder.forPort(port)
-        .addService(TestServiceGrpc.bindService(testService));
+      int port,
+      TestServiceImplBase testService,
+      Optional<SslContext> sslContext) throws IOException {
+    NettyServerBuilder serverBuilder = NettyServerBuilder.forPort(port).addService(testService);
     if (sslContext.isPresent()) {
       serverBuilder.sslContext(sslContext.get());
     }

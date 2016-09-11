@@ -4,9 +4,9 @@ import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import polyglot.HelloProto.HelloRequest;
 import polyglot.HelloProto.HelloResponse;
-import polyglot.HelloServiceGrpc.HelloService;
+import polyglot.HelloServiceGrpc.HelloServiceImplBase;
 
-public class HelloServiceImpl implements HelloService {
+public class HelloServiceImpl extends HelloServiceImplBase {
   private static final long STREAM_SLEEP_MILLIS = 250;
   private static final int STREAM_MESSAGES_NUMBER = 8;
 
@@ -34,7 +34,8 @@ public class HelloServiceImpl implements HelloService {
   }
 
   @Override
-  public StreamObserver<HelloRequest> sayHelloBidi(final StreamObserver<HelloResponse> responseStream) {
+  public StreamObserver<HelloRequest> sayHelloBidi(
+      final StreamObserver<HelloResponse> responseStream) {
     return new StreamObserver<HelloRequest>() {
       @Override
       public void onNext(HelloRequest request) {
