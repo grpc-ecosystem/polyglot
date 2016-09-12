@@ -54,10 +54,10 @@ public class MessageReaderTest {
   }
 
   @Test
-  public void handlePrimitives() {
+  public void handlesPrimitives() {
     reader = MessageReader.forFile(dataFilePath("request_with_primitives.pb.ascii"), DESCRIPTOR);
     ImmutableList<DynamicMessage> result = reader.read();
-    assertThat(result).isNotEmpty();
+    assertThat(result).containsExactly(TestData.REQUEST_WITH_PRIMITIVE);
   }
 
   @Test
