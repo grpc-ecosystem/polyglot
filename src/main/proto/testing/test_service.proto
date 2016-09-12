@@ -9,6 +9,7 @@ import "src/main/proto/testing/foo/foo.proto";
 message TestRequest {
   string message = 1;
   foo.Foo foo = 2;
+  int32 number = 3;
 }
 
 message TestResponse {
