@@ -6,6 +6,8 @@ Quick links:
 
 ## Upcoming release
 
+## 1.2.0
+
 * Upgraded to grpc 1.0.0.
 * Removed the separate per-platform binaries, the same binary can now be used on all platforms.
 
