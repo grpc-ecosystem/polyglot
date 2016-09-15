@@ -1,4 +1,4 @@
-# Polyglot - a universal grpc client
+# Polyglot - a universal grpc command line client
 
 [![Build Status](https://travis-ci.org/grpc-ecosystem/polyglot.svg?branch=master)](https://travis-ci.org/grpc-ecosystem/polyglot)
 
@@ -8,6 +8,14 @@ Polyglot is a grpc client which can talk to any grpc server. In order to make a 
 * and a request proto instance in text format.
 
 In particular, it is not necessary to generate grpc classes for the service or to compile the protos into the Polyglot binary.
+
+## Features
+
+* Supports unary, client streaming, server streaming, and bidi streaming rpcs.
+* Runs on Windows, Mac and Linux.
+* Parses proto files at runtime to discover services. Supports pretty-printing discovered services.
+* Supports authentication via oauth.
+* Accepts request protos through stdin and can output responses to stdout to allow chaining.
 
 ## Usage
 
@@ -132,13 +140,6 @@ In order to build Polyglot from source, you will need:
 After calling this, you should have a fresh binary at:
 
 `./bazel-bin/src/main/java/me/dinowernli/grpc/polyglot`
-
-By default, the built binaries target 64-bit Linux platforms. If you are planning to run on
-a different platform, you can specify the platform explicitly as follows:
-
-`$ bazel build src/main/java/me/dinowernli/grpc/polyglot --define=target=windows`
-
-`$ bazel build src/main/java/me/dinowernli/grpc/polyglot --define=target=osx`
 
 ## Running the examples
 
