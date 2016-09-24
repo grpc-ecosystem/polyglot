@@ -14,7 +14,9 @@ import me.dinowernli.grpc.polyglot.testing.TestServer;
 import me.dinowernli.grpc.polyglot.testing.TestUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import polyglot.test.TestProto.TestRequest;
 import polyglot.test.TestProto.TestResponse;
 
@@ -31,12 +33,18 @@ public class TlsIntegrationTest {
       .setMessage("i am totally a message")
       .build();
 
+  @Rule public TemporaryFolder tempDirectory = new TemporaryFolder();
+
   private TestServer testServer;
   private InputStream storedStdin;
   private Path responseFilePath;
+  private String storedHomeProperty;
 
   @Before
   public void setUp() throws Throwable {
+    storedHomeProperty = System.getProperty("user.home");
+    System.setProperty("user.home", tempDirectory.getRoot().getAbsolutePath());
+
     responseFilePath = Files.createTempFile("response", "pb.ascii");
     storedStdin = System.in;
     testServer = TestServer.createAndStart(Optional.of(TestServer.serverSslContextForTesting()));
@@ -44,6 +52,8 @@ public class TlsIntegrationTest {
 
   @After
   public void tearDown() throws Throwable {
+    System.setProperty("user.home", storedHomeProperty);
+
     testServer.blockingShutdown();
     System.setIn(storedStdin);
     Files.delete(responseFilePath);
