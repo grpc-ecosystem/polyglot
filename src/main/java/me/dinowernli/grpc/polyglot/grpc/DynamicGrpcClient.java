@@ -21,11 +21,16 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.DynamicMessage;
+
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
+import io.grpc.ClientInterceptor;
 import io.grpc.ClientInterceptors;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.Metadata;
 import io.grpc.MethodDescriptor.MethodType;
+import io.grpc.StatusException;
 import io.grpc.auth.ClientAuthInterceptor;
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NegotiationType;
@@ -38,6 +43,7 @@ import me.dinowernli.grpc.polyglot.protobuf.DynamicMessageMarshaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import polyglot.ConfigProto.CallConfiguration;
+import polyglot.ConfigProto.CallMetadataEntry;
 
 /** A grpc client which operates on dynamic messages. */
 public class DynamicGrpcClient {
@@ -222,20 +228,41 @@ public class DynamicGrpcClient {
         Executors.newCachedThreadPool(new ThreadFactoryBuilder().setDaemon(true).build()));
   }
 
-  private static Channel createPlaintextChannel(HostAndPort endpoint) {
-    return NettyChannelBuilder.forAddress(endpoint.getHostText(), endpoint.getPort())
-        .negotiationType(NegotiationType.PLAINTEXT)
-        .build();
+  private static Channel createChannel(HostAndPort endpoint, CallConfiguration callConfiguration) {
+    ManagedChannelBuilder<NettyChannelBuilder> channelBuilder;
+    if (!callConfiguration.getUseTls()) {
+        channelBuilder = NettyChannelBuilder.forAddress(endpoint.getHostText(), endpoint.getPort())
+                .negotiationType(NegotiationType.PLAINTEXT);
+    } else {
+        channelBuilder = NettyChannelBuilder.forAddress(endpoint.getHostText(), endpoint.getPort())
+                .sslContext(createSslContext(callConfiguration))
+                .negotiationType(NegotiationType.TLS);
+    }
+    if (!callConfiguration.getUserAgent().isEmpty()) {
+      channelBuilder.userAgent(callConfiguration.getUserAgent());
+    }
+    return addMetadata(channelBuilder.build(), callConfiguration);
   }
 
-  private static Channel createChannel(HostAndPort endpoint, CallConfiguration callConfiguration) {
-    if (!callConfiguration.getUseTls()) {
-      return createPlaintextChannel(endpoint);
-    }
-    return NettyChannelBuilder.forAddress(endpoint.getHostText(), endpoint.getPort())
-        .sslContext(createSslContext(callConfiguration))
-        .negotiationType(NegotiationType.TLS)
-        .build();
+  private static Channel addMetadata(Channel channel, final CallConfiguration callConfiguration) {
+    ClientInterceptor interceptor = new ClientInterceptor() {
+        @Override
+        public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
+            final io.grpc.MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, final Channel next) {
+          return new ClientInterceptors.CheckedForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)) {
+            @Override
+            protected void checkedStart(Listener<RespT> responseListener, Metadata headers)
+                throws StatusException {
+              for (CallMetadataEntry entry : callConfiguration.getMetadataList()) {
+                Metadata.Key<String> key = Metadata.Key.of(entry.getName(), Metadata.ASCII_STRING_MARSHALLER);
+                headers.put(key, entry.getValue());
+              }
+              delegate().start(responseListener, headers);
+            }
+          };
+        }
+    };
+    return ClientInterceptors.intercept(channel, interceptor);
   }
 
   private static SslContext createSslContext(CallConfiguration callConfiguration) {

@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 
 import org.kohsuke.args4j.CmdLineException;
@@ -12,7 +13,10 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Multimap;
 
 /** Provides easy access to the arguments passed on the command line. */
 public class CommandLineArgs {
@@ -46,6 +50,12 @@ public class CommandLineArgs {
 
   @Option(name = "--tls_ca_cert_path", metaVar = "<path>")
   private String tlsCaCertPath;
+
+  @Option(name = "--metadata", metaVar = "<key>,<value>,<key>,<value>,...")
+  private String metadataArg;
+
+  @Option(name = "--useragent", metaVar = "<value>")
+  private String useragentArg;
 
   @Option(name = "--help")
   private Boolean help;
@@ -151,6 +161,25 @@ public class CommandLineArgs {
 
   public Optional<Path> tlsCaCertPath() {
     return maybePath(tlsCaCertPath);
+  }
+
+  public Optional<Multimap<String, String>> metadata() {
+    if (metadataArg == null) {
+	  return Optional.empty();
+	}
+    List<String> parts = Splitter.on(",").omitEmptyStrings().splitToList(metadataArg);
+    if (parts.size() % 2 != 0) {
+      throw new IllegalArgumentException("Invalid --metadata argument: " + metadataArg);
+    }
+    Multimap<String, String> result = ArrayListMultimap.create();
+    for (int i = 0; i < parts.size(); i += 2) {
+      result.put(parts.get(i), parts.get(i + 1));
+    }
+    return Optional.ofNullable(result);
+  }
+
+  public Optional<String> useragent() {
+    return Optional.ofNullable(useragentArg);
   }
 
   /**
