@@ -10,11 +10,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.auth.oauth2.OAuth2Credentials;
+import me.dinowernli.junit.TestClass;
 
 import polyglot.ConfigProto.OauthConfiguration;
 import polyglot.ConfigProto.OauthConfiguration.AccessTokenCredentials;
 
 /** Unit tests for {@link OauthCredentialsFactory}. */
+@TestClass
 public class OauthCredentialsFactoryTest {
   private Path tempFile;
 

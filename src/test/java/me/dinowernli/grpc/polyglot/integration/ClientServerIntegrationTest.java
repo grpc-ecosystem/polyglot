@@ -9,6 +9,7 @@ import java.util.Optional;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import me.dinowernli.junit.TestClass;
 import me.dinowernli.grpc.polyglot.io.MessageWriter;
 import me.dinowernli.grpc.polyglot.testing.RecordingTestService;
 import me.dinowernli.grpc.polyglot.testing.TestServer;
@@ -27,6 +28,7 @@ import static me.dinowernli.grpc.polyglot.testing.TestUtils.makeArgument;
 /**
  * An integration test suite which has the Polyglot client talk to a server which records requests.
  */
+@TestClass
 public class ClientServerIntegrationTest {
   private static final String TEST_UNARY_METHOD = "polyglot.test.TestService/TestMethod";
   private static final String TEST_STREAM_METHOD = "polyglot.test.TestService/TestMethodStream";
