@@ -1,3 +1,5 @@
+dist: trusty
+
 sudo: required
 
 jdk:
@@ -5,14 +7,18 @@ jdk:
 
 addons:
   apt:
+    sources:
+      - ubuntu-toolchain-r-test
     packages:
       - wget
+      - gcc-5
+      - g++-5
 
 before_install:
-  - wget 'https://github.com/bazelbuild/bazel/releases/download/0.2.2b/bazel_0.2.2b-linux-x86_64.deb'
-  - sha256sum -c src/tools/bazel_0.2.2b-linux-x86_64.deb.sha256
-  - chmod +x bazel_0.2.2b-linux-x86_64.deb
-  - sudo dpkg -i bazel_0.2.2b-linux-x86_64.deb
+  - wget 'https://github.com/bazelbuild/bazel/releases/download/0.4.4/bazel_0.4.4-linux-x86_64.deb'
+  - chmod +x bazel_0.4.4-linux-x86_64.deb
+  - sudo dpkg -i bazel_0.4.4-linux-x86_64.deb
 
 script:
   - bazel test //src/...
+
