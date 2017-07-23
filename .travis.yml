@@ -15,6 +15,7 @@ addons:
       - g++-5
 
 before_install:
+  - sudo apt-get purge openjdk-9*
   - wget 'https://github.com/bazelbuild/bazel/releases/download/0.4.4/bazel_0.4.4-linux-x86_64.deb'
   - chmod +x bazel_0.4.4-linux-x86_64.deb
   - sudo dpkg -i bazel_0.4.4-linux-x86_64.deb
