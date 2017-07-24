@@ -6,12 +6,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.protobuf.Descriptors;
+import com.google.protobuf.Message;
 import com.google.protobuf.util.JsonFormat;
+
+import org.apache.commons.lang3.text.StrSubstitutor;
 
 import polyglot.ConfigProto.Configuration;
 import polyglot.ConfigProto.ConfigurationSet;
@@ -53,13 +58,58 @@ public class ConfigurationLoader {
       ConfigurationSet.Builder configSetBuilder = ConfigurationSet.newBuilder();
       String fileContent = Joiner.on('\n').join(Files.readAllLines(configFile));
       JsonFormat.parser().merge(fileContent, configSetBuilder);
+      expandEnvironmentVariables(configSetBuilder);
       return ConfigurationLoader.forConfigSet(configSetBuilder.build());
     } catch (IOException e) {
       throw new RuntimeException("Unable to read config file: " + configFile.toString(), e);
     }
   }
 
-  @VisibleForTesting
+  /**
+   * Expand all references to environment variables occurring in string fields (arbitrarily nested)
+   * in the given Protobuf message builder.
+   */
+  private static void expandEnvironmentVariables(Message.Builder builder) {
+    expandVariables(builder, System.getenv());
+  }
+
+  /**
+   * Expand all references to variables (using the dollar and curly braces syntax) occurring in
+   * string fields (arbitrarily nested) in the given Protobuf message builder, using a given map
+   * of variable names to values.
+   */
+  private static void expandVariables(Message.Builder builder, Map<String, String> vars) {
+    for (Map.Entry<Descriptors.FieldDescriptor, Object> field : builder.getAllFields().entrySet()) {
+      Descriptors.FieldDescriptor desc = field.getKey();
+      Object value = field.getValue();
+      switch (desc.getType()) {
+        case STRING:
+          if (desc.isRepeated()) {
+            int index = 0;
+            for (Object item : (List)value) {
+              builder.setRepeatedField(desc, index, StrSubstitutor.replace((String)item, vars));
+              ++index;
+            }
+          } else {
+            builder.setField(desc, StrSubstitutor.replace((String)value, vars));
+          }
+          break;
+        case MESSAGE:
+        case GROUP:
+          if (desc.isRepeated()) {
+            int count = builder.getRepeatedFieldCount(desc);
+            for (int i = 0; i < count; ++i) {
+              expandVariables(builder.getRepeatedFieldBuilder(desc, i), vars);
+            }
+          } else {
+            expandVariables(builder.getFieldBuilder(desc), vars);
+          }
+          break;
+      }
+    }
+  }
+
+   @VisibleForTesting
   ConfigurationLoader(Optional<ConfigurationSet> configSet, Optional<CommandLineArgs> overrides) {
     this.configSet = configSet;
     this.overrides = overrides;
