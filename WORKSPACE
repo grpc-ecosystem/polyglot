@@ -162,3 +162,12 @@ maven_jar(
   name = "google_gson_artifact",
   artifact = "com.google.code.gson:gson:2.6.2",
 )
+
+git_repository(
+  name = "autotest",
+  remote = "https://github.com/dinowernli/bazel-junit-autotest.git",
+  commit = "202954e",
+)
+
+load("@autotest//bzl:autotest.bzl", "autotest_junit_repo")
+autotest_junit_repo(junit_jar = "//third_party/testing", autotest_workspace="@autotest")

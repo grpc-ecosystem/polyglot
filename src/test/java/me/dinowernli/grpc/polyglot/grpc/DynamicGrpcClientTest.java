@@ -4,6 +4,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import me.dinowernli.junit.TestClass;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,6 +28,7 @@ import polyglot.test.TestProto;
 import polyglot.test.TestProto.TestRequest;
 
 /** Unit tests for {@link DynamicGrpcClient}. */
+@TestClass
 public class DynamicGrpcClientTest {
   private static final CallOptions CALL_OPTIONS = CallOptions.DEFAULT.withDeadlineNanoTime(1234L);
 

@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 
 import com.google.protobuf.Message;
 import com.google.protobuf.util.JsonFormat;
+import me.dinowernli.junit.TestClass;
 import me.dinowernli.grpc.polyglot.io.testing.TestData;
 import me.dinowernli.grpc.polyglot.testing.RecordingOutput;
 import me.dinowernli.grpc.polyglot.testing.TestUtils;
@@ -16,6 +17,7 @@ import org.junit.Test;
 import static com.google.common.truth.Truth.assertThat;
 
 /** Unit tests for {@link MessageWriter}. */
+@TestClass
 public class MessageWriterTest {
   private static String TESTDATA_ROOT = Paths.get(TestUtils.getWorkspaceRoot().toString(),
       "src", "test", "java", "me", "dinowernli", "grpc", "polyglot", "io", "testdata").toString();

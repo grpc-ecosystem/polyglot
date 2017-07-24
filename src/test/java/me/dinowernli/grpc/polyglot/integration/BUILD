@@ -1,6 +1,7 @@
+load("@autotest//bzl:autotest.bzl", "auto_java_test")
 load("//third_party/bazel:genproto.bzl", "proto_java_library")
 
-java_test(
+auto_java_test(
   name = "plain",
   srcs = [
     "ClientServerIntegrationTest.java",
@@ -21,7 +22,7 @@ java_test(
   ],
 )
 
-java_test(
+auto_java_test(
   name = "tls",
   srcs = [
     "TlsIntegrationTest.java",

@@ -2,6 +2,8 @@ package me.dinowernli.grpc.polyglot.config;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import me.dinowernli.junit.TestClass;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -12,6 +14,7 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableList;
 
 /** Unit tests for {@link CommandLineArgs}. */
+@TestClass
 public class CommandLineArgsTest {
   private Path tempFile1;
   private Path tempFile2;

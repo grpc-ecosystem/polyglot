@@ -16,10 +16,12 @@ import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.Message;
 import com.google.protobuf.util.JsonFormat;
 
+import me.dinowernli.junit.TestClass;
 import me.dinowernli.grpc.polyglot.io.testing.TestData;
 import polyglot.test.TestProto.TestRequest;
 
 /** Test for the read/write round trip through {@link MessageReader} and {@link MessageWriter}. */
+@TestClass
 public class ReadWriteRoundTripTest {
   private static final Descriptor DESCRIPTOR = TestRequest.getDescriptor();
   private Path responseFilePath;
