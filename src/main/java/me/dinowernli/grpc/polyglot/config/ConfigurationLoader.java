@@ -11,6 +11,7 @@ import java.util.Optional;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Multimap;
 import com.google.protobuf.util.JsonFormat;
 
 import polyglot.ConfigProto.Configuration;
@@ -130,6 +131,20 @@ public class ConfigurationLoader {
     if (overrides.get().tlsCaCertPath().isPresent()) {
       resultBuilder.getCallConfigBuilder().setTlsCaCertPath(
           overrides.get().tlsCaCertPath().get().toString());
+    }
+    if (overrides.get().metadata().isPresent()) {
+      Multimap<String, String> metadata = overrides.get().metadata().get();
+      for (String name : metadata.keySet()) {
+        for (String value : metadata.get(name)) {
+          resultBuilder.getCallConfigBuilder().addMetadataBuilder()
+              .setName(name)
+              .setValue(value)
+              .build();
+        }
+      }
+    }
+    if (overrides.get().useragent().isPresent()) {
+      resultBuilder.getCallConfigBuilder().setUserAgent(overrides.get().useragent().get());
     }
     return resultBuilder.build();
   }

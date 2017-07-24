@@ -4,6 +4,8 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMultimap;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -76,6 +78,12 @@ public class ConfigurationLoaderTest {
     when(mockOverrides.protoDiscoveryRoot()).thenReturn(Optional.of(Paths.get(".")));
     when(mockOverrides.getRpcDeadlineMs()).thenReturn(Optional.of(25));
     when(mockOverrides.tlsCaCertPath()).thenReturn(Optional.of(Paths.get("asdf")));
+    when(mockOverrides.metadata()).thenReturn(Optional.of(
+        new ImmutableMultimap.Builder<String, String>()
+            .put("foo", "bar")
+            .put("cat", "dog")
+            .build()));
+    when(mockOverrides.useragent()).thenReturn(Optional.of("custom UA"));
 
     Configuration config = ConfigurationLoader
         .forDefaultConfigSet()
@@ -86,6 +94,8 @@ public class ConfigurationLoaderTest {
     assertThat(config.getOutputConfig().getDestination()).isEqualTo(Destination.FILE);
     assertThat(config.getCallConfig().getDeadlineMs()).isEqualTo(25);
     assertThat(config.getCallConfig().getTlsCaCertPath()).isNotEmpty();
+    assertThat(config.getCallConfig().getMetadataCount()).isEqualTo(2);
+    assertThat(config.getCallConfig().getUserAgent()).isEqualTo("custom UA");
   }
 
   private static Configuration namedConfig(String name) {

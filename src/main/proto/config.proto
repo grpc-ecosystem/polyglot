@@ -27,6 +27,20 @@ message CallConfiguration {
 
   // If set, this file will be used as a root certificate for calls using TLS.
   string tls_ca_cert_path = 4;
+
+  // User-Agent to send with the call.
+  // This is prepended to the transport user agent, ie: "<USER SUPPLIED> grpc-java-netty/1.0.0"
+  string user_agent = 5;
+
+  // Metadata to be included with the call.
+  // Entries will be appended to any existing metadata.
+  // Entries whose name already exists as a metadata entry will have the value appended to the values list.
+  repeated CallMetadataEntry metadata = 6;
+}
+
+message CallMetadataEntry {
+  string name = 1;
+  string value = 2;
 }
 
 // Holds the necessary parameters for adding authentication to requests using
