@@ -147,7 +147,7 @@ Example invocations can be found in the [examples](https://github.com/grpc-ecosy
 
 ## Building and running tests
 
-`$ bazel test ./src/...`
+`$ bazel test //src/...`
 
 ## Main contributors
 
