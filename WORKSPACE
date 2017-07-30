@@ -166,7 +166,7 @@ maven_jar(
 git_repository(
   name = "autotest",
   remote = "https://github.com/dinowernli/bazel-junit-autotest.git",
-  commit = "202954e",
+  commit = "da9ffdb73841fe14459a7eec36bcd84c12e1ac53",
 )
 
 load("@autotest//bzl:autotest.bzl", "autotest_junit_repo")
