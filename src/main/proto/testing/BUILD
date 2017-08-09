@@ -1,27 +1,21 @@
-load("//third_party/bazel:genproto.bzl", "proto_java_library")
+load("@org_pubref_rules_protobuf//java:rules.bzl", "java_proto_library")
 
 package(default_visibility = ["//visibility:public"])
 
-proto_java_library(
+java_proto_library(
   name = "test_service_proto",
-  src = "test_service.proto",
-  deps = [
+  protos = ["test_service.proto"],
+  proto_deps = [
     "//src/main/proto/testing/foo:foo_proto",
-  ],
-  gensrcjar_deps = [
-    "//src/main/proto/testing/foo:foo.proto",
   ],
 )
 
-proto_java_library(
+java_proto_library(
   name = "test_service_proto_grpc",
-  src = "test_service.proto",
-  gen_grpc = True,
-  deps = [
+  protos = ["test_service.proto"],
+  with_grpc = True,
+  proto_deps = [
     "//src/main/proto/testing/foo:foo_proto",
-  ],
-  gensrcjar_deps = [
-    "//src/main/proto/testing/foo:foo.proto",
   ],
 )
 

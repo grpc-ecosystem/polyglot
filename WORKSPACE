@@ -1,3 +1,4 @@
+# GRPC
 new_git_repository(
     name = "grpc_java",
     remote = "https://github.com/grpc/grpc-java.git",
@@ -6,31 +7,28 @@ new_git_repository(
     build_file_content = "",
 )
 load("@grpc_java//:repositories.bzl", "grpc_java_repositories")
-grpc_java_repositories()
+grpc_java_repositories(omit_com_google_code_findbugs_jsr305=True)
 
-http_file(
-  name = "gen_java_grpc_linux_x86_64",
-  url = "https://repo1.maven.org/maven2/io/grpc/protoc-gen-grpc-java/1.4.0/protoc-gen-grpc-java-1.4.0-linux-x86_64.exe",
-  sha256 = "7c868902ea5c177216d8240b2b68215b3d0efd044c3be27414099f8d40a3b083",
+# Autotest
+git_repository(
+  name = "autotest",
+  remote = "https://github.com/dinowernli/bazel-junit-autotest.git",
+  tag = "v0.0.1",
 )
 
-http_file(
-  name = "gen_java_grpc_osx_x86_64",
-  url = "https://repo1.maven.org/maven2/io/grpc/protoc-gen-grpc-java/1.4.0/protoc-gen-grpc-java-1.4.0-osx-x86_64.exe",
-  sha256 = "8d672fe412e0ababeebbff3db01820b59d986bf2b7e5e6987b14df532c045378",
+load("@autotest//bzl:autotest.bzl", "autotest_junit_repo")
+autotest_junit_repo(junit_jar = "//third_party/testing", autotest_workspace="@autotest")
+
+# Proto rules
+git_repository(
+  name = "org_pubref_rules_protobuf",
+  remote = "https://github.com/pubref/rules_protobuf",
+  tag = "v0.7.2",
 )
 
-http_file(
-  name = "protoc_osx_x86_64",
-  url = "https://repo1.maven.org/maven2/com/google/protobuf/protoc/3.0.0-beta-3/protoc-3.0.0-beta-3-osx-x86_64.exe",
-  sha256 = "3e197d491ba3e798bbe93b1b41f451ba1a15a731eb4da347e29b132bfbd814bc",
-)
+load("@org_pubref_rules_protobuf//java:rules.bzl", "java_proto_repositories")
+java_proto_repositories()
 
-http_file(
-  name = "protoc_linux_x86_64",
-  url = "http://search.maven.org/remotecontent?filepath=com/google/protobuf/protoc/3.0.0-beta-3/protoc-3.0.0-beta-3-linux-x86_64.exe",
-  sha256 = "3d93855585bf8e8b152f6cec494f2d62932d4afa34c646bf1f73f7a09425e04c",
-)
 
 maven_jar(
   name = "grpc_auth_artifact",
@@ -168,11 +166,3 @@ maven_jar(
   sha1 = "41614af3429573dc02645d541638929d877945a2",
 )
 
-git_repository(
-  name = "autotest",
-  remote = "https://github.com/dinowernli/bazel-junit-autotest.git",
-  tag = "v0.0.1",
-)
-
-load("@autotest//bzl:autotest.bzl", "autotest_junit_repo")
-autotest_junit_repo(junit_jar = "//third_party/testing", autotest_workspace="@autotest")
