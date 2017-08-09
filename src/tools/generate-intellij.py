@@ -5,7 +5,8 @@ import os.path
 import subprocess
 import shutil
 
-LIBRARY_JAR_ROOT = os.path.join('bazel-genfiles', 'external')
+LIBRARY_JAR_ROOT_GEN = os.path.join('bazel-genfiles', 'external')
+LIBRARY_JAR_ROOT_BIN = os.path.join('bazel-bin', 'external')
 BUILD_EVERYTHING_COMMAND = ['bazel', 'build', 'src/...']
 PROTO_JAR_ROOT = os.path.join('bazel-bin', 'src', 'main', 'proto')
 
@@ -45,7 +46,7 @@ def main():
         file.write(PROJECT_NAME)
 
     print('Generating libraries files...')
-    jars = discover_jars(LIBRARY_JAR_ROOT)
+    jars = discover_jars()
     os.mkdir(LIBRARY_DIR)
     order_entries = []
     for jar in jars:
@@ -66,10 +67,10 @@ def main():
     print('Done')
 
 
-def discover_jars(jar_root):
+def discover_jars():
     jar_paths = []
 
-    trees = [LIBRARY_JAR_ROOT, PROTO_JAR_ROOT]
+    trees = [LIBRARY_JAR_ROOT_GEN, PROTO_JAR_ROOT, LIBRARY_JAR_ROOT_BIN]
     for tree in trees:
         for jar_root, _, files in os.walk(tree):
             for file in files:
