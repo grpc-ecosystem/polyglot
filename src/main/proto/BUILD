@@ -1,20 +1,20 @@
-load("//third_party/bazel:genproto.bzl", "proto_java_library")
+load("@org_pubref_rules_protobuf//java:rules.bzl", "java_proto_library")
 
 package(default_visibility = ["//visibility:public"])
 
-proto_java_library(
+java_proto_library(
   name = "config_proto",
-  src = "config.proto",
+  protos = ["config.proto"],
 )
 
-proto_java_library(
+java_proto_library(
   name = "hello_proto_grpc",
-  src = "hello.proto",
-  gen_grpc = True,
+  protos = ["hello.proto"],
+  with_grpc = True,
 )
 
-proto_java_library(
+java_proto_library(
   name = "hello_proto",
-  src = "hello.proto",
-  gen_grpc = False,
+  protos = ["hello.proto"],
+  with_grpc = False,
 )
