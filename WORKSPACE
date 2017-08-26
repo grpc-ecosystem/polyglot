@@ -29,6 +29,35 @@ git_repository(
 load("@org_pubref_rules_protobuf//java:rules.bzl", "java_proto_repositories")
 java_proto_repositories()
 
+# Buildifier
+http_archive(
+    name = "io_bazel_rules_go",
+    sha256 = "f7e42a4c1f9f31abff9b2bdee6fe4db18bc373287b7e07a5b844446e561e67e2",
+    strip_prefix = "rules_go-4c9a52aba0b59511c5646af88d2f93a9c0193647",
+    urls = [
+        "http://bazel-mirror.storage.googleapis.com/github.com/bazelbuild/rules_go/archive/4c9a52aba0b59511c5646af88d2f93a9c0193647.tar.gz",
+        "https://github.com/bazelbuild/rules_go/archive/4c9a52aba0b59511c5646af88d2f93a9c0193647.tar.gz",
+    ],
+)
+
+load("@io_bazel_rules_go//go:def.bzl", "go_repositories", "new_go_repository")
+
+go_repositories()
+
+new_go_repository(
+    name = "org_golang_x_tools",
+    commit = "3d92dd60033c312e3ae7cac319c792271cf67e37",
+    importpath = "golang.org/x/tools",
+)
+
+git_repository(
+  name = "com_github_bazelbuild_buildtools",
+  remote = "https://github.com/bazelbuild/buildtools",
+  tag = "0.4.5",
+)
+
+
+# Direct java deps
 
 maven_jar(
   name = "grpc_auth_artifact",
