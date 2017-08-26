@@ -1,5 +1,7 @@
 package me.dinowernli.grpc.polyglot.grpc;
 
+import java.util.concurrent.TimeUnit;
+
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,7 +32,8 @@ import polyglot.test.TestProto.TestRequest;
 /** Unit tests for {@link DynamicGrpcClient}. */
 @TestClass
 public class DynamicGrpcClientTest {
-  private static final CallOptions CALL_OPTIONS = CallOptions.DEFAULT.withDeadlineNanoTime(1234L);
+  private static final CallOptions CALL_OPTIONS =
+      CallOptions.DEFAULT.withDeadlineAfter(1234L, TimeUnit.NANOSECONDS);
 
   private static final MethodDescriptor UNARY_METHOD = TestProto
       .getDescriptor()

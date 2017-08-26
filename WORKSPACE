@@ -1,13 +1,23 @@
+new_git_repository(
+    name = "grpc_java",
+    remote = "https://github.com/grpc/grpc-java.git",
+    # We are using 1.4.0 below, but v1.5.0 is the first release of grpc that has the convenient import scripts.
+    tag = "v1.5.0",
+    build_file_content = "",
+)
+load("@grpc_java//:repositories.bzl", "grpc_java_repositories")
+grpc_java_repositories()
+
 http_file(
   name = "gen_java_grpc_linux_x86_64",
-  url = "https://repo1.maven.org/maven2/io/grpc/protoc-gen-grpc-java/1.0.0/protoc-gen-grpc-java-1.0.0-linux-x86_64.exe",
-  sha256 = "4c16cd65e63a92f11f8a24c26a8b418ea6312484d341f66e94d4b5aa27e6e57b",
+  url = "https://repo1.maven.org/maven2/io/grpc/protoc-gen-grpc-java/1.4.0/protoc-gen-grpc-java-1.4.0-linux-x86_64.exe",
+  sha256 = "7c868902ea5c177216d8240b2b68215b3d0efd044c3be27414099f8d40a3b083",
 )
 
 http_file(
   name = "gen_java_grpc_osx_x86_64",
-  url = "https://repo1.maven.org/maven2/io/grpc/protoc-gen-grpc-java/1.0.0/protoc-gen-grpc-java-1.0.0-osx-x86_64.exe",
-  sha256 = "306ea54a8c84874c880edeb454d92b4c8eed6f60affb1dfb0047532c62754253",
+  url = "https://repo1.maven.org/maven2/io/grpc/protoc-gen-grpc-java/1.4.0/protoc-gen-grpc-java-1.4.0-osx-x86_64.exe",
+  sha256 = "8d672fe412e0ababeebbff3db01820b59d986bf2b7e5e6987b14df532c045378",
 )
 
 http_file(
@@ -22,55 +32,49 @@ http_file(
   sha256 = "3d93855585bf8e8b152f6cec494f2d62932d4afa34c646bf1f73f7a09425e04c",
 )
 
-http_file(
-  name = "tcnative_boringssl_static_uberjar",
-  url = "http://search.maven.org/remotecontent?filepath=io/netty/netty-tcnative-boringssl-static/1.1.33.Fork19/netty-tcnative-boringssl-static-1.1.33.Fork19.jar",
-  sha256 = "929a451198f342ef0f6c4600aa7d3448670348e294ef09b022f2bf63510fe3a5",
-)
-
 maven_jar(
   name = "grpc_auth_artifact",
-  artifact = "io.grpc:grpc-auth:1.0.0",
+  artifact = "io.grpc:grpc-auth:1.4.0",
 )
 
 maven_jar(
   name = "grpc_benchmarks_artifact",
-  artifact = "io.grpc:grpc-benchmarks:1.0.0",
+  artifact = "io.grpc:grpc-benchmarks:1.4.0",
+)
+
+maven_jar(
+  name = "grpc_context_artifact",
+  artifact = "io.grpc:grpc-context:1.4.0",
 )
 
 maven_jar(
   name = "grpc_core_artifact",
-  artifact = "io.grpc:grpc-core:1.0.0",
+  artifact = "io.grpc:grpc-core:1.4.0",
 )
 
 maven_jar(
   name = "grpc_netty_artifact",
-  artifact = "io.grpc:grpc-netty:1.0.0",
+  artifact = "io.grpc:grpc-netty:1.4.0",
 )
 
 maven_jar(
   name = "grpc_protobuf_artifact",
-  artifact = "io.grpc:grpc-protobuf:1.0.0",
+  artifact = "io.grpc:grpc-protobuf:1.4.0",
 )
 
 maven_jar(
   name = "grpc_protobuf_lite_artifact",
-  artifact = "io.grpc:grpc-protobuf-lite:1.0.0",
+  artifact = "io.grpc:grpc-protobuf-lite:1.4.0",
 )
 
 maven_jar(
   name = "grpc_stub_artifact",
-  artifact = "io.grpc:grpc-stub:1.0.0",
+  artifact = "io.grpc:grpc-stub:1.4.0",
 )
 
 maven_jar(
   name = "grpc_testing_artifact",
-  artifact = "io.grpc:grpc-testing:1.0.0",
-)
-
-maven_jar(
-  name = "guava_artifact",
-  artifact = "com.google.guava:guava:19.0",
+  artifact = "io.grpc:grpc-testing:1.4.0",
 )
 
 maven_jar(
@@ -80,7 +84,7 @@ maven_jar(
 
 maven_jar(
   name = "netty_artifact",
-  artifact = "io.netty:netty-all:4.1.3.Final",
+  artifact = "io.netty:netty-all:4.1.13.Final",
 )
 
 maven_jar(
@@ -159,8 +163,9 @@ maven_jar(
 )
 
 maven_jar(
-  name = "google_gson_artifact",
-  artifact = "com.google.code.gson:gson:2.6.2",
+  name = "com_google_instrumentation_instrumentation_api",
+  artifact = "com.google.instrumentation:instrumentation-api:0.4.3",
+  sha1 = "41614af3429573dc02645d541638929d877945a2",
 )
 
 git_repository(

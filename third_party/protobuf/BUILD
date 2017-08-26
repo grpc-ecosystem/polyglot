@@ -5,7 +5,7 @@ java_library(
   exports = [
     "@protobuf_java_artifact//jar",
     "@protobuf_java_util_artifact//jar",
-    "@google_gson_artifact//jar",
+    "@com_google_code_gson//jar",
   ],
   licenses = ["permissive"],
 )
