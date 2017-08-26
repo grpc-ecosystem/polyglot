@@ -22,5 +22,6 @@ before_install:
   - sudo dpkg -i bazel_0.4.4-linux-x86_64.deb
 
 script:
+  - ./src/tools/check-buildifier.sh
   - bazel test //src/...
 
