@@ -76,7 +76,7 @@ public class ConfigurationLoaderTest {
   }
 
   @Test
-  public void appliesOverrides() {
+  public void appliesOverridesWithRefreshToken() {
     when(mockOverrides.useTls()).thenReturn(Optional.of(true));
     when(mockOverrides.outputFilePath()).thenReturn(Optional.of(Paths.get("asdf")));
     when(mockOverrides.additionalProtocIncludes()).thenReturn(ImmutableList.of(Paths.get(".")));
@@ -93,9 +93,9 @@ public class ConfigurationLoaderTest {
     when(mockOverrides.tlsClientOverrideAuthority()).thenReturn(Optional.of("override_authority"));
 
     Configuration config = ConfigurationLoader
-        .forDefaultConfigSet()
-        .withOverrides(mockOverrides)
-        .getDefaultConfiguration();
+            .forDefaultConfigSet()
+            .withOverrides(mockOverrides)
+            .getDefaultConfiguration();
 
     assertThat(config.getOutputConfig().getDestination()).isEqualTo(Destination.FILE);
 
@@ -118,6 +118,42 @@ public class ConfigurationLoaderTest {
             .isNotEmpty();
     assertThat(config.getCallConfig().getOauthConfig().getAccessTokenCredentials().getAccessTokenPath())
             .isEmpty();
+  }
+
+  @Test
+  public void appliesOverridesWithAccessToken() {
+    when(mockOverrides.useTls()).thenReturn(Optional.of(true));
+    when(mockOverrides.outputFilePath()).thenReturn(Optional.of(Paths.get("asdf")));
+    when(mockOverrides.additionalProtocIncludes()).thenReturn(ImmutableList.of(Paths.get(".")));
+    when(mockOverrides.protoDiscoveryRoot()).thenReturn(Optional.of(Paths.get(".")));
+    when(mockOverrides.getRpcDeadlineMs()).thenReturn(Optional.of(25));
+    when(mockOverrides.tlsCaCertPath()).thenReturn(Optional.of(Paths.get("asdf")));
+    when(mockOverrides.oauthRefreshTokenEndpointUrl()).thenReturn(Optional.of(getTestUrl("https://github.com/grpc-ecosystem/polyglot")));
+    when(mockOverrides.oauthClientId()).thenReturn(Optional.of("id"));
+    when(mockOverrides.oauthClientSecret()).thenReturn(Optional.of("secret"));
+    when(mockOverrides.oauthRefreshTokenPath()).thenReturn(Optional.of(Paths.get("asdf")));
+    when(mockOverrides.oauthAccessTokenPath()).thenReturn(Optional.of(Paths.get("asdf")));
+
+    Configuration config = ConfigurationLoader
+            .forDefaultConfigSet()
+            .withOverrides(mockOverrides)
+            .getDefaultConfiguration();
+
+    assertThat(config.getCallConfig().getUseTls()).isTrue();
+    assertThat(config.getOutputConfig().getDestination()).isEqualTo(Destination.FILE);
+    assertThat(config.getCallConfig().getDeadlineMs()).isEqualTo(25);
+    assertThat(config.getCallConfig().getTlsCaCertPath()).isNotEmpty();
+    // Setting the access token path will unset all of the refresh token properties
+    assertThat(config.getCallConfig().getOauthConfig().getRefreshTokenCredentials().getTokenEndpointUrl())
+            .isEmpty();
+    assertThat(config.getCallConfig().getOauthConfig().getRefreshTokenCredentials().getClient().getId())
+            .isEmpty();
+    assertThat(config.getCallConfig().getOauthConfig().getRefreshTokenCredentials().getClient().getSecret())
+            .isEmpty();
+    assertThat(config.getCallConfig().getOauthConfig().getRefreshTokenCredentials().getRefreshTokenPath())
+            .isEmpty();
+    assertThat(config.getCallConfig().getOauthConfig().getAccessTokenCredentials().getAccessTokenPath())
+            .isNotEmpty();
   }
 
   private static Configuration namedConfig(String name) {
