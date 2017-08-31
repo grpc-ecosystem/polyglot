@@ -78,6 +78,9 @@ public class ConfigurationLoaderTest {
     when(mockOverrides.protoDiscoveryRoot()).thenReturn(Optional.of(Paths.get(".")));
     when(mockOverrides.getRpcDeadlineMs()).thenReturn(Optional.of(25));
     when(mockOverrides.tlsCaCertPath()).thenReturn(Optional.of(Paths.get("asdf")));
+    when(mockOverrides.tlsClientCertPath()).thenReturn(Optional.of(Paths.get("client_cert")));
+    when(mockOverrides.tlsClientKeyPath()).thenReturn(Optional.of(Paths.get("client_key")));
+    when(mockOverrides.tlsClientOverrideAuthority()).thenReturn(Optional.of("override_authority"));
 
     Configuration config = ConfigurationLoader
         .forDefaultConfigSet()
@@ -88,6 +91,9 @@ public class ConfigurationLoaderTest {
     assertThat(config.getOutputConfig().getDestination()).isEqualTo(Destination.FILE);
     assertThat(config.getCallConfig().getDeadlineMs()).isEqualTo(25);
     assertThat(config.getCallConfig().getTlsCaCertPath()).isNotEmpty();
+    assertThat(config.getCallConfig().getTlsClientCertPath()).isEqualTo("client_cert");
+    assertThat(config.getCallConfig().getTlsClientKeyPath()).isEqualTo("client_key");
+    assertThat(config.getCallConfig().getTlsClientOverrideAuthority()).isEqualTo("override_authority");
   }
 
   private static Configuration namedConfig(String name) {

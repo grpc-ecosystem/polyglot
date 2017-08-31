@@ -7,8 +7,6 @@ import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 
-import javax.net.ssl.SSLException;
-
 import com.google.auth.Credentials;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -21,6 +19,10 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.DynamicMessage;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
@@ -34,9 +36,8 @@ import io.grpc.stub.ClientCalls;
 import io.grpc.stub.StreamObserver;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
+import javax.net.ssl.SSLException;
 import me.dinowernli.grpc.polyglot.protobuf.DynamicMessageMarshaller;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import polyglot.ConfigProto.CallConfiguration;
 
 /** A grpc client which operates on dynamic messages. */
@@ -232,16 +233,25 @@ public class DynamicGrpcClient {
     if (!callConfiguration.getUseTls()) {
       return createPlaintextChannel(endpoint);
     }
-    return NettyChannelBuilder.forAddress(endpoint.getHostText(), endpoint.getPort())
-        .sslContext(createSslContext(callConfiguration))
-        .negotiationType(NegotiationType.TLS)
-        .build();
+    NettyChannelBuilder nettyChannelBuilder = NettyChannelBuilder.forAddress(endpoint.getHostText(), endpoint.getPort())
+      .sslContext(createSslContext(callConfiguration))
+      .negotiationType(NegotiationType.TLS);
+
+    if (!callConfiguration.getTlsClientOverrideAuthority().isEmpty()) {
+      nettyChannelBuilder.overrideAuthority(callConfiguration.getTlsClientOverrideAuthority());
+    }
+
+    return nettyChannelBuilder.build();
   }
 
   private static SslContext createSslContext(CallConfiguration callConfiguration) {
     SslContextBuilder resultBuilder = GrpcSslContexts.forClient();
     if (!callConfiguration.getTlsCaCertPath().isEmpty()) {
       resultBuilder.trustManager(loadFile(callConfiguration.getTlsCaCertPath()));
+    }
+    if (!callConfiguration.getTlsClientCertPath().isEmpty()) {
+      resultBuilder.keyManager(loadFile(callConfiguration.getTlsClientCertPath()),
+                               loadFile(callConfiguration.getTlsClientKeyPath()));
     }
     try {
       return resultBuilder.build();

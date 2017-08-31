@@ -106,6 +106,9 @@ The general philosophy is for the configuration to drive Polyglot's behavior and
 
 Polyglot uses statically linked [boringssl](https://boringssl.googlesource.com/boringssl/) libraries under the hood and doesn't require the host machine to have any specific libraries. Whether or not the client uses TLS to talk to the server can be controlled using the `--use_tls` flag or the corresponding configuration entry.
 
+Polyglot can also do client certificate authentication with the `--tls_client_cert_path` and `--tls_client_key_path` flags. If the hostname on the server does not match the endpoint (e.g. connecting
+to `localhost`, but the server thinks it's `foo.example.com`), `--tls_client_override_authority=foo.example.com` can be used.
+
 ### Authenticating requests using OAuth
 
 Polyglot has built-in support for authentication of requests using OAuth tokens in two ways:

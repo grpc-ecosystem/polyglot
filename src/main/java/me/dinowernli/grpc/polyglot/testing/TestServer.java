@@ -5,10 +5,13 @@ import java.util.Optional;
 import java.util.Random;
 
 import com.google.common.base.Throwables;
+
 import io.grpc.Server;
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NettyServerBuilder;
+import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import polyglot.test.TestProto.TestResponse;
 import polyglot.test.TestServiceGrpc.TestServiceImplBase;
@@ -101,11 +104,21 @@ public class TestServer {
 
   /** An {@link SslContext} for use in unit test servers. Loads our testing certificates. */
   public static SslContext serverSslContextForTesting() throws IOException {
-    return GrpcSslContexts
-        .forServer(TestUtils.loadServerChainCert(), TestUtils.loadServerKey())
-        .trustManager(TestUtils.loadRootCaCert())
-        .sslProvider(SslProvider.OPENSSL)
+    return getSslContextBuilder().build();
+  }
+
+  /** An {@link SslContext} for use in unit test servers with client certs. Loads our testing certificates. */
+  public static SslContext serverSslContextWithClientCertsForTesting() throws IOException {
+    return getSslContextBuilder()
+        .clientAuth(ClientAuth.REQUIRE)
         .build();
+  }
+
+  private static SslContextBuilder getSslContextBuilder() {
+    return GrpcSslContexts
+      .forServer(TestUtils.loadServerChainCert(), TestUtils.loadServerKey())
+      .trustManager(TestUtils.loadRootCaCert())
+      .sslProvider(SslProvider.OPENSSL);
   }
 
   /** Starts a grpc server on the given port, throws {@link IOException} on failure. */

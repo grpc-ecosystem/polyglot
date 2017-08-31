@@ -60,6 +60,16 @@ public class TestUtils {
     return Paths.get(TESTING_CERTS_DIR.toString(), "ca.pem").toFile();
   }
 
+  /** Returns a file containing a client certificate for use in tests. */
+  public static File loadClientCert() {
+    return Paths.get(TESTING_CERTS_DIR.toString(), "client.pem").toFile();
+  }
+
+  /** Returns a file containing a client key for use in tests. */
+  public static File loadClientKey() {
+    return Paths.get(TESTING_CERTS_DIR.toString(), "client.key").toFile();
+  }
+
   /** Returns a file containing a certificate chain from our testing root CA to our server. */
   public static File loadServerChainCert() {
     return Paths.get(TESTING_CERTS_DIR.toString(), "server.pem").toFile();
