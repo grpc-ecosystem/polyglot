@@ -1,7 +1,9 @@
 package me.dinowernli.grpc.polyglot.config;
 
+import java.net.MalformedURLException;
 import java.nio.file.Paths;
 import java.util.Optional;
+import java.net.URL;
 
 import com.google.common.collect.ImmutableList;
 import me.dinowernli.junit.TestClass;
@@ -16,6 +18,8 @@ import org.mockito.junit.MockitoRule;
 import polyglot.ConfigProto.Configuration;
 import polyglot.ConfigProto.ConfigurationSet;
 import polyglot.ConfigProto.OutputConfiguration.Destination;
+
+import javax.swing.text.html.Option;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.when;
@@ -78,6 +82,11 @@ public class ConfigurationLoaderTest {
     when(mockOverrides.protoDiscoveryRoot()).thenReturn(Optional.of(Paths.get(".")));
     when(mockOverrides.getRpcDeadlineMs()).thenReturn(Optional.of(25));
     when(mockOverrides.tlsCaCertPath()).thenReturn(Optional.of(Paths.get("asdf")));
+    when(mockOverrides.oauthRefreshTokenEndpointUrl()).thenReturn(Optional.of(getTestUrl("https://github.com/grpc-ecosystem/polyglot")));
+    when(mockOverrides.oauthClientId()).thenReturn(Optional.of("id"));
+    when(mockOverrides.oauthClientSecret()).thenReturn(Optional.of("secret"));
+    when(mockOverrides.oauthRefreshTokenPath()).thenReturn(Optional.of(Paths.get("asdf")));
+    when(mockOverrides.oauthAccessTokenPath()).thenReturn(Optional.empty());
 
     Configuration config = ConfigurationLoader
         .forDefaultConfigSet()
@@ -88,11 +97,28 @@ public class ConfigurationLoaderTest {
     assertThat(config.getOutputConfig().getDestination()).isEqualTo(Destination.FILE);
     assertThat(config.getCallConfig().getDeadlineMs()).isEqualTo(25);
     assertThat(config.getCallConfig().getTlsCaCertPath()).isNotEmpty();
+    assertThat(config.getCallConfig().getOauthConfig().getRefreshTokenCredentials().getTokenEndpointUrl())
+            .isEqualTo("https://github.com/grpc-ecosystem/polyglot");
+    assertThat(config.getCallConfig().getOauthConfig().getRefreshTokenCredentials().getClient().getId())
+            .isEqualTo("id");
+    assertThat(config.getCallConfig().getOauthConfig().getRefreshTokenCredentials().getClient().getSecret())
+            .isEqualTo("secret");
+    assertThat(config.getCallConfig().getOauthConfig().getRefreshTokenCredentials().getRefreshTokenPath())
+            .isNotEmpty();
+    assertThat(config.getCallConfig().getOauthConfig().getAccessTokenCredentials().getAccessTokenPath())
+            .isEmpty();
   }
 
   private static Configuration namedConfig(String name) {
     return Configuration.newBuilder()
         .setName(name)
         .build();
+  }
+  private static URL getTestUrl(String testUrl) {
+    try {
+      return new URL(testUrl);
+    } catch (MalformedURLException mUrlE) {
+      throw new RuntimeException();
+    }
   }
 }
