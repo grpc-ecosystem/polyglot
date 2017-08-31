@@ -71,6 +71,8 @@ public class ServiceCall {
       dynamicClient = DynamicGrpcClient.create(methodDescriptor, hostAndPort, callConfig);
     }
 
+    logger.info("Reading input from stdin");
+
     ImmutableList<DynamicMessage> requestMessages =
         MessageReader.forStdin(methodDescriptor.getInputType()).read();
     StreamObserver<DynamicMessage> streamObserver =
