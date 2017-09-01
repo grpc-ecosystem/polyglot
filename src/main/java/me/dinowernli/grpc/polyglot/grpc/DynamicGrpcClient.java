@@ -233,9 +233,10 @@ public class DynamicGrpcClient {
     if (!callConfiguration.getUseTls()) {
       return createPlaintextChannel(endpoint);
     }
-    NettyChannelBuilder nettyChannelBuilder = NettyChannelBuilder.forAddress(endpoint.getHostText(), endpoint.getPort())
-      .sslContext(createSslContext(callConfiguration))
-      .negotiationType(NegotiationType.TLS);
+    NettyChannelBuilder nettyChannelBuilder =
+        NettyChannelBuilder.forAddress(endpoint.getHostText(), endpoint.getPort())
+            .sslContext(createSslContext(callConfiguration))
+            .negotiationType(NegotiationType.TLS);
 
     if (!callConfiguration.getTlsClientOverrideAuthority().isEmpty()) {
       nettyChannelBuilder.overrideAuthority(callConfiguration.getTlsClientOverrideAuthority());
@@ -250,8 +251,9 @@ public class DynamicGrpcClient {
       resultBuilder.trustManager(loadFile(callConfiguration.getTlsCaCertPath()));
     }
     if (!callConfiguration.getTlsClientCertPath().isEmpty()) {
-      resultBuilder.keyManager(loadFile(callConfiguration.getTlsClientCertPath()),
-                               loadFile(callConfiguration.getTlsClientKeyPath()));
+      resultBuilder.keyManager(
+          loadFile(callConfiguration.getTlsClientCertPath()),
+          loadFile(callConfiguration.getTlsClientKeyPath()));
     }
     try {
       return resultBuilder.build();
