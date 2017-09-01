@@ -143,6 +143,29 @@ public class ConfigurationLoader {
       resultBuilder.getCallConfigBuilder().setTlsClientOverrideAuthority(
           overrides.get().tlsClientOverrideAuthority().get());
     }
+    if (overrides.get().oauthRefreshTokenEndpointUrl().isPresent()) {
+      resultBuilder.getCallConfigBuilder().getOauthConfigBuilder().getRefreshTokenCredentialsBuilder()
+              .setTokenEndpointUrl(overrides.get().oauthRefreshTokenEndpointUrl().get().toString());
+    }
+    if (overrides.get().oauthClientId().isPresent()) {
+      resultBuilder.getCallConfigBuilder().getOauthConfigBuilder().getRefreshTokenCredentialsBuilder()
+              .getClientBuilder().setId(overrides.get().oauthClientId().get());
+    }
+    if (overrides.get().oauthClientSecret().isPresent()) {
+      resultBuilder.getCallConfigBuilder().getOauthConfigBuilder().getRefreshTokenCredentialsBuilder()
+              .getClientBuilder().setSecret(overrides.get().oauthClientSecret().get());
+    }
+    if (overrides.get().oauthRefreshTokenPath().isPresent()) {
+      resultBuilder.getCallConfigBuilder().getOauthConfigBuilder().getRefreshTokenCredentialsBuilder()
+              .setRefreshTokenPath(overrides.get().oauthRefreshTokenPath().get().toString());
+    }
+    // Note the ordering of setting these fields is important. Oauth configuration has a oneof field, corresponding
+    // to access or refresh tokens. We want access tokens to take precedence, setting this field last will ensure this
+    // occurs. See https://developers.google.com/protocol-buffers/docs/proto#oneof
+    if (overrides.get().oauthAccessTokenPath().isPresent()) {
+      resultBuilder.getCallConfigBuilder().getOauthConfigBuilder().getAccessTokenCredentialsBuilder()
+              .setAccessTokenPath(overrides.get().oauthAccessTokenPath().get().toString());
+    }
     return resultBuilder.build();
   }
 

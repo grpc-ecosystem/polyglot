@@ -2,6 +2,8 @@ package me.dinowernli.grpc.polyglot.config;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -55,6 +57,21 @@ public class CommandLineArgs {
 
   @Option(name = "--tls_client_override_authority", metaVar = "<host>")
   private String tlsClientOverrideAuthority;
+
+  @Option(name = "--oauth_refresh_token_endpoint_url", metaVar = "<url>")
+  private String oauthRefreshTokenEndpointUrl;
+
+  @Option(name = "--oauth_client_id", metaVar = "<client-id>")
+  private String oauthClientId;
+
+  @Option(name = "--oauth_client_secret", metaVar = "<client-secret>")
+  private String oauthClientSecret;
+
+  @Option(name = "--oauth_refresh_token_path", metaVar = "<path>")
+  private String oauthRefreshTokenPath;
+
+  @Option(name = "--oauth_access_token_path", metaVar = "<path>")
+  private String oauthAccessTokenPath;
 
   @Option(name = "--help")
   private Boolean help;
@@ -174,6 +191,26 @@ public class CommandLineArgs {
     return Optional.ofNullable(tlsClientOverrideAuthority);
   }
 
+  public Optional<URL> oauthRefreshTokenEndpointUrl() {
+    return maybeUrl(oauthRefreshTokenEndpointUrl);
+  }
+
+  public Optional<String> oauthClientId() {
+    return Optional.ofNullable(oauthClientId);
+  }
+
+  public Optional<String> oauthClientSecret() {
+    return Optional.ofNullable(oauthClientSecret);
+  }
+
+  public Optional<Path> oauthRefreshTokenPath() {
+    return maybePath(oauthRefreshTokenPath);
+  }
+
+  public Optional<Path> oauthAccessTokenPath() {
+    return maybePath(oauthAccessTokenPath);
+  }
+
   /**
    * First stage of a migration towards a "command"-based instantiation of polyglot.
    * Supported commands:
@@ -234,5 +271,18 @@ public class CommandLineArgs {
     Path path = Paths.get(rawPath);
     Preconditions.checkArgument(Files.exists(path), "File " + rawPath + " does not exist");
     return Optional.of(Paths.get(rawPath));
+  }
+
+  private static Optional<URL> maybeUrl(String rawUrl) {
+    if (rawUrl == null) {
+      return Optional.empty();
+    }
+    try {
+      URL url = new URL(rawUrl);
+      return Optional.of(url);
+    } catch (MalformedURLException mURLE) {
+      throw new IllegalArgumentException("URL " + rawUrl +" is invalid", mURLE);
+    }
+
   }
 }
