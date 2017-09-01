@@ -13,6 +13,7 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+import polyglot.ConfigProto.CallConfiguration;
 import polyglot.ConfigProto.Configuration;
 import polyglot.ConfigProto.ConfigurationSet;
 import polyglot.ConfigProto.OutputConfiguration.Destination;
@@ -87,13 +88,15 @@ public class ConfigurationLoaderTest {
         .withOverrides(mockOverrides)
         .getDefaultConfiguration();
 
-    assertThat(config.getCallConfig().getUseTls()).isTrue();
     assertThat(config.getOutputConfig().getDestination()).isEqualTo(Destination.FILE);
-    assertThat(config.getCallConfig().getDeadlineMs()).isEqualTo(25);
-    assertThat(config.getCallConfig().getTlsCaCertPath()).isNotEmpty();
-    assertThat(config.getCallConfig().getTlsClientCertPath()).isEqualTo("client_cert");
-    assertThat(config.getCallConfig().getTlsClientKeyPath()).isEqualTo("client_key");
-    assertThat(config.getCallConfig().getTlsClientOverrideAuthority()).isEqualTo("override_authority");
+
+    CallConfiguration callConfig = config.getCallConfig();
+    assertThat(callConfig.getUseTls()).isTrue();
+    assertThat(callConfig.getDeadlineMs()).isEqualTo(25);
+    assertThat(callConfig.getTlsCaCertPath()).isNotEmpty();
+    assertThat(callConfig.getTlsClientCertPath()).isEqualTo("client_cert");
+    assertThat(callConfig.getTlsClientKeyPath()).isEqualTo("client_key");
+    assertThat(callConfig.getTlsClientOverrideAuthority()).isEqualTo("override_authority");
   }
 
   private static Configuration namedConfig(String name) {

@@ -115,10 +115,9 @@ public class TestServer {
   }
 
   private static SslContextBuilder getSslContextBuilder() {
-    return GrpcSslContexts
-      .forServer(TestUtils.loadServerChainCert(), TestUtils.loadServerKey())
-      .trustManager(TestUtils.loadRootCaCert())
-      .sslProvider(SslProvider.OPENSSL);
+    return GrpcSslContexts.forServer(TestUtils.loadServerChainCert(), TestUtils.loadServerKey())
+        .trustManager(TestUtils.loadRootCaCert())
+        .sslProvider(SslProvider.OPENSSL);
   }
 
   /** Starts a grpc server on the given port, throws {@link IOException} on failure. */

@@ -64,7 +64,10 @@ public class TlsIntegrationTest {
   public void makesRoundTripUnary() throws Throwable {
     testServer = TestServer.createAndStart(Optional.of(TestServer.serverSslContextForTesting()));
     ImmutableList<String> args = ImmutableList.<String>builder()
-        .addAll(makeArgs(testServer.getGrpcServerPort(), TestUtils.TESTING_PROTO_ROOT.toString(), TEST_UNARY_METHOD))
+        .addAll(makeArgs(
+            testServer.getGrpcServerPort(),
+            TestUtils.TESTING_PROTO_ROOT.toString(),
+            TEST_UNARY_METHOD))
         .add(makeArgument("output_file_path", responseFilePath.toString()))
         .add(makeArgument("tls_ca_cert_path", TestUtils.loadRootCaCert().getAbsolutePath()))
         .add(makeArgument("use_tls", "true"))
@@ -82,15 +85,19 @@ public class TlsIntegrationTest {
 
   @Test
   public void makesRoundTripWithClientCerts() throws Throwable {
-    testServer = TestServer.createAndStart(Optional.of(TestServer.serverSslContextWithClientCertsForTesting()));
+    testServer = TestServer.createAndStart(
+        Optional.of(TestServer.serverSslContextWithClientCertsForTesting()));
     ImmutableList<String> args = ImmutableList.<String>builder()
-      .addAll(makeArgs(testServer.getGrpcServerPort(), TestUtils.TESTING_PROTO_ROOT.toString(), TEST_UNARY_METHOD))
-      .add(makeArgument("output_file_path", responseFilePath.toString()))
-      .add(makeArgument("tls_ca_cert_path", TestUtils.loadRootCaCert().getAbsolutePath()))
-      .add(makeArgument("tls_client_cert_path", TestUtils.loadClientCert().getAbsolutePath()))
-      .add(makeArgument("tls_client_key_path", TestUtils.loadClientKey().getAbsolutePath()))
-      .add(makeArgument("use_tls", "true"))
-      .build();
+        .addAll(makeArgs(
+            testServer.getGrpcServerPort(),
+            TestUtils.TESTING_PROTO_ROOT.toString(),
+            TEST_UNARY_METHOD))
+        .add(makeArgument("output_file_path", responseFilePath.toString()))
+        .add(makeArgument("tls_ca_cert_path", TestUtils.loadRootCaCert().getAbsolutePath()))
+        .add(makeArgument("tls_client_cert_path", TestUtils.loadClientCert().getAbsolutePath()))
+        .add(makeArgument("tls_client_key_path", TestUtils.loadClientKey().getAbsolutePath()))
+        .add(makeArgument("use_tls", "true"))
+        .build();
     setStdinContents(MessageWriter.writeJsonStream(ImmutableList.of(REQUEST)));
 
     // Run the full client.
