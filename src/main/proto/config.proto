@@ -27,6 +27,11 @@ message CallConfiguration {
 
   // If set, this file will be used as a root certificate for calls using TLS.
   string tls_ca_cert_path = 4;
+
+  // If set, this will use client certs for authentication
+  string tls_client_cert_path = 5;
+  string tls_client_key_path = 6;
+  string tls_client_override_authority = 7;
 }
 
 // Holds the necessary parameters for adding authentication to requests using

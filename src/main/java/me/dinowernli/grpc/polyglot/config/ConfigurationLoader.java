@@ -129,7 +129,19 @@ public class ConfigurationLoader {
     }
     if (overrides.get().tlsCaCertPath().isPresent()) {
       resultBuilder.getCallConfigBuilder().setTlsCaCertPath(
-          overrides.get().tlsCaCertPath().get().toString());
+        overrides.get().tlsCaCertPath().get().toString());
+    }
+    if (overrides.get().tlsClientCertPath().isPresent()) {
+      resultBuilder.getCallConfigBuilder().setTlsClientCertPath(
+        overrides.get().tlsClientCertPath().get().toString());
+    }
+    if (overrides.get().tlsClientKeyPath().isPresent()) {
+      resultBuilder.getCallConfigBuilder().setTlsClientKeyPath(
+        overrides.get().tlsClientKeyPath().get().toString());
+    }
+    if (overrides.get().tlsClientOverrideAuthority().isPresent()) {
+      resultBuilder.getCallConfigBuilder().setTlsClientOverrideAuthority(
+          overrides.get().tlsClientOverrideAuthority().get());
     }
     return resultBuilder.build();
   }

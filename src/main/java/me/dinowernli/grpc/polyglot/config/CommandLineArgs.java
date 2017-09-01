@@ -7,12 +7,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 
 /** Provides easy access to the arguments passed on the command line. */
 public class CommandLineArgs {
@@ -46,6 +46,15 @@ public class CommandLineArgs {
 
   @Option(name = "--tls_ca_cert_path", metaVar = "<path>")
   private String tlsCaCertPath;
+
+  @Option(name = "--tls_client_cert_path", metaVar = "<path>")
+  private String tlsClientCertPath;
+
+  @Option(name = "--tls_client_key_path", metaVar = "<path>")
+  private String tlsClientKeyPath;
+
+  @Option(name = "--tls_client_override_authority", metaVar = "<host>")
+  private String tlsClientOverrideAuthority;
 
   @Option(name = "--help")
   private Boolean help;
@@ -151,6 +160,18 @@ public class CommandLineArgs {
 
   public Optional<Path> tlsCaCertPath() {
     return maybePath(tlsCaCertPath);
+  }
+
+  public Optional<Path> tlsClientCertPath() {
+    return maybePath(tlsClientCertPath);
+  }
+
+  public Optional<Path> tlsClientKeyPath() {
+    return maybePath(tlsClientKeyPath);
+  }
+
+  public Optional<String> tlsClientOverrideAuthority() {
+    return Optional.ofNullable(tlsClientOverrideAuthority);
   }
 
   /**
