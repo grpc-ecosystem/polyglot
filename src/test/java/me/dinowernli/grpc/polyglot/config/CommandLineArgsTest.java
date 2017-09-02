@@ -34,14 +34,14 @@ public class CommandLineArgsTest {
   @Test
   public void parsesAdditionalIncludesSingle() {
     CommandLineArgs params = parseArgs(ImmutableList.of(
-        String.format("--add_protoc_includes=%s,%s", tempFile1.toString(), tempFile2.toString())));
+      String.format("--add_protoc_includes=%s,%s", tempFile1.toString(), tempFile2.toString())));
     assertThat(params.additionalProtocIncludes()).hasSize(2);
   }
 
   @Test
   public void parsesAdditionalIncludesMulti() {
     CommandLineArgs params = parseArgs(ImmutableList.of(
-        String.format("--add_protoc_includes=%s", tempFile1.toString())));
+      String.format("--add_protoc_includes=%s", tempFile1.toString())));
     assertThat(params.additionalProtocIncludes()).hasSize(1);
   }
 
@@ -49,7 +49,7 @@ public class CommandLineArgsTest {
   public void parsesOauthRefreshTokenEndpointUrl() {
     String url = "https://github.com/grpc-ecosystem/polyglot";
     CommandLineArgs params = parseArgs(ImmutableList.of(
-            String.format("--oauth_refresh_token_endpoint_url=%s", url)));
+      String.format("--oauth_refresh_token_endpoint_url=%s", url)));
     assertThat(params.oauthRefreshTokenEndpointUrl().get().toString()).isEqualTo(url);
   }
 
@@ -57,7 +57,7 @@ public class CommandLineArgsTest {
   public void parsesOauthClientId() {
     String client_id = "client_id";
     CommandLineArgs params = parseArgs(ImmutableList.of(
-            String.format("--oauth_client_id=%s",client_id)));
+      String.format("--oauth_client_id=%s",client_id)));
     assertThat(params.oauthClientId().get()).isEqualTo(client_id);
   }
 
@@ -65,31 +65,31 @@ public class CommandLineArgsTest {
   public void parsesOauthClientSecret() {
     String client_secret = "client_secret";
     CommandLineArgs params = parseArgs(ImmutableList.of(
-            String.format("--oauth_client_secret=%s", client_secret)));
+      String.format("--oauth_client_secret=%s", client_secret)));
     assertThat(params.oauthClientSecret().get()).isEqualTo(client_secret);
   }
 
   @Test
   public void parsesOauthRefreshTokenPath() {
     CommandLineArgs params = parseArgs(ImmutableList.of(
-            String.format("--oauth_refresh_token_path=%s", tempFile1.toString())));
+      String.format("--oauth_refresh_token_path=%s", tempFile1.toString())));
     assertThat(params.oauthRefreshTokenPath().get().toString()).isEqualTo(tempFile1.toString());
   }
 
   @Test
   public void parsesOauthAccessTokenPath() {
     CommandLineArgs params = parseArgs(ImmutableList.of(
-            String.format("--oauth_access_token_path=%s", tempFile1.toString())));
+      String.format("--oauth_access_token_path=%s", tempFile1.toString())));
     assertThat(params.oauthAccessTokenPath().get().toString()).isEqualTo(tempFile1.toString());
   }
 
   private static CommandLineArgs parseArgs(ImmutableList<String> args) {
     ImmutableList<String> allArgs = ImmutableList.<String>builder()
-        .addAll(args)
-        .add("--endpoint=somehost:1234")
-        .add("--full_method=some.package/Method")
-        .add("--proto_discovery_root=.")
-        .build();
+      .addAll(args)
+      .add("--endpoint=somehost:1234")
+      .add("--full_method=some.package/Method")
+      .add("--proto_discovery_root=.")
+      .build();
     return CommandLineArgs.parse(allArgs.toArray(new String[0]));
   }
 }

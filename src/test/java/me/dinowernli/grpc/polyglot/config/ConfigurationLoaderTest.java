@@ -48,7 +48,7 @@ public class ConfigurationLoaderTest {
   @Test
   public void loadsDefaultConfig() {
     Configuration defaultConfig =
-        ConfigurationLoader.forDefaultConfigSet().getDefaultConfiguration();
+      ConfigurationLoader.forDefaultConfigSet().getDefaultConfiguration();
     assertThat(defaultConfig).isEqualTo(Configuration.getDefaultInstance());
 
     assertThat(defaultConfig.getCallConfig().getUseTls()).isFalse();
@@ -63,15 +63,15 @@ public class ConfigurationLoaderTest {
   @Test(expected = IllegalArgumentException.class)
   public void throwsIfNamedConfigMissing() {
     ConfigurationLoader.forConfigSet(ConfigurationSet.getDefaultInstance())
-        .getNamedConfiguration("asfd");
+      .getNamedConfiguration("asfd");
   }
 
   @Test
   public void loadsNamedConfig() {
     ConfigurationLoader loader = ConfigurationLoader.forConfigSet(ConfigurationSet.newBuilder()
-        .addConfigurations(namedConfig("foo"))
-        .addConfigurations(namedConfig("bar"))
-        .build());
+      .addConfigurations(namedConfig("foo"))
+      .addConfigurations(namedConfig("bar"))
+      .build());
     assertThat(loader.getNamedConfiguration("foo").getName()).isEqualTo("foo");
   }
 
@@ -93,9 +93,9 @@ public class ConfigurationLoaderTest {
     when(mockOverrides.tlsClientOverrideAuthority()).thenReturn(Optional.of("override_authority"));
 
     Configuration config = ConfigurationLoader
-            .forDefaultConfigSet()
-            .withOverrides(mockOverrides)
-            .getDefaultConfiguration();
+      .forDefaultConfigSet()
+      .withOverrides(mockOverrides)
+      .getDefaultConfiguration();
 
     assertThat(config.getOutputConfig().getDestination()).isEqualTo(Destination.FILE);
 
@@ -109,15 +109,15 @@ public class ConfigurationLoaderTest {
     assertThat(config.getCallConfig().getDeadlineMs()).isEqualTo(25);
     assertThat(config.getCallConfig().getTlsCaCertPath()).isNotEmpty();
     assertThat(config.getCallConfig().getOauthConfig().getRefreshTokenCredentials().getTokenEndpointUrl())
-            .isEqualTo("https://github.com/grpc-ecosystem/polyglot");
+      .isEqualTo("https://github.com/grpc-ecosystem/polyglot");
     assertThat(config.getCallConfig().getOauthConfig().getRefreshTokenCredentials().getClient().getId())
-            .isEqualTo("id");
+      .isEqualTo("id");
     assertThat(config.getCallConfig().getOauthConfig().getRefreshTokenCredentials().getClient().getSecret())
-            .isEqualTo("secret");
+      .isEqualTo("secret");
     assertThat(config.getCallConfig().getOauthConfig().getRefreshTokenCredentials().getRefreshTokenPath())
-            .isNotEmpty();
+      .isNotEmpty();
     assertThat(config.getCallConfig().getOauthConfig().getAccessTokenCredentials().getAccessTokenPath())
-            .isEmpty();
+      .isEmpty();
   }
 
   @Test
@@ -135,9 +135,9 @@ public class ConfigurationLoaderTest {
     when(mockOverrides.oauthAccessTokenPath()).thenReturn(Optional.of(Paths.get("asdf")));
 
     Configuration config = ConfigurationLoader
-            .forDefaultConfigSet()
-            .withOverrides(mockOverrides)
-            .getDefaultConfiguration();
+      .forDefaultConfigSet()
+      .withOverrides(mockOverrides)
+      .getDefaultConfiguration();
 
     assertThat(config.getCallConfig().getUseTls()).isTrue();
     assertThat(config.getOutputConfig().getDestination()).isEqualTo(Destination.FILE);
@@ -145,21 +145,21 @@ public class ConfigurationLoaderTest {
     assertThat(config.getCallConfig().getTlsCaCertPath()).isNotEmpty();
     // Setting the access token path will unset all of the refresh token properties
     assertThat(config.getCallConfig().getOauthConfig().getRefreshTokenCredentials().getTokenEndpointUrl())
-            .isEmpty();
+      .isEmpty();
     assertThat(config.getCallConfig().getOauthConfig().getRefreshTokenCredentials().getClient().getId())
-            .isEmpty();
+      .isEmpty();
     assertThat(config.getCallConfig().getOauthConfig().getRefreshTokenCredentials().getClient().getSecret())
-            .isEmpty();
+      .isEmpty();
     assertThat(config.getCallConfig().getOauthConfig().getRefreshTokenCredentials().getRefreshTokenPath())
-            .isEmpty();
+      .isEmpty();
     assertThat(config.getCallConfig().getOauthConfig().getAccessTokenCredentials().getAccessTokenPath())
-            .isNotEmpty();
+      .isNotEmpty();
   }
 
   private static Configuration namedConfig(String name) {
     return Configuration.newBuilder()
-        .setName(name)
-        .build();
+      .setName(name)
+      .build();
   }
   private static URL getTestUrl(String testUrl) {
     try {
