@@ -91,23 +91,23 @@ public class CommandLineArgs {
 
   // TODO: Move to a "list_services"-specific flag container
   @Option(
-      name = "--service_filter",
-      metaVar = "service_name",
-      usage="Filters service names containing this string e.g. --service_filter TestService")
+    name = "--service_filter",
+    metaVar = "service_name",
+    usage="Filters service names containing this string e.g. --service_filter TestService")
   private String serviceFilterArg;
 
   // TODO: Move to a "list_services"-specific flag container
   @Option(
-      name = "--method_filter",
-      metaVar = "method_name",
-      usage="Filters service methods to those containing this string e.g. --method_name List")
+    name = "--method_filter",
+    metaVar = "method_name",
+    usage="Filters service methods to those containing this string e.g. --method_name List")
   private String methodFilterArg;
 
   //TODO: Move to a "list_services"-specific flag container
   @Option(
-      name = "--with_message",
-      metaVar = "true|false",
-      usage="If true, then the message specification for the method is rendered")
+    name = "--with_message",
+    metaVar = "true|false",
+    usage="If true, then the message specification for the method is rendered")
   private String withMessageArg;
 
   // *************************************************************************
@@ -281,7 +281,7 @@ public class CommandLineArgs {
       URL url = new URL(rawUrl);
       return Optional.of(url);
     } catch (MalformedURLException mURLE) {
-      throw new IllegalArgumentException("URL " + rawUrl +" is invalid", mURLE);
+      throw new IllegalArgumentException("URL " + rawUrl + " is invalid", mURLE);
     }
 
   }
