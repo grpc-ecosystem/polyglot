@@ -6,9 +6,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.auth.Credentials;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -16,11 +13,12 @@ import com.google.common.net.HostAndPort;
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.DynamicMessage;
-
 import io.grpc.CallOptions;
+import io.grpc.Channel;
 import io.grpc.stub.StreamObserver;
 import me.dinowernli.grpc.polyglot.grpc.CompositeStreamObserver;
 import me.dinowernli.grpc.polyglot.grpc.DynamicGrpcClient;
+import me.dinowernli.grpc.polyglot.grpc.ServerReflectionClient;
 import me.dinowernli.grpc.polyglot.io.LoggingStatsWriter;
 import me.dinowernli.grpc.polyglot.io.MessageReader;
 import me.dinowernli.grpc.polyglot.io.MessageWriter;
@@ -28,6 +26,8 @@ import me.dinowernli.grpc.polyglot.io.Output;
 import me.dinowernli.grpc.polyglot.oauth2.OauthCredentialsFactory;
 import me.dinowernli.grpc.polyglot.protobuf.ProtoMethodName;
 import me.dinowernli.grpc.polyglot.protobuf.ServiceResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import polyglot.ConfigProto.CallConfiguration;
 
 /** Makes a call to an endpoint, rendering the result */
@@ -44,7 +44,6 @@ public class ServiceCall {
       Optional<Path> configSetPath,
       ImmutableList<Path> additionalProtocIncludes,
       CallConfiguration callConfig) {
-
     Preconditions.checkState(endpoint.isPresent(), "--endpoint argument required");
     Preconditions.checkState(fullMethod.isPresent(), "--full_method argument required");
     validatePath(protoDiscoveryRoot);
@@ -70,6 +69,19 @@ public class ServiceCall {
     } else {
       dynamicClient = DynamicGrpcClient.create(methodDescriptor, hostAndPort, callConfig);
     }
+
+    // TODO(dino): Extract channel creation logic for reuse and move this before the creation of
+    // the dynamic grpc client.
+    Channel channel = dynamicClient.getChannel();
+    ServerReflectionClient serverReflectionClient = ServerReflectionClient.create(channel);
+    logger.error(">>>>> listing services using reflection");
+    try {
+      ImmutableList<String> services = serverReflectionClient.listServices().get();
+      logger.error(">>>>> services: " + services);
+    } catch (Throwable t) {
+      logger.error(">>>>> error listing services", t);
+    }
+
 
     ImmutableList<DynamicMessage> requestMessages =
         MessageReader.forStdin(methodDescriptor.getInputType()).read();

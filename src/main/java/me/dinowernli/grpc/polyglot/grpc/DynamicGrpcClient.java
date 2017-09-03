@@ -113,6 +113,13 @@ public class DynamicGrpcClient {
     }
   }
 
+  /** Returns the {@link Channel} used by this client. */
+  public Channel getChannel() {
+    // TODO(dino): This should not expose its channel. Instead, the callers of this method should
+    // just be created with the same channel as is passed into here.
+    return channel;
+  }
+
   private ListenableFuture<Void> callBidiStreaming(
       ImmutableList<DynamicMessage> requests,
       StreamObserver<DynamicMessage> responseObserver,
