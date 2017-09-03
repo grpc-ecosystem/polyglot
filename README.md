@@ -16,6 +16,7 @@ In particular, it is not necessary to generate grpc classes for the service or t
 * Parses proto files at runtime to discover services. Supports pretty-printing discovered services.
 * Supports authentication via oauth.
 * Accepts request protos through stdin and can output responses to stdout to allow chaining.
+* Suppors plain text connections as well as TLS.
 
 ## Usage
 
