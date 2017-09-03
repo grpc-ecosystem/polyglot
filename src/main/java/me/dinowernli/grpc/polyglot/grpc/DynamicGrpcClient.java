@@ -1,9 +1,5 @@
 package me.dinowernli.grpc.polyglot.grpc;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 
@@ -11,7 +7,6 @@ import com.google.auth.Credentials;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.net.HostAndPort;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
@@ -19,26 +14,17 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.DynamicMessage;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
 import io.grpc.ClientInterceptors;
 import io.grpc.MethodDescriptor.MethodType;
 import io.grpc.auth.ClientAuthInterceptor;
-import io.grpc.netty.GrpcSslContexts;
-import io.grpc.netty.NegotiationType;
-import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.ClientCalls;
 import io.grpc.stub.StreamObserver;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import javax.net.ssl.SSLException;
 import me.dinowernli.grpc.polyglot.protobuf.DynamicMessageMarshaller;
-import polyglot.ConfigProto.CallConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** A grpc client which operates on dynamic messages. */
 public class DynamicGrpcClient {
@@ -48,11 +34,7 @@ public class DynamicGrpcClient {
   private final ListeningExecutorService executor;
 
   /** Creates a client for the supplied method, talking to the supplied endpoint. */
-  public static DynamicGrpcClient create(
-      MethodDescriptor protoMethod,
-      HostAndPort endpoint,
-      CallConfiguration callConfiguration) {
-    Channel channel = createChannel(endpoint, callConfiguration);
+  public static DynamicGrpcClient create(MethodDescriptor protoMethod, Channel channel) {
     return new DynamicGrpcClient(protoMethod, channel, createExecutorService());
   }
 
@@ -62,11 +44,9 @@ public class DynamicGrpcClient {
    */
   public static DynamicGrpcClient createWithCredentials(
       MethodDescriptor protoMethod,
-      HostAndPort endpoint,
-      CallConfiguration callConfiguration,
+      Channel channel,
       Credentials credentials) {
     ListeningExecutorService executor = createExecutorService();
-    Channel channel = createChannel(endpoint, callConfiguration);
     return new DynamicGrpcClient(
         protoMethod,
         ClientInterceptors.intercept(channel, new ClientAuthInterceptor(credentials, executor)),
@@ -111,13 +91,6 @@ public class DynamicGrpcClient {
       logger.info("Making bidi streaming call with " + requests.size() + " requests");
       return callBidiStreaming(requests, responseObserver, callOptions);
     }
-  }
-
-  /** Returns the {@link Channel} used by this client. */
-  public Channel getChannel() {
-    // TODO(dino): This should not expose its channel. Instead, the callers of this method should
-    // just be created with the same channel as is passed into here.
-    return channel;
   }
 
   private ListenableFuture<Void> callBidiStreaming(
@@ -228,50 +201,5 @@ public class DynamicGrpcClient {
   private static ListeningExecutorService createExecutorService() {
     return MoreExecutors.listeningDecorator(
         Executors.newCachedThreadPool(new ThreadFactoryBuilder().setDaemon(true).build()));
-  }
-
-  private static Channel createPlaintextChannel(HostAndPort endpoint) {
-    return NettyChannelBuilder.forAddress(endpoint.getHostText(), endpoint.getPort())
-        .negotiationType(NegotiationType.PLAINTEXT)
-        .build();
-  }
-
-  private static Channel createChannel(HostAndPort endpoint, CallConfiguration callConfiguration) {
-    if (!callConfiguration.getUseTls()) {
-      return createPlaintextChannel(endpoint);
-    }
-    NettyChannelBuilder nettyChannelBuilder =
-        NettyChannelBuilder.forAddress(endpoint.getHostText(), endpoint.getPort())
-            .sslContext(createSslContext(callConfiguration))
-            .negotiationType(NegotiationType.TLS);
-
-    if (!callConfiguration.getTlsClientOverrideAuthority().isEmpty()) {
-      nettyChannelBuilder.overrideAuthority(callConfiguration.getTlsClientOverrideAuthority());
-    }
-
-    return nettyChannelBuilder.build();
-  }
-
-  private static SslContext createSslContext(CallConfiguration callConfiguration) {
-    SslContextBuilder resultBuilder = GrpcSslContexts.forClient();
-    if (!callConfiguration.getTlsCaCertPath().isEmpty()) {
-      resultBuilder.trustManager(loadFile(callConfiguration.getTlsCaCertPath()));
-    }
-    if (!callConfiguration.getTlsClientCertPath().isEmpty()) {
-      resultBuilder.keyManager(
-          loadFile(callConfiguration.getTlsClientCertPath()),
-          loadFile(callConfiguration.getTlsClientKeyPath()));
-    }
-    try {
-      return resultBuilder.build();
-    } catch (SSLException e) {
-      throw new RuntimeException("Unable to build sslcontext for client call", e);
-    }
-  }
-
-  private static File loadFile(String fileName) {
-    Path filePath = Paths.get(fileName);
-    Preconditions.checkArgument(Files.exists(filePath), "File " + fileName + " was not found");
-    return filePath.toFile();
   }
 }

@@ -16,6 +16,7 @@ import com.google.protobuf.DynamicMessage;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.stub.StreamObserver;
+import me.dinowernli.grpc.polyglot.grpc.ChannelFactory;
 import me.dinowernli.grpc.polyglot.grpc.CompositeStreamObserver;
 import me.dinowernli.grpc.polyglot.grpc.DynamicGrpcClient;
 import me.dinowernli.grpc.polyglot.grpc.ServerReflectionClient;
@@ -56,6 +57,7 @@ public class ServiceCall {
 
     ServiceResolver serviceResolver = ServiceResolver.fromFileDescriptorSet(fileDescriptorSet);
     MethodDescriptor methodDescriptor = serviceResolver.resolveServiceMethod(grpcMethodName);
+    Channel channel = new ChannelFactory(callConfig).createChannel(hostAndPort);
 
     logger.info("Creating dynamic grpc client");
     DynamicGrpcClient dynamicClient;
@@ -64,15 +66,11 @@ public class ServiceCall {
           new OauthCredentialsFactory(callConfig.getOauthConfig()).getCredentials();
 
       dynamicClient = DynamicGrpcClient.createWithCredentials(
-          methodDescriptor, hostAndPort, callConfig, credentials);
-
+          methodDescriptor, channel, credentials);
     } else {
-      dynamicClient = DynamicGrpcClient.create(methodDescriptor, hostAndPort, callConfig);
+      dynamicClient = DynamicGrpcClient.create(methodDescriptor, channel);
     }
 
-    // TODO(dino): Extract channel creation logic for reuse and move this before the creation of
-    // the dynamic grpc client.
-    Channel channel = dynamicClient.getChannel();
     ServerReflectionClient serverReflectionClient = ServerReflectionClient.create(channel);
     logger.error(">>>>> listing services using reflection");
     try {
@@ -81,7 +79,6 @@ public class ServiceCall {
     } catch (Throwable t) {
       logger.error(">>>>> error listing services", t);
     }
-
 
     ImmutableList<DynamicMessage> requestMessages =
         MessageReader.forStdin(methodDescriptor.getInputType()).read();
