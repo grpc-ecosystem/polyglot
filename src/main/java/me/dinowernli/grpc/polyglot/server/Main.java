@@ -18,6 +18,7 @@ public class Main {
     try {
       ServerBuilder.forPort(SERVER_PORT)
           .addService(new HelloServiceImpl())
+          .addService(io.grpc.protobuf.services.ProtoReflectionService.newInstance())
           .build()
           .start()
           .awaitTermination();
