@@ -3,7 +3,6 @@ package me.dinowernli.grpc.polyglot.grpc;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 
-import com.google.auth.Credentials;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -17,9 +16,7 @@ import com.google.protobuf.DynamicMessage;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
-import io.grpc.ClientInterceptors;
 import io.grpc.MethodDescriptor.MethodType;
-import io.grpc.auth.ClientAuthInterceptor;
 import io.grpc.stub.ClientCalls;
 import io.grpc.stub.StreamObserver;
 import me.dinowernli.grpc.polyglot.protobuf.DynamicMessageMarshaller;
@@ -36,21 +33,6 @@ public class DynamicGrpcClient {
   /** Creates a client for the supplied method, talking to the supplied endpoint. */
   public static DynamicGrpcClient create(MethodDescriptor protoMethod, Channel channel) {
     return new DynamicGrpcClient(protoMethod, channel, createExecutorService());
-  }
-
-  /**
-   * Creates a client for the supplied method, talking to the supplied endpoint. Passes the
-   * supplied credentials on every rpc call.
-   */
-  public static DynamicGrpcClient createWithCredentials(
-      MethodDescriptor protoMethod,
-      Channel channel,
-      Credentials credentials) {
-    ListeningExecutorService executor = createExecutorService();
-    return new DynamicGrpcClient(
-        protoMethod,
-        ClientInterceptors.intercept(channel, new ClientAuthInterceptor(credentials, executor)),
-        executor);
   }
 
   @VisibleForTesting

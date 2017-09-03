@@ -4,12 +4,18 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.Executors;
 
 import javax.net.ssl.SSLException;
 
+import com.google.auth.Credentials;
 import com.google.common.base.Preconditions;
 import com.google.common.net.HostAndPort;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.grpc.Channel;
+import io.grpc.ClientInterceptors;
+import io.grpc.auth.ClientAuthInterceptor;
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
@@ -17,12 +23,23 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import polyglot.ConfigProto;
 
+import static com.google.common.util.concurrent.MoreExecutors.listeningDecorator;
+
 /** Knows how to construct grpc channels. */
 public class ChannelFactory {
-  private ConfigProto.CallConfiguration callConfiguration;
+  private final ConfigProto.CallConfiguration callConfiguration;
+  private final ListeningExecutorService authExecutor;
 
-  public ChannelFactory(ConfigProto.CallConfiguration callConfiguration) {
+  public static ChannelFactory create(ConfigProto.CallConfiguration callConfiguration) {
+    ListeningExecutorService authExecutor = listeningDecorator(
+        Executors.newCachedThreadPool(new ThreadFactoryBuilder().setDaemon(true).build()));
+    return new ChannelFactory(callConfiguration, authExecutor);
+  }
+
+  public ChannelFactory(
+      ConfigProto.CallConfiguration callConfiguration, ListeningExecutorService authExecutor) {
     this.callConfiguration = callConfiguration;
+    this.authExecutor = authExecutor;
   }
 
   public Channel createChannel(HostAndPort endpoint) {
@@ -39,6 +56,11 @@ public class ChannelFactory {
     }
 
     return nettyChannelBuilder.build();
+  }
+
+  public Channel createChannelWithCredentials(HostAndPort endpoint, Credentials credentials) {
+    return ClientInterceptors.intercept(
+        createChannel(endpoint), new ClientAuthInterceptor(credentials, authExecutor));
   }
 
   private static Channel createPlaintextChannel(HostAndPort endpoint) {

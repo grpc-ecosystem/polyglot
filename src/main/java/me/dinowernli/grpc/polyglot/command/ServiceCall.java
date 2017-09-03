@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import com.google.auth.Credentials;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.net.HostAndPort;
@@ -57,19 +56,19 @@ public class ServiceCall {
 
     ServiceResolver serviceResolver = ServiceResolver.fromFileDescriptorSet(fileDescriptorSet);
     MethodDescriptor methodDescriptor = serviceResolver.resolveServiceMethod(grpcMethodName);
-    Channel channel = new ChannelFactory(callConfig).createChannel(hostAndPort);
+    ChannelFactory channelFactory = ChannelFactory.create(callConfig);
+
+    logger.info("Creating channel to: " + hostAndPort.toString());
+    Channel channel;
+    if (callConfig.hasOauthConfig()) {
+      channel = channelFactory.createChannelWithCredentials(
+          hostAndPort, new OauthCredentialsFactory(callConfig.getOauthConfig()).getCredentials());
+    } else {
+      channel = channelFactory.createChannel(hostAndPort);
+    }
 
     logger.info("Creating dynamic grpc client");
-    DynamicGrpcClient dynamicClient;
-    if (callConfig.hasOauthConfig()) {
-      Credentials credentials =
-          new OauthCredentialsFactory(callConfig.getOauthConfig()).getCredentials();
-
-      dynamicClient = DynamicGrpcClient.createWithCredentials(
-          methodDescriptor, channel, credentials);
-    } else {
-      dynamicClient = DynamicGrpcClient.create(methodDescriptor, channel);
-    }
+    DynamicGrpcClient dynamicClient = DynamicGrpcClient.create(methodDescriptor, channel);
 
     ServerReflectionClient serverReflectionClient = ServerReflectionClient.create(channel);
     logger.error(">>>>> listing services using reflection");
