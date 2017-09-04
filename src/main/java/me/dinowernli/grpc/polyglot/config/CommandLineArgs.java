@@ -280,8 +280,8 @@ public class CommandLineArgs {
     try {
       URL url = new URL(rawUrl);
       return Optional.of(url);
-    } catch (MalformedURLException mURLE) {
-      throw new IllegalArgumentException("URL " + rawUrl + " is invalid", mURLE);
+    } catch (MalformedURLException e) {
+      throw new IllegalArgumentException("URL " + rawUrl + " is invalid", e);
     }
 
   }
