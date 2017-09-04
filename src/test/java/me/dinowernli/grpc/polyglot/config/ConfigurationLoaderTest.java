@@ -106,18 +106,13 @@ public class ConfigurationLoaderTest {
     assertThat(callConfig.getTlsClientCertPath()).isEqualTo("client_cert");
     assertThat(callConfig.getTlsClientKeyPath()).isEqualTo("client_key");
     assertThat(callConfig.getTlsClientOverrideAuthority()).isEqualTo("override_authority");
-    assertThat(config.getCallConfig().getDeadlineMs()).isEqualTo(25);
-    assertThat(config.getCallConfig().getTlsCaCertPath()).isNotEmpty();
-    assertThat(config.getCallConfig().getOauthConfig().getRefreshTokenCredentials().getTokenEndpointUrl())
-      .isEqualTo("https://github.com/grpc-ecosystem/polyglot");
-    assertThat(config.getCallConfig().getOauthConfig().getRefreshTokenCredentials().getClient().getId())
-      .isEqualTo("id");
-    assertThat(config.getCallConfig().getOauthConfig().getRefreshTokenCredentials().getClient().getSecret())
-      .isEqualTo("secret");
-    assertThat(config.getCallConfig().getOauthConfig().getRefreshTokenCredentials().getRefreshTokenPath())
-      .isNotEmpty();
-    assertThat(config.getCallConfig().getOauthConfig().getAccessTokenCredentials().getAccessTokenPath())
-      .isEmpty();
+    assertThat(callConfig.getDeadlineMs()).isEqualTo(25);
+    assertThat(callConfig.getOauthConfig().getRefreshTokenCredentials().getTokenEndpointUrl())
+            .isEqualTo("https://github.com/grpc-ecosystem/polyglot");
+    assertThat(callConfig.getOauthConfig().getRefreshTokenCredentials().getClient().getId()).isEqualTo("id");
+    assertThat(callConfig.getOauthConfig().getRefreshTokenCredentials().getClient().getSecret()).isEqualTo("secret");
+    assertThat(callConfig.getOauthConfig().getRefreshTokenCredentials().getRefreshTokenPath()).isNotEmpty();
+    assertThat(callConfig.getOauthConfig().getAccessTokenCredentials().getAccessTokenPath()).isEmpty();
   }
 
   @Test
@@ -128,6 +123,9 @@ public class ConfigurationLoaderTest {
     when(mockOverrides.protoDiscoveryRoot()).thenReturn(Optional.of(Paths.get(".")));
     when(mockOverrides.getRpcDeadlineMs()).thenReturn(Optional.of(25));
     when(mockOverrides.tlsCaCertPath()).thenReturn(Optional.of(Paths.get("asdf")));
+    when(mockOverrides.tlsClientCertPath()).thenReturn(Optional.of(Paths.get("client_cert")));
+    when(mockOverrides.tlsClientKeyPath()).thenReturn(Optional.of(Paths.get("client_key")));
+    when(mockOverrides.tlsClientOverrideAuthority()).thenReturn(Optional.of("override_authority"));
     when(mockOverrides.oauthRefreshTokenEndpointUrl()).thenReturn(Optional.of(getTestUrl("https://github.com/grpc-ecosystem/polyglot")));
     when(mockOverrides.oauthClientId()).thenReturn(Optional.of("id"));
     when(mockOverrides.oauthClientSecret()).thenReturn(Optional.of("secret"));
@@ -139,21 +137,21 @@ public class ConfigurationLoaderTest {
       .withOverrides(mockOverrides)
       .getDefaultConfiguration();
 
-    assertThat(config.getCallConfig().getUseTls()).isTrue();
+    CallConfiguration callConfig = config.getCallConfig();
+    assertThat(callConfig.getUseTls()).isTrue();
     assertThat(config.getOutputConfig().getDestination()).isEqualTo(Destination.FILE);
-    assertThat(config.getCallConfig().getDeadlineMs()).isEqualTo(25);
-    assertThat(config.getCallConfig().getTlsCaCertPath()).isNotEmpty();
-    // Setting the access token path will unset all of the refresh token properties
-    assertThat(config.getCallConfig().getOauthConfig().getRefreshTokenCredentials().getTokenEndpointUrl())
-      .isEmpty();
-    assertThat(config.getCallConfig().getOauthConfig().getRefreshTokenCredentials().getClient().getId())
-      .isEmpty();
-    assertThat(config.getCallConfig().getOauthConfig().getRefreshTokenCredentials().getClient().getSecret())
-      .isEmpty();
-    assertThat(config.getCallConfig().getOauthConfig().getRefreshTokenCredentials().getRefreshTokenPath())
-      .isEmpty();
-    assertThat(config.getCallConfig().getOauthConfig().getAccessTokenCredentials().getAccessTokenPath())
-      .isNotEmpty();
+    assertThat(callConfig.getDeadlineMs()).isEqualTo(25);
+    assertThat(callConfig.getTlsCaCertPath()).isNotEmpty();
+    assertThat(callConfig.getTlsClientCertPath()).isEqualTo("client_cert");
+    assertThat(callConfig.getTlsClientKeyPath()).isEqualTo("client_key");
+    assertThat(callConfig.getTlsClientOverrideAuthority()).isEqualTo("override_authority");
+    assertThat(callConfig.getDeadlineMs()).isEqualTo(25);
+    // Setting the access token path will unset all of the refresh token properties (due to the oneof semantics)
+    assertThat(callConfig.getOauthConfig().getRefreshTokenCredentials().getTokenEndpointUrl()).isEmpty();
+    assertThat(callConfig.getOauthConfig().getRefreshTokenCredentials().getClient().getId()).isEmpty();
+    assertThat(callConfig.getOauthConfig().getRefreshTokenCredentials().getClient().getSecret()).isEmpty();
+    assertThat(callConfig.getOauthConfig().getRefreshTokenCredentials().getRefreshTokenPath()).isEmpty();
+    assertThat(callConfig.getOauthConfig().getAccessTokenCredentials().getAccessTokenPath()).isNotEmpty();
   }
 
   private static Configuration namedConfig(String name) {
