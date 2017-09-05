@@ -112,9 +112,9 @@ public class CommandLineArgs {
 
   //TODO: Move to a "list_services"-specific flag container
   @Option(
-          name = "--list_output_format",
-          metaVar = "readable|json",
-          usage="The output format of the list service command, defaults to readable if arg is omitted ")
+    name = "--list_output_format",
+    metaVar = "readable|json",
+    usage="The output format of the list service command, defaults to readable if arg is omitted ")
   private String listOutputFormatArg;
 
   // *************************************************************************
