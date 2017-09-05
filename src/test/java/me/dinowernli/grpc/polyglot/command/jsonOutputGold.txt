@@ -1,0 +1,143 @@
+{
+	"serviceProtos": [
+		{
+			"name": "TestService",
+			"method": [
+				{
+					"name": "TestMethod",
+					"inputType": ".polyglot.test.TestRequest",
+					"outputType": ".polyglot.test.TestResponse",
+					"options": {}
+				},
+				{
+					"name": "TestMethodStream",
+					"inputType": ".polyglot.test.TestRequest",
+					"outputType": ".polyglot.test.TestResponse",
+					"options": {},
+					"serverStreaming": true
+				},
+				{
+					"name": "TestMethodClientStream",
+					"inputType": ".polyglot.test.TestRequest",
+					"outputType": ".polyglot.test.TestResponse",
+					"options": {},
+					"clientStreaming": true
+				},
+				{
+					"name": "TestMethodBidi",
+					"inputType": ".polyglot.test.TestRequest",
+					"outputType": ".polyglot.test.TestResponse",
+					"options": {},
+					"clientStreaming": true,
+					"serverStreaming": true
+				}
+			]
+		}
+	],
+	"fileProtos": [
+		{
+			"name": "src/main/proto/testing/test_service.proto",
+			"package": "polyglot.test",
+			"dependency": [
+				"src/main/proto/testing/foo/foo.proto"
+			],
+			"messageType": [
+				{
+					"name": "TestRequest",
+					"field": [
+						{
+							"name": "message",
+							"number": 1,
+							"label": "LABEL_OPTIONAL",
+							"type": "TYPE_STRING"
+						},
+						{
+							"name": "foo",
+							"number": 2,
+							"label": "LABEL_OPTIONAL",
+							"type": "TYPE_MESSAGE",
+							"typeName": ".polyglot.test.foo.Foo"
+						},
+						{
+							"name": "number",
+							"number": 3,
+							"label": "LABEL_OPTIONAL",
+							"type": "TYPE_INT32"
+						}
+					]
+				},
+				{
+					"name": "TestResponse",
+					"field": [
+						{
+							"name": "message",
+							"number": 1,
+							"label": "LABEL_OPTIONAL",
+							"type": "TYPE_STRING"
+						}
+					]
+				}
+			],
+			"service": [
+				{
+					"name": "TestService",
+					"method": [
+						{
+							"name": "TestMethod",
+							"inputType": ".polyglot.test.TestRequest",
+							"outputType": ".polyglot.test.TestResponse",
+							"options": {}
+						},
+						{
+							"name": "TestMethodStream",
+							"inputType": ".polyglot.test.TestRequest",
+							"outputType": ".polyglot.test.TestResponse",
+							"options": {},
+							"serverStreaming": true
+						},
+						{
+							"name": "TestMethodClientStream",
+							"inputType": ".polyglot.test.TestRequest",
+							"outputType": ".polyglot.test.TestResponse",
+							"options": {},
+							"clientStreaming": true
+						},
+						{
+							"name": "TestMethodBidi",
+							"inputType": ".polyglot.test.TestRequest",
+							"outputType": ".polyglot.test.TestResponse",
+							"options": {},
+							"clientStreaming": true,
+							"serverStreaming": true
+						}
+					]
+				}
+			],
+			"options": {
+				"javaOuterClassname": "TestProto"
+			},
+			"syntax": "proto3"
+		},
+		{
+			"name": "src/main/proto/testing/foo/foo.proto",
+			"package": "polyglot.test.foo",
+			"messageType": [
+				{
+					"name": "Foo",
+					"field": [
+						{
+							"name": "message",
+							"number": 1,
+							"label": "LABEL_OPTIONAL",
+							"type": "TYPE_STRING"
+						}
+					]
+				}
+			],
+			"options": {
+				"javaOuterClassname": "FooProto"
+			},
+			"syntax": "proto3"
+		}
+	]
+}

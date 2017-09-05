@@ -2,6 +2,7 @@ package me.dinowernli.grpc.polyglot.io;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,17 +23,18 @@ public class MessageWriter<T extends Message> implements StreamObserver<T> {
   private static final Logger logger = LoggerFactory.getLogger(MessageWriter.class);
 
   /** Used to separate the individual plaintext json proto messages. */
-  private static final String MESSAGE_SEPARATOR = "\n\n";
+  private final String messageSeparator;
 
   private final JsonFormat.Printer jsonPrinter;
   private final Output output;
+  private boolean firstMessagePrinted = false;
 
   /**
    * Creates a new {@link MessageWriter} which writes the messages it sees to the supplied
    * {@link Output}.
    */
-  public static <T extends Message> MessageWriter<T> create(Output output) {
-    return new MessageWriter<T>(JsonFormat.printer(), output);
+  public static <T extends Message> MessageWriter<T> create(Output output, String messageSeparator) {
+    return new MessageWriter<T>(JsonFormat.printer(), output, messageSeparator);
   }
 
   /**
@@ -40,16 +42,24 @@ public class MessageWriter<T extends Message> implements StreamObserver<T> {
    * is represented as valid json, but not that the whole result is, itself, *not* valid json.
    */
   public static <M extends Message> String writeJsonStream(ImmutableList<M> messages) {
+    return writeJsonStream(messages, "\n\n");
+  }
+
+  /**
+   * Returns the string representation of the list of messages, separated by the {@param messageSeparator} string
+   */
+  public static <M extends Message> String writeJsonStream(ImmutableList<M> messages, String messageSeparator) {
     ByteArrayOutputStream resultStream = new ByteArrayOutputStream();
-    MessageWriter<M> writer = MessageWriter.create(Output.forStream(new PrintStream(resultStream)));
+    MessageWriter<M> writer = MessageWriter.create(Output.forStream(new PrintStream(resultStream)), messageSeparator);
     writer.writeAll(messages);
     return resultStream.toString();
   }
 
   @VisibleForTesting
-  MessageWriter(JsonFormat.Printer jsonPrinter, Output output) {
+  MessageWriter(JsonFormat.Printer jsonPrinter, Output output, String messageSeparator) {
     this.jsonPrinter = jsonPrinter;
     this.output = output;
+    this.messageSeparator = messageSeparator;
   }
 
   @Override
@@ -65,7 +75,14 @@ public class MessageWriter<T extends Message> implements StreamObserver<T> {
   @Override
   public void onNext(T message) {
     try {
-      output.write(jsonPrinter.print(message) + MESSAGE_SEPARATOR);
+      String outputString = jsonPrinter.print(message);
+      // Only separate messages if there are more than one
+      if (!firstMessagePrinted) {
+        firstMessagePrinted = true;
+      } else {
+        outputString = messageSeparator + outputString;
+      }
+      output.write(outputString);
     } catch (InvalidProtocolBufferException e) {
       logger.error("Skipping invalid response message", e);
     }

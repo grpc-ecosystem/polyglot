@@ -65,7 +65,8 @@ public class Main {
           ServiceList.listServices(
               commandLineOutput,
               fileDescriptorSet, config.getProtoConfig().getProtoDiscoveryRoot(),
-              arguments.serviceFilter(), arguments.methodFilter(), arguments.withMessage());
+              arguments.serviceFilter(), arguments.methodFilter(), arguments.withMessage(),
+                  arguments.listOutputFormat());
           break;
 
         case CommandLineArgs.CALL_COMMAND:

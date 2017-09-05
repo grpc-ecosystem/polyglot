@@ -1,8 +1,15 @@
 package me.dinowernli.grpc.polyglot.command;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
 import me.dinowernli.grpc.polyglot.testing.RecordingOutput;
 import me.dinowernli.junit.TestClass;
@@ -24,6 +31,7 @@ public class ServiceListTest {
   private static final String EXPECTED_SERVICE = "polyglot.test.TestService";
   private static final ImmutableList<String> EXPECTED_METHOD_NAMES = ImmutableList.of(
       "TestMethod", "TestMethodStream", "TestMethodClientStream", "TestMethodBidi");
+  private static final String TMP_DIR = System.getProperty("user.dir");
 
   private RecordingOutput recordingOutput;
 
@@ -40,6 +48,7 @@ public class ServiceListTest {
         "",
         Optional.empty(),
         Optional.empty(),
+        Optional.empty(),
         Optional.empty());
     recordingOutput.close();
 
@@ -53,6 +62,7 @@ public class ServiceListTest {
         PROTO_FILE_DESCRIPTORS,
         "",
         Optional.of("TestService"),
+        Optional.empty(),
         Optional.empty(),
         Optional.empty());
     recordingOutput.close();
@@ -68,7 +78,8 @@ public class ServiceListTest {
         "",
         Optional.of("TestService"),
         Optional.of("TestMethodStream"),
-        Optional.empty());
+        Optional.empty(),
+            Optional.empty());
     recordingOutput.close();
 
     validateOutput(
@@ -85,11 +96,27 @@ public class ServiceListTest {
         "",
         Optional.of("TestService"),
         Optional.of("TestMethodStream"),
-        Optional.of(true));
+        Optional.of(true),
+            Optional.empty());
     recordingOutput.close();
 
     validateMessageOutput(recordingOutput.getContentsAsString());
   }
+
+//  @Test
+//  public void testServiceListOutputWithMessageDetailJsonFormatted() throws Throwable {
+//    ServiceList.listServices(
+//            recordingOutput,
+//            PROTO_FILE_DESCRIPTORS,
+//            "",
+//            Optional.of("TestService"),
+//            Optional.of("TestMethodStream"),
+//            Optional.of(true),
+//            Optional.of("json"));
+//    recordingOutput.close();
+//
+//    validateJsonMessageOutput(recordingOutput.getContentsAsString());
+//  }
 
   /** Compares the actual output with the expected output format */
   private void validateOutput(
@@ -142,6 +169,21 @@ public class ServiceListTest {
 
     for (int i = 0; i < expectedLines.size(); i++) {
       assertThat(lines[i + 1].trim()).isEqualTo(expectedLines.get(i));
+    }
+  }
+
+  /** Ensures that the message-rendering logic is correct */
+  private void validateJsonMessageOutput(String output) {
+
+    JsonElement parsedJSONOutput = new JsonParser().parse(output);
+    Path jsonOutputGoldPath = Paths.get("./jsonOutputGold.txt");
+
+    try {
+      String expectedJSON = Files.readAllLines(jsonOutputGoldPath).stream().collect(Collectors.joining(""));
+      JsonElement parsedExpectedJson = new JsonParser().parse(expectedJSON);
+      assertThat(parsedExpectedJson.toString()).isEqualTo(parsedJSONOutput.toString());
+    } catch (IOException e) {
+      throw new RuntimeException("Unable to find gold output file: " + jsonOutputGoldPath.toString(), e);
     }
   }
 }

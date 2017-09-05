@@ -76,7 +76,7 @@ public class ServiceCall {
     ImmutableList<DynamicMessage> requestMessages =
         MessageReader.forStdin(methodDescriptor.getInputType()).read();
     StreamObserver<DynamicMessage> streamObserver =
-        CompositeStreamObserver.of(new LoggingStatsWriter(), MessageWriter.create(output));
+        CompositeStreamObserver.of(new LoggingStatsWriter(), MessageWriter.create(output, "\n\n"));
     logger.info(String.format(
         "Making rpc with %d request(s) to endpoint [%s]", requestMessages.size(), hostAndPort));
     try {
