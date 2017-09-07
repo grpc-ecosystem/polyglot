@@ -6,6 +6,10 @@ Quick links:
 
 ## Upcoming release
 
+## 1.3.0
+* Upgraded to grpc 1.4.0.
+* Added support for client certificates to TLS.
+
 ## 1.2.0
 
 * Upgraded to grpc 1.0.0.
