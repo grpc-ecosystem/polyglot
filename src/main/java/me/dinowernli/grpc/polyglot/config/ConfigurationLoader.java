@@ -93,9 +93,9 @@ public class ConfigurationLoader {
   private Configuration getNamedConfigurationInternal(String name) {
     Preconditions.checkState(!isEmptyConfig(), "Cannot load named config with a config set");
     return configSet.get().getConfigurationsList().stream()
-        .filter(config -> config.getName().equals(name))
-        .findAny()
-        .orElseThrow(() -> new IllegalArgumentException("Could not find named config: " + name));
+      .filter(config -> config.getName().equals(name))
+      .findAny()
+      .orElseThrow(() -> new IllegalArgumentException("Could not find named config: " + name));
   }
 
   /** Returns the {@link Configuration} with overrides, if any, applied to it. */
@@ -111,7 +111,7 @@ public class ConfigurationLoader {
     if (overrides.get().outputFilePath().isPresent()) {
       resultBuilder.getOutputConfigBuilder().setDestination(Destination.FILE);
       resultBuilder.getOutputConfigBuilder().setFilePath(
-          overrides.get().outputFilePath().get().toString());
+        overrides.get().outputFilePath().get().toString());
     }
     if (!overrides.get().additionalProtocIncludes().isEmpty()) {
       List<String> additionalIncludes = new ArrayList<>();
@@ -122,7 +122,7 @@ public class ConfigurationLoader {
     }
     if (overrides.get().protoDiscoveryRoot().isPresent()) {
       resultBuilder.getProtoConfigBuilder().setProtoDiscoveryRoot(
-          overrides.get().protoDiscoveryRoot().get().toString());
+        overrides.get().protoDiscoveryRoot().get().toString());
     }
     if (overrides.get().getRpcDeadlineMs().isPresent()) {
       resultBuilder.getCallConfigBuilder().setDeadlineMs(overrides.get().getRpcDeadlineMs().get());
@@ -141,7 +141,30 @@ public class ConfigurationLoader {
     }
     if (overrides.get().tlsClientOverrideAuthority().isPresent()) {
       resultBuilder.getCallConfigBuilder().setTlsClientOverrideAuthority(
-          overrides.get().tlsClientOverrideAuthority().get());
+        overrides.get().tlsClientOverrideAuthority().get());
+    }
+    if (overrides.get().oauthRefreshTokenEndpointUrl().isPresent()) {
+      resultBuilder.getCallConfigBuilder().getOauthConfigBuilder().getRefreshTokenCredentialsBuilder()
+        .setTokenEndpointUrl(overrides.get().oauthRefreshTokenEndpointUrl().get().toString());
+    }
+    if (overrides.get().oauthClientId().isPresent()) {
+      resultBuilder.getCallConfigBuilder().getOauthConfigBuilder().getRefreshTokenCredentialsBuilder()
+        .getClientBuilder().setId(overrides.get().oauthClientId().get());
+    }
+    if (overrides.get().oauthClientSecret().isPresent()) {
+      resultBuilder.getCallConfigBuilder().getOauthConfigBuilder().getRefreshTokenCredentialsBuilder()
+        .getClientBuilder().setSecret(overrides.get().oauthClientSecret().get());
+    }
+    if (overrides.get().oauthRefreshTokenPath().isPresent()) {
+      resultBuilder.getCallConfigBuilder().getOauthConfigBuilder().getRefreshTokenCredentialsBuilder()
+        .setRefreshTokenPath(overrides.get().oauthRefreshTokenPath().get().toString());
+    }
+    // Note the ordering of setting these fields is important. Oauth configuration has a oneof field, corresponding
+    // to access or refresh tokens. We want access tokens to take precedence, setting this field last will ensure this
+    // occurs. See https://developers.google.com/protocol-buffers/docs/proto#oneof
+    if (overrides.get().oauthAccessTokenPath().isPresent()) {
+      resultBuilder.getCallConfigBuilder().getOauthConfigBuilder().getAccessTokenCredentialsBuilder()
+        .setAccessTokenPath(overrides.get().oauthAccessTokenPath().get().toString());
     }
     return resultBuilder.build();
   }

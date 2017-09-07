@@ -71,10 +71,10 @@ public class RefreshTokenCredentials extends OAuth2Credentials {
     logger.info("Refresh successful, got access token");
     return new AccessToken(
         refreshResponse.getAccessToken(),
-        computeExpirtyDate(refreshResponse.getExpiresInSeconds()));
+        computeExpiryDate(refreshResponse.getExpiresInSeconds()));
   }
 
-  private Date computeExpirtyDate(long expiresInSeconds) {
+  private Date computeExpiryDate(long expiresInSeconds) {
     long expiresInSecondsWithMargin = (long) (expiresInSeconds * ACCESS_TOKEN_EXPIRY_MARGIN);
     return Date.from(clock.instant().plusSeconds(expiresInSecondsWithMargin));
   }
