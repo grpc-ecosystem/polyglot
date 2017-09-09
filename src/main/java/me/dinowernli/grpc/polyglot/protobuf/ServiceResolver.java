@@ -22,11 +22,6 @@ public class ServiceResolver {
   private static final Logger logger = LoggerFactory.getLogger(ServiceResolver.class);
   private final ImmutableList<FileDescriptor> fileDescriptors;
 
-  /** Creates a resolver which searches the supplied file descriptors. */
-  public static ServiceResolver fromFileDescriptors(FileDescriptor... descriptors) {
-    return new ServiceResolver(Arrays.asList(descriptors));
-  }
-
   /** Creates a resolver which searches the supplied {@link FileDescriptorSet}. */
   public static ServiceResolver fromFileDescriptorSet(FileDescriptorSet descriptorSet) {
     ImmutableMap<String, FileDescriptorProto> descriptorProtoIndex =
