@@ -70,7 +70,7 @@ public class ClientServerIntegrationTest {
   public void makesRoundTripUnary() throws Throwable {
     int serverPort = testServer.getGrpcServerPort();
     ImmutableList<String> args = ImmutableList.<String>builder()
-        .addAll(makeArgs(serverPort, TestUtils.TESTING_PROTO_ROOT.toString(), TEST_UNARY_METHOD))
+        .addAll(makeArgs(serverPort, TEST_UNARY_METHOD))
         .add(makeArgument("output_file_path", responseFilePath.toString()))
         .add(makeArgument("use_reflection", "false"))
         .build();
@@ -89,10 +89,13 @@ public class ClientServerIntegrationTest {
   public void makesRoundTripUnary_WithReflection() throws Throwable {
     int serverPort = testServer.getGrpcServerPort();
     ImmutableList<String> args = ImmutableList.<String>builder()
-        .addAll(makeArgs(serverPort, TestUtils.TESTING_PROTO_ROOT.toString(), TEST_UNARY_METHOD))
-        .add(makeArgument("output_file_path", responseFilePath.toString()))
+        .add(makeArgument("command", "call"))
+        .add(makeArgument("endpoint", Joiner.on(':').join("localhost", serverPort)))
+        .add(makeArgument("full_method", TEST_UNARY_METHOD))
         .add(makeArgument("use_reflection", "true"))
+        .add(makeArgument("output_file_path", responseFilePath.toString()))
         .build();
+
     setStdinContents(MessageWriter.writeJsonStream(ImmutableList.of(REQUEST)));
 
     // Run the full client.
@@ -108,7 +111,7 @@ public class ClientServerIntegrationTest {
   public void makesRoundTripServerStream() throws Throwable {
     int serverPort = testServer.getGrpcServerPort();
     ImmutableList<String> args = ImmutableList.<String>builder()
-        .addAll(makeArgs(serverPort, TestUtils.TESTING_PROTO_ROOT.toString(), TEST_STREAM_METHOD))
+        .addAll(makeArgs(serverPort, TEST_STREAM_METHOD))
         .add(makeArgument("output_file_path", responseFilePath.toString()))
         .add(makeArgument("use_reflection", "false"))
         .build();
@@ -126,8 +129,7 @@ public class ClientServerIntegrationTest {
   public void makesRoundTripClientStream() throws Throwable {
     int serverPort = testServer.getGrpcServerPort();
     ImmutableList<String> args = ImmutableList.<String>builder()
-        .addAll(makeArgs(
-            serverPort, TestUtils.TESTING_PROTO_ROOT.toString(), TEST_CLIENT_STREAM_METHOD))
+        .addAll(makeArgs(serverPort, TEST_CLIENT_STREAM_METHOD))
         .add(makeArgument("output_file_path", responseFilePath.toString()))
         .add(makeArgument("use_reflection", "false"))
         .build();
@@ -145,8 +147,7 @@ public class ClientServerIntegrationTest {
   public void makesRoundTripBidiStream() throws Throwable {
     int serverPort = testServer.getGrpcServerPort();
     ImmutableList<String> args = ImmutableList.<String>builder()
-        .addAll(makeArgs(
-            serverPort, TestUtils.TESTING_PROTO_ROOT.toString(), TEST_BIDI_METHOD))
+        .addAll(makeArgs(serverPort, TEST_BIDI_METHOD))
         .add(makeArgument("output_file_path", responseFilePath.toString()))
         .add(makeArgument("use_reflection", "false"))
         .build();
@@ -165,8 +166,7 @@ public class ClientServerIntegrationTest {
 
   @Test(expected = RuntimeException.class)
   public void rejectsBadInput() throws Throwable {
-    ImmutableList<String> args = makeArgs(
-        testServer.getGrpcServerPort(), TestUtils.TESTING_PROTO_ROOT.toString(), TEST_UNARY_METHOD);
+    ImmutableList<String> args = makeArgs(testServer.getGrpcServerPort(), TEST_UNARY_METHOD);
     setStdinContents("this is not a valid text proto!");
 
     // Run the full client.
@@ -177,9 +177,8 @@ public class ClientServerIntegrationTest {
     assertThat(recordingTestService.getRequest(0)).isEqualTo(REQUEST);
   }
 
-  private static ImmutableList<String> makeArgs(int port, String protoRoot, String method) {
-    return TestUtils.makePolyglotCallArgs(
-        Joiner.on(':').join("localhost", port), protoRoot, method);
+  private static ImmutableList<String> makeArgs(int port, String method) {
+    return TestUtils.makePolyglotCallArgs(Joiner.on(':').join("localhost", port), method);
   }
 
   private static void setStdinContents(String contents) {
