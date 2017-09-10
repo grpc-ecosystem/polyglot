@@ -69,8 +69,12 @@ public class ServiceCall {
 
     // Fetch the appropriate file descriptors for the service.
     final FileDescriptorSet fileDescriptorSet;
-    Optional<FileDescriptorSet> reflectionDescriptors =
-        resolveServiceByReflection(channel, grpcMethodName.getFullServiceName());
+    Optional<FileDescriptorSet> reflectionDescriptors = Optional.empty();
+    if (protoConfig.getUseReflection()) {
+      reflectionDescriptors =
+          resolveServiceByReflection(channel, grpcMethodName.getFullServiceName());
+    }
+
     if (reflectionDescriptors.isPresent()) {
       logger.info("Using proto descriptors fetched by reflection");
       fileDescriptorSet = reflectionDescriptors.get();

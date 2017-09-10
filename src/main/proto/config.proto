@@ -89,13 +89,16 @@ message OutputConfiguration {
   string file_path = 2;
 }
 
-// Contains the necessary information to locate .proto files for services and
-// analyze them by invoking protoc.
+// Contains the necessary information to locate .proto files for services.
 message ProtoConfiguration {
   // A root directory to scan for .proto files. All files found this way will
-  // be analyzed for service definitions.
+  // be analyzed for service definitions by invoking protoc.
   string proto_discovery_root = 1;
 
-  // Include paths used to resolve imports of the files being analyzed.
+  // Include paths used to resolve imports of the files being analyzed when
+  // resolving service definitions using protoc.
   repeated string include_paths = 2;
+
+  // If true, protos will first be resolved by reflection if applicable.
+  bool use_reflection = 3;
 }

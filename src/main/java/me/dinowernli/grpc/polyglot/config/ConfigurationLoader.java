@@ -105,6 +105,9 @@ public class ConfigurationLoader {
     }
 
     Configuration.Builder resultBuilder = configuration.toBuilder();
+
+    resultBuilder.getProtoConfigBuilder().setUseReflection(overrides.get().useReflection());
+
     if (overrides.get().useTls().isPresent()) {
       resultBuilder.getCallConfigBuilder().setUseTls(overrides.get().useTls().get());
     }

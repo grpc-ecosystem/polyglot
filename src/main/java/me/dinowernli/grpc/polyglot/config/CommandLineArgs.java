@@ -56,6 +56,9 @@ public class CommandLineArgs {
   @Option(name = "--tls_client_override_authority", metaVar = "<host>")
   private String tlsClientOverrideAuthority;
 
+  @Option(name = "--use_reflection", metaVar = "true|false")
+  private String useReflection;
+
   @Option(name = "--help")
   private Boolean help;
 
@@ -172,6 +175,11 @@ public class CommandLineArgs {
 
   public Optional<String> tlsClientOverrideAuthority() {
     return Optional.ofNullable(tlsClientOverrideAuthority);
+  }
+
+  /** Defaults to true. */
+  public boolean useReflection() {
+    return useReflection == null || useReflection.equals("true");
   }
 
   /**
