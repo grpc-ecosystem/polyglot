@@ -75,9 +75,19 @@ public class ServiceCall {
     try {
       ImmutableList<String> services = serverReflectionClient.listServices().get();
       logger.error(">>>>> services: " + services);
+
+      logger.error(">>>>>>>>>>> RESOLVING");
+      FileDescriptorSet descriptors = serverReflectionClient.lookupService(services.get(0)).get();
     } catch (Throwable t) {
       logger.error(">>>>> error listing services", t);
     }
+
+
+
+
+
+
+
 
     ImmutableList<DynamicMessage> requestMessages =
         MessageReader.forStdin(methodDescriptor.getInputType()).read();

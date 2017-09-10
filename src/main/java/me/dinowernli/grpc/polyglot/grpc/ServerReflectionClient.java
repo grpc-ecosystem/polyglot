@@ -98,8 +98,10 @@ public class ServerReflectionClient {
 
     @Override
     public void onCompleted() {
-      logger.error("Unexpected completion of the server reflection rpc");
-      resultFuture.setException(new RuntimeException("Unexpected end of rpc"));
+      if (!resultFuture.isDone()) {
+        logger.error("Unexpected completion of the server reflection rpc");
+        resultFuture.setException(new RuntimeException("Unexpected end of rpc"));
+      }
     }
 
     private void handleListServiceRespones(ListServiceResponse response) {
@@ -157,8 +159,10 @@ public class ServerReflectionClient {
 
     @Override
     public void onCompleted() {
-      logger.error("Unexpected completion of the server reflection rpc");
-      resultFuture.setException(new RuntimeException("Unexpected end of rpc"));
+      if (!resultFuture.isDone()) {
+        logger.error("Unexpected completion of the server reflection rpc");
+        resultFuture.setException(new RuntimeException("Unexpected end of rpc"));
+      }
     }
 
     private void handleFileDescriptor(ByteString fileDescriptorBytes) {
