@@ -49,8 +49,6 @@ public class Main {
         : configLoader.getDefaultConfiguration();
     logger.info("Loaded configuration: " + config.getName());
 
-    FileDescriptorSet fileDescriptorSet = getFileDescriptorSet(config.getProtoConfig());
-
     String command;
     if (arguments.command().isPresent()) {
       command = arguments.command().get();
@@ -62,6 +60,7 @@ public class Main {
     try(Output commandLineOutput = Output.forConfiguration(config.getOutputConfig())) {
       switch (command) {
         case CommandLineArgs.LIST_SERVICES_COMMAND:
+          FileDescriptorSet fileDescriptorSet = getFileDescriptorSet(config.getProtoConfig());
           ServiceList.listServices(
               commandLineOutput,
               fileDescriptorSet, config.getProtoConfig().getProtoDiscoveryRoot(),
@@ -71,7 +70,7 @@ public class Main {
         case CommandLineArgs.CALL_COMMAND:
           ServiceCall.callEndpoint(
               commandLineOutput,
-              fileDescriptorSet,
+              config.getProtoConfig(),
               arguments.endpoint(),
               arguments.fullMethod(),
               arguments.protoDiscoveryRoot(),

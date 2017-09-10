@@ -1,5 +1,7 @@
 package me.dinowernli.grpc.polyglot.protobuf;
 
+import com.google.common.base.Joiner;
+
 /** Represents a full grpc method, including package, service and method names. */
 public class ProtoMethodName {
   // TODO(dino): Use autovalue for this class.
@@ -53,6 +55,11 @@ public class ProtoMethodName {
   /** Returns the (unqualified) service name of the method. */
   public String getServiceName() {
     return serviceName;
+  }
+
+  /** Returns the fully qualified service name of the method. */
+  public String getFullServiceName() {
+    return Joiner.on(".").join(packageName, serviceName);
   }
 
   /** Returns the (unqualified) method name of the method. */
