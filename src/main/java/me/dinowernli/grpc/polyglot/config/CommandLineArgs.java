@@ -179,26 +179,6 @@ public class CommandLineArgs {
     return maybePath(tlsCaCertPath);
   }
 
-  public Optional<URL> oauthRefreshTokenEndpointUrl() {
-    return maybeUrl(oauthRefreshTokenEndpointUrl);
-  }
-
-  public Optional<String> oauthClientId() {
-    return Optional.ofNullable(oauthClientId);
-  }
-
-  public Optional<String> oauthClientSecret() {
-    return Optional.ofNullable(oauthClientSecret);
-  }
-
-  public Optional<Path> oauthRefreshTokenPath() {
-    return maybePath(oauthRefreshTokenPath);
-  }
-
-  public Optional<Path> oauthAccessTokenPath() {
-    return maybePath(oauthAccessTokenPath);
-  }
-
   public Optional<Path> tlsClientCertPath() {
     return maybePath(tlsClientCertPath);
   }
