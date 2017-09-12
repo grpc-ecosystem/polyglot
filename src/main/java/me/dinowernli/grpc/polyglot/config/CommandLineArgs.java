@@ -211,6 +211,26 @@ public class CommandLineArgs {
     return Optional.ofNullable(tlsClientOverrideAuthority);
   }
 
+  public Optional<URL> oauthRefreshTokenEndpointUrl() {
+    return maybeUrl(oauthRefreshTokenEndpointUrl);
+  }
+
+  public Optional<String> oauthClientId() {
+    return Optional.ofNullable(oauthClientId);
+  }
+
+  public Optional<String> oauthClientSecret() {
+    return Optional.ofNullable(oauthClientSecret);
+  }
+
+  public Optional<Path> oauthRefreshTokenPath() {
+    return maybePath(oauthRefreshTokenPath);
+  }
+
+  public Optional<Path> oauthAccessTokenPath() {
+    return maybePath(oauthAccessTokenPath);
+  }
+
   /**
    * First stage of a migration towards a "command"-based instantiation of polyglot.
    * Supported commands:

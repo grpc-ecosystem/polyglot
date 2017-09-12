@@ -91,6 +91,11 @@ public class ConfigurationLoaderTest {
     when(mockOverrides.tlsClientCertPath()).thenReturn(Optional.of(Paths.get("client_cert")));
     when(mockOverrides.tlsClientKeyPath()).thenReturn(Optional.of(Paths.get("client_key")));
     when(mockOverrides.tlsClientOverrideAuthority()).thenReturn(Optional.of("override_authority"));
+    when(mockOverrides.oauthRefreshTokenEndpointUrl()).thenReturn(Optional.of(getTestUrl("https://github.com/grpc-ecosystem/polyglot")));
+    when(mockOverrides.oauthClientId()).thenReturn(Optional.of("id"));
+    when(mockOverrides.oauthClientSecret()).thenReturn(Optional.of("secret"));
+    when(mockOverrides.oauthRefreshTokenPath()).thenReturn(Optional.of(Paths.get("asdf")));
+    when(mockOverrides.oauthAccessTokenPath()).thenReturn(Optional.empty());
 
     Configuration config = ConfigurationLoader
       .forDefaultConfigSet()
