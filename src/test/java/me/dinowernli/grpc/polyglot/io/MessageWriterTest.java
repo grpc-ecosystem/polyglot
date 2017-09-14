@@ -28,7 +28,7 @@ public class MessageWriterTest {
   @Before
   public void setUp() {
     recordingOutput = new RecordingOutput();
-    writer = new MessageWriter<>(JsonFormat.printer(), recordingOutput);
+    writer = new MessageWriter<Message>(JsonFormat.printer(), recordingOutput);
   }
 
   @Test

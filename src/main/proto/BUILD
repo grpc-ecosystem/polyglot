@@ -8,6 +8,13 @@ java_proto_library(
 )
 
 java_proto_library(
+    name = "output_proto",
+    protos = ["output.proto"],
+    proto_deps = ["//third_party/protobuf:descriptor_java_proto"],
+    imports = ["third_party/protobuf"],
+)
+
+java_proto_library(
     name = "hello_proto_grpc",
     protos = ["hello.proto"],
     with_grpc = True,

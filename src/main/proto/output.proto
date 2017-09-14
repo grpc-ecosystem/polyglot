@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+import "google/protobuf/descriptor.proto";
+
+package polyglot;
+
+option java_outer_classname = "OutputProto";
+
+message listServicesJsonOutput {
+    repeated google.protobuf.ServiceDescriptorProto services = 1;
+    google.protobuf.FileDescriptorSet dependencies = 2;
+}
