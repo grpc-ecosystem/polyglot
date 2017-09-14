@@ -115,27 +115,27 @@ public class ConfigurationLoader {
     });
 
     resultBuilder.getProtoConfigBuilder().addAllIncludePaths(
-      overrides.additionalProtocIncludes().stream()
-        .map(Path::toString)
-        .collect(Collectors.toList()));
+        overrides.additionalProtocIncludes().stream()
+            .map(Path::toString)
+            .collect(Collectors.toList()));
 
     overrides.protoDiscoveryRoot().ifPresent(
-      root -> resultBuilder.getProtoConfigBuilder().setProtoDiscoveryRoot(root.toString()));
+        root -> resultBuilder.getProtoConfigBuilder().setProtoDiscoveryRoot(root.toString()));
 
     overrides.getRpcDeadlineMs().ifPresent(
-      resultBuilder.getCallConfigBuilder()::setDeadlineMs);
+        resultBuilder.getCallConfigBuilder()::setDeadlineMs);
 
     overrides.tlsCaCertPath().ifPresent(
-      path -> resultBuilder.getCallConfigBuilder().setTlsCaCertPath(path.toString()));
+        path -> resultBuilder.getCallConfigBuilder().setTlsCaCertPath(path.toString()));
 
     overrides.tlsClientCertPath().ifPresent(
-      path -> resultBuilder.getCallConfigBuilder().setTlsClientCertPath(path.toString()));
+        path -> resultBuilder.getCallConfigBuilder().setTlsClientCertPath(path.toString()));
 
     overrides.tlsClientKeyPath().ifPresent(
-      path -> resultBuilder.getCallConfigBuilder().setTlsClientKeyPath(path.toString()));
+        path -> resultBuilder.getCallConfigBuilder().setTlsClientKeyPath(path.toString()));
 
     overrides.tlsClientOverrideAuthority()
-      .ifPresent(resultBuilder.getCallConfigBuilder()::setTlsClientOverrideAuthority);
+        .ifPresent(resultBuilder.getCallConfigBuilder()::setTlsClientOverrideAuthority);
 
     return resultBuilder.build();
   }
