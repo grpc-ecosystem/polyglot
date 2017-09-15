@@ -4,9 +4,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
@@ -26,7 +25,7 @@ public class ConfigurationLoader {
   private final Optional<ConfigurationSet> configSet;
 
   /** Optional overrides for the configuration. */
-  private final Optional<CommandLineArgs> overrides;
+  private final Optional<CommandLineArgs> maybeOverrides;
 
   /**
    * Returns a {@link ConfigurationLoader} backed by a {@link ConfigurationSet} in the current
@@ -60,9 +59,9 @@ public class ConfigurationLoader {
   }
 
   @VisibleForTesting
-  ConfigurationLoader(Optional<ConfigurationSet> configSet, Optional<CommandLineArgs> overrides) {
+  ConfigurationLoader(Optional<ConfigurationSet> configSet, Optional<CommandLineArgs> maybeOverrides) {
     this.configSet = configSet;
-    this.overrides = overrides;
+    this.maybeOverrides = maybeOverrides;
   }
 
   /** Returns a new instance of {@link ConfigurationLoader} with the supplied overrides. */
@@ -100,49 +99,44 @@ public class ConfigurationLoader {
 
   /** Returns the {@link Configuration} with overrides, if any, applied to it. */
   private Configuration applyOverrides(Configuration configuration) {
-    if (!overrides.isPresent()) {
+    if (!maybeOverrides.isPresent()) {
       return configuration;
     }
 
+    CommandLineArgs overrides = maybeOverrides.get();
+
     Configuration.Builder resultBuilder = configuration.toBuilder();
-    if (overrides.get().useTls().isPresent()) {
-      resultBuilder.getCallConfigBuilder().setUseTls(overrides.get().useTls().get());
-    }
-    if (overrides.get().outputFilePath().isPresent()) {
+
+    overrides.useTls().ifPresent(resultBuilder.getCallConfigBuilder()::setUseTls);
+
+    overrides.outputFilePath().ifPresent(path -> {
       resultBuilder.getOutputConfigBuilder().setDestination(Destination.FILE);
-      resultBuilder.getOutputConfigBuilder().setFilePath(
-          overrides.get().outputFilePath().get().toString());
-    }
-    if (!overrides.get().additionalProtocIncludes().isEmpty()) {
-      List<String> additionalIncludes = new ArrayList<>();
-      for (Path path : overrides.get().additionalProtocIncludes()) {
-        additionalIncludes.add(path.toString());
-      }
-      resultBuilder.getProtoConfigBuilder().addAllIncludePaths(additionalIncludes);
-    }
-    if (overrides.get().protoDiscoveryRoot().isPresent()) {
-      resultBuilder.getProtoConfigBuilder().setProtoDiscoveryRoot(
-          overrides.get().protoDiscoveryRoot().get().toString());
-    }
-    if (overrides.get().getRpcDeadlineMs().isPresent()) {
-      resultBuilder.getCallConfigBuilder().setDeadlineMs(overrides.get().getRpcDeadlineMs().get());
-    }
-    if (overrides.get().tlsCaCertPath().isPresent()) {
-      resultBuilder.getCallConfigBuilder().setTlsCaCertPath(
-        overrides.get().tlsCaCertPath().get().toString());
-    }
-    if (overrides.get().tlsClientCertPath().isPresent()) {
-      resultBuilder.getCallConfigBuilder().setTlsClientCertPath(
-        overrides.get().tlsClientCertPath().get().toString());
-    }
-    if (overrides.get().tlsClientKeyPath().isPresent()) {
-      resultBuilder.getCallConfigBuilder().setTlsClientKeyPath(
-        overrides.get().tlsClientKeyPath().get().toString());
-    }
-    if (overrides.get().tlsClientOverrideAuthority().isPresent()) {
-      resultBuilder.getCallConfigBuilder().setTlsClientOverrideAuthority(
-          overrides.get().tlsClientOverrideAuthority().get());
-    }
+      resultBuilder.getOutputConfigBuilder().setFilePath(path.toString());
+    });
+
+    resultBuilder.getProtoConfigBuilder().addAllIncludePaths(
+        overrides.additionalProtocIncludes().stream()
+            .map(Path::toString)
+            .collect(Collectors.toList()));
+
+    overrides.protoDiscoveryRoot().ifPresent(
+        root -> resultBuilder.getProtoConfigBuilder().setProtoDiscoveryRoot(root.toString()));
+
+    overrides.getRpcDeadlineMs().ifPresent(
+        resultBuilder.getCallConfigBuilder()::setDeadlineMs);
+
+    overrides.tlsCaCertPath().ifPresent(
+        path -> resultBuilder.getCallConfigBuilder().setTlsCaCertPath(path.toString()));
+
+    overrides.tlsClientCertPath().ifPresent(
+        path -> resultBuilder.getCallConfigBuilder().setTlsClientCertPath(path.toString()));
+
+    overrides.tlsClientKeyPath().ifPresent(
+        path -> resultBuilder.getCallConfigBuilder().setTlsClientKeyPath(path.toString()));
+
+    overrides.tlsClientOverrideAuthority()
+        .ifPresent(resultBuilder.getCallConfigBuilder()::setTlsClientOverrideAuthority);
+
     return resultBuilder.build();
   }
 
