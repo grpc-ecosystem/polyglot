@@ -1,9 +1,12 @@
 package me.dinowernli.grpc.polyglot.grpc;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.protobuf.ByteString;
@@ -116,8 +119,9 @@ public class ServerReflectionClient {
   private static class LookupServiceHandler implements StreamObserver<ServerReflectionResponse> {
     private final SettableFuture<FileDescriptorSet> resultFuture;
     private final String serviceName;
+    private final HashSet<String> requestedDescriptors;
+    private final HashMap<String, FileDescriptorProto> resolvedDescriptors;
     private StreamObserver<ServerReflectionRequest> requestStream;
-    private HashMap<String, FileDescriptorProto> fileDescriptors;
 
     // Used to notice when we've received all the files we've asked for and we can end the rpc.
     private int outstandingRequests;
@@ -125,7 +129,8 @@ public class ServerReflectionClient {
     private LookupServiceHandler(String serviceName) {
       this.serviceName = serviceName;
       this.resultFuture = SettableFuture.create();
-      this.fileDescriptors = new HashMap<>();
+      this.resolvedDescriptors = new HashMap<>();
+      this.requestedDescriptors = new HashSet<>();
       this.outstandingRequests = 0;
     }
 
@@ -142,8 +147,10 @@ public class ServerReflectionClient {
       MessageResponseCase responseCase = response.getMessageResponseCase();
       switch (responseCase) {
         case FILE_DESCRIPTOR_RESPONSE:
-          response.getFileDescriptorResponse().getFileDescriptorProtoList()
-              .forEach(this::handleFileDescriptor);
+          ImmutableSet<FileDescriptorProto> descriptors =
+              parseDescriptors(response.getFileDescriptorResponse().getFileDescriptorProtoList());
+          descriptors.forEach(d -> resolvedDescriptors.put(d.getName(), d));
+          descriptors.forEach(d -> processDependencies(d));
           break;
         default:
           logger.warn("Got unknown reflection response type: " + responseCase);
@@ -165,23 +172,25 @@ public class ServerReflectionClient {
       }
     }
 
-    private void handleFileDescriptor(ByteString fileDescriptorBytes) {
-      FileDescriptorProto fileDescriptor;
-      try {
-        fileDescriptor = FileDescriptorProto.newBuilder()
-            .mergeFrom(fileDescriptorBytes)
-            .build();
-      } catch (InvalidProtocolBufferException e) {
-        logger.warn("Failed to parse bytes as file descriptor proto");
-        return;
+    private ImmutableSet<FileDescriptorProto> parseDescriptors(List<ByteString> descriptorBytes) {
+      ImmutableSet.Builder<FileDescriptorProto> resultBuilder = ImmutableSet.builder();
+      for (ByteString fileDescriptorBytes : descriptorBytes) {
+        try {
+          resultBuilder.add(FileDescriptorProto.parseFrom(fileDescriptorBytes));
+        } catch (InvalidProtocolBufferException e) {
+          logger.warn("Failed to parse bytes as file descriptor proto");
+        }
       }
+      return resultBuilder.build();
+    }
 
-      logger.debug("Retrieved file descriptor: " + fileDescriptor.getName());
-      fileDescriptors.put(fileDescriptor.getName(), fileDescriptor);
+    private void processDependencies(FileDescriptorProto fileDescriptor) {
+      logger.info("Processing deps of descriptor: " + fileDescriptor.getName());
       fileDescriptor.getDependencyList().forEach(dep -> {
-        if (!fileDescriptors.containsKey(dep)) {
-          requestStream.onNext(requestForDescriptor(dep));
+        if (!resolvedDescriptors.containsKey(dep) && !requestedDescriptors.contains(dep)) {
+          requestedDescriptors.add(dep);
           ++outstandingRequests;
+          requestStream.onNext(requestForDescriptor(dep));
         }
       });
 
@@ -189,7 +198,7 @@ public class ServerReflectionClient {
       if (outstandingRequests == 0) {
         logger.debug("Retrieved service definition for [{}] by reflection", serviceName);
         resultFuture.set(FileDescriptorSet.newBuilder()
-            .addAllFile(fileDescriptors.values())
+            .addAllFile(resolvedDescriptors.values())
             .build());
         requestStream.onCompleted();
       }
