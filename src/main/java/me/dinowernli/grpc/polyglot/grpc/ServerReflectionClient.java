@@ -185,7 +185,7 @@ public class ServerReflectionClient {
     }
 
     private void processDependencies(FileDescriptorProto fileDescriptor) {
-      logger.info("Processing deps of descriptor: " + fileDescriptor.getName());
+      logger.debug("Processing deps of descriptor: " + fileDescriptor.getName());
       fileDescriptor.getDependencyList().forEach(dep -> {
         if (!resolvedDescriptors.containsKey(dep) && !requestedDescriptors.contains(dep)) {
           requestedDescriptors.add(dep);
