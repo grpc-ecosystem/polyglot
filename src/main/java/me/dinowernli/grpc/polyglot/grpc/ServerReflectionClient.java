@@ -176,7 +176,7 @@ public class ServerReflectionClient {
         return;
       }
 
-      logger.info("Retrieved file descriptor: " + fileDescriptor.getName());
+      logger.debug("Retrieved file descriptor: " + fileDescriptor.getName());
       fileDescriptors.put(fileDescriptor.getName(), fileDescriptor);
       fileDescriptor.getDependencyList().forEach(dep -> {
         if (!fileDescriptors.containsKey(dep)) {
@@ -187,6 +187,7 @@ public class ServerReflectionClient {
 
       --outstandingRequests;
       if (outstandingRequests == 0) {
+        logger.debug("Retrieved service definition for [{}] by reflection", serviceName);
         resultFuture.set(FileDescriptorSet.newBuilder()
             .addAllFile(fileDescriptors.values())
             .build());
