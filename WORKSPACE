@@ -1,14 +1,15 @@
 # GRPC
-new_git_repository(
-    name = "grpc_java",
-    remote = "https://github.com/grpc/grpc-java.git",
-    # We are using 1.4.0 below, but v1.5.0 is the first release of grpc that has the convenient import scripts.
-    tag = "v1.5.0",
-    build_file_content = "",
+http_archive(
+  name = "grpc_java",
+  # We are using 1.4.0 below, but v1.5.0 is the first release of grpc that has the convenient import scripts.
+  urls = ["https://github.com/grpc/grpc-java/archive/v1.5.0.zip"],
+  strip_prefix = "grpc-java-1.5.0",
 )
+
 load("@grpc_java//:repositories.bzl", "grpc_java_repositories")
 grpc_java_repositories(omit_com_google_code_findbugs_jsr305=True)
 
+# Autotest
 http_archive(
   name = "autotest",
   urls = ["https://github.com/dinowernli/bazel-junit-autotest/archive/v0.0.1.zip"],
