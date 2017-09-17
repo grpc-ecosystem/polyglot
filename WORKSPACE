@@ -20,10 +20,10 @@ load("@autotest//bzl:autotest.bzl", "autotest_junit_repo")
 autotest_junit_repo(junit_jar = "//third_party/testing", autotest_workspace="@autotest")
 
 # Proto rules
-git_repository(
+http_archive(
   name = "org_pubref_rules_protobuf",
-  remote = "https://github.com/pubref/rules_protobuf",
-  tag = "v0.7.2",
+  urls = ["https://github.com/pubref/rules_protobuf/archive/v0.7.2.zip"],
+  strip_prefix = "rules_protobuf-0.7.2",
 )
 
 load("@org_pubref_rules_protobuf//java:rules.bzl", "java_proto_repositories")
