@@ -9,11 +9,10 @@ new_git_repository(
 load("@grpc_java//:repositories.bzl", "grpc_java_repositories")
 grpc_java_repositories(omit_com_google_code_findbugs_jsr305=True)
 
-# Autotest
-git_repository(
+http_archive(
   name = "autotest",
-  remote = "https://github.com/dinowernli/bazel-junit-autotest.git",
-  tag = "v0.0.1",
+  urls = ["https://github.com/dinowernli/bazel-junit-autotest/archive/v0.0.1.zip"],
+  strip_prefix = "bazel-junit-autotest-0.0.1",
 )
 
 load("@autotest//bzl:autotest.bzl", "autotest_junit_repo")
