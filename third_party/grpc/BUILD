@@ -12,6 +12,7 @@ java_library(
         "@grpc_netty_artifact//jar",
         "@grpc_protobuf_artifact//jar",
         "@grpc_protobuf_lite_artifact//jar",
+        "@grpc_services_artifact//jar",
         "@grpc_stub_artifact//jar",
         "@io_netty_tcnative_boringssl_static//jar",
     ],

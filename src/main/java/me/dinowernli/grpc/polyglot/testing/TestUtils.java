@@ -27,8 +27,7 @@ public class TestUtils {
     return Paths.get(".").toAbsolutePath();
   }
 
-  public static ImmutableList<String> makePolyglotCallArgs(
-      String endpoint, String protoRoot, String method) {
+  public static ImmutableList<String> makePolyglotCallArgs(String endpoint, String method) {
     return ImmutableList.<String>builder()
         .add(makeArgument("command", "call"))
         .add(makeArgument("endpoint", endpoint))

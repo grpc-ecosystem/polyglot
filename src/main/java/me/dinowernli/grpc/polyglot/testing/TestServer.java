@@ -9,6 +9,7 @@ import com.google.common.base.Throwables;
 import io.grpc.Server;
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NettyServerBuilder;
+import io.grpc.protobuf.services.ProtoReflectionService;
 import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -125,7 +126,9 @@ public class TestServer {
       int port,
       TestServiceImplBase testService,
       Optional<SslContext> sslContext) throws IOException {
-    NettyServerBuilder serverBuilder = NettyServerBuilder.forPort(port).addService(testService);
+    NettyServerBuilder serverBuilder = NettyServerBuilder.forPort(port)
+        .addService(testService)
+        .addService(ProtoReflectionService.newInstance());
     if (sslContext.isPresent()) {
       serverBuilder.sslContext(sslContext.get());
     }

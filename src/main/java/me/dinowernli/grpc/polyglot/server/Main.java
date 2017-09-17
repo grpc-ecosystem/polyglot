@@ -3,6 +3,7 @@ package me.dinowernli.grpc.polyglot.server;
 import java.io.IOException;
 
 import io.grpc.ServerBuilder;
+import io.grpc.protobuf.services.ProtoReflectionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +19,7 @@ public class Main {
     try {
       ServerBuilder.forPort(SERVER_PORT)
           .addService(new HelloServiceImpl())
+          .addService(ProtoReflectionService.newInstance())
           .build()
           .start()
           .awaitTermination();

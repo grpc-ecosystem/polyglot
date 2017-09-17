@@ -104,11 +104,11 @@ public class ConfigurationLoader {
     }
 
     CommandLineArgs overrides = maybeOverrides.get();
-
     Configuration.Builder resultBuilder = configuration.toBuilder();
 
-    overrides.useTls().ifPresent(resultBuilder.getCallConfigBuilder()::setUseTls);
+    resultBuilder.getProtoConfigBuilder().setUseReflection(overrides.useReflection());
 
+    overrides.useTls().ifPresent(resultBuilder.getCallConfigBuilder()::setUseTls);
     overrides.outputFilePath().ifPresent(path -> {
       resultBuilder.getOutputConfigBuilder().setDestination(Destination.FILE);
       resultBuilder.getOutputConfigBuilder().setFilePath(path.toString());

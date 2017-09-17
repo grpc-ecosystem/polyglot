@@ -95,6 +95,11 @@ maven_jar(
 )
 
 maven_jar(
+  name = "grpc_services_artifact",
+  artifact = "io.grpc:grpc-services:1.4.0",
+)
+
+maven_jar(
   name = "grpc_stub_artifact",
   artifact = "io.grpc:grpc-stub:1.4.0",
 )

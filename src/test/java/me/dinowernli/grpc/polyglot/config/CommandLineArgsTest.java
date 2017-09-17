@@ -51,6 +51,7 @@ public class CommandLineArgsTest {
         .add("--endpoint=somehost:1234")
         .add("--full_method=some.package/Method")
         .add("--proto_discovery_root=.")
+        .add("--use_reflection=true")
         .build();
     return CommandLineArgs.parse(allArgs.toArray(new String[0]));
   }
