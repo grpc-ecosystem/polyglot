@@ -14,14 +14,14 @@ java_proto_library(
 
 java_proto_library(
     name = "hello_proto_grpc",
-    protos = ["hello.proto"],
     proto_deps = [":greeting_proto"],
+    protos = ["hello.proto"],
     with_grpc = True,
 )
 
 java_proto_library(
     name = "hello_proto",
-    protos = ["hello.proto"],
     proto_deps = [":greeting_proto"],
+    protos = ["hello.proto"],
     with_grpc = False,
 )
