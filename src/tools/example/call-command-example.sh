@@ -17,4 +17,5 @@ cat src/tools/example/request.pb.ascii | ${POLYGLOT_BIN}  \
   --add_protoc_includes=. \
   --config_set_path=config.pb.json \
   --deadline_ms=3000 \
+  --use_reflection=false \
   $@
