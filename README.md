@@ -46,9 +46,20 @@ $ echo '<json-request-1> \n\n <json-request-2> ... \n\n <json-request-n>' | java
     --proto_discovery_root=<path>
 ```
 
-Note that on Linux you should be able to just run `./polyglot.jar` as long as you have `binfmt-support` installed.
-
 For more invocation examples, see the [examples](https://github.com/grpc-ecosystem/polyglot/tree/master/src/tools/example) directory.
+
+### Server reflection
+
+If the remote server has reflection enabled, there is no need to pass the proto files to Polyglot. The example invocation above then becomes:
+
+```
+$ echo <json-request> | java -jar polyglot.jar \
+    --command=call \
+    --endpoint=<host>:<port> \
+    --full_method=<some.package.Service/doSomething>
+```
+
+Bu default, Polyglot always tries to use reflection before compiling local protos. Reflection can be turned off explicitly by setting the flag `--use_reflection=false`.
 
 ### Configuration
 
