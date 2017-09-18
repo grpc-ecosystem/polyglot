@@ -16,13 +16,18 @@ import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.Descriptors.ServiceDescriptor;
+import com.google.protobuf.util.JsonFormat;
 
 import me.dinowernli.grpc.polyglot.io.MessageWriter;
 import me.dinowernli.grpc.polyglot.io.Output;
 import me.dinowernli.grpc.polyglot.protobuf.ServiceResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import polyglot.OutputProto.ListServicesJsonOutput;
 
 /** Utility to list the services, methods and message definitions for the known GRPC end-points */
 public class ServiceList {
+  private static final Logger logger = LoggerFactory.getLogger(MessageWriter.class);
 
   /** Lists the GRPC services - filtered by service name (contains) or method name (contains) */
   public static void listServices(Output output, FileDescriptorSet fileDescriptorSet, String protoDiscoveryRoot,
@@ -115,18 +120,17 @@ public class ServiceList {
   }
 
   private static void printJsonOutput(Output output, ServiceResolver serviceResolver, Optional<String> serviceFilter) {
-    output.writeLine("{ \"serviceProtos\": [");
+    ListServicesJsonOutput.Builder listServicesJsonOutputBuilder = ListServicesJsonOutput.newBuilder();
 
     List<ServiceDescriptor> serviceDescriptors = Lists.newArrayList(serviceResolver.listServices()).stream()
         .filter(serviceDescriptor -> !serviceFilter.isPresent()
-            || serviceDescriptor.getFullName().toLowerCase().contains(serviceFilter.get().toLowerCase()))
+                || serviceDescriptor.getFullName().toLowerCase().contains(serviceFilter.get().toLowerCase()))
         .collect(Collectors.toList());
 
     ImmutableList<DescriptorProtos.ServiceDescriptorProto> serviceDescriptorProtos = ImmutableList.copyOf(
         serviceDescriptors.stream().map(serviceDescriptor -> serviceDescriptor.toProto()).collect(Collectors.toList()));
 
-    output.writeLine((MessageWriter.writeJsonStream(serviceDescriptorProtos, ",")));
-    output.writeLine(("], \"fileProtos\": ["));
+    listServicesJsonOutputBuilder.addAllServices(serviceDescriptorProtos);
 
     Set<DescriptorProtos.FileDescriptorProto> fileProtosSet = new HashSet<>();
 
@@ -136,9 +140,15 @@ public class ServiceList {
           .forEach(fileDescriptor -> fileProtosSet.add(fileDescriptor.toProto()));
     });
 
-    ImmutableList<DescriptorProtos.FileDescriptorProto> fileProtos = ImmutableList.copyOf(fileProtosSet);
+    listServicesJsonOutputBuilder.addAllDependencies(fileProtosSet);
 
-    output.writeLine((MessageWriter.writeJsonStream(fileProtos, ",")));
-    output.writeLine("]}");
+    ListServicesJsonOutput listServicesJsonOutput = listServicesJsonOutputBuilder.build();
+
+    try {
+      String jsonOut = JsonFormat.printer().print(listServicesJsonOutput);
+      output.writeLine(jsonOut);
+    } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+      logger.error("Error printing JSON output.", e);
+    }
   }
 }

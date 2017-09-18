@@ -6,7 +6,7 @@ package polyglot;
 
 option java_outer_classname = "OutputProto";
 
-message listServicesJsonOutput {
+message ListServicesJsonOutput {
     repeated google.protobuf.ServiceDescriptorProto services = 1;
-    google.protobuf.FileDescriptorSet dependencies = 2;
+    repeated google.protobuf.FileDescriptorProto dependencies = 2;
 }
