@@ -125,23 +125,20 @@ public class ServiceList {
 
     // Filter service descriptors (case insensitive)
     ImmutableList<ServiceDescriptor> serviceDescriptors = ImmutableList
-        .copyOf(Lists.newArrayList(serviceResolver.listServices()).stream()
-            .filter(serviceDescriptor -> !serviceFilter.isPresent()
-                || serviceDescriptor.getFullName().toLowerCase().contains(serviceFilter.get().toLowerCase()))
-            .collect(Collectors.toList()));
+      .copyOf(Lists.newArrayList(serviceResolver.listServices()).stream()
+        .filter(serviceDescriptor -> !serviceFilter.isPresent()
+            || serviceDescriptor.getFullName().toLowerCase().contains(serviceFilter.get().toLowerCase()))
+        .collect(Collectors.toList()));
 
     ImmutableList<DescriptorProtos.ServiceDescriptorProto> serviceDescriptorProtos = ImmutableList
-        .copyOf(serviceDescriptors.stream()
-            .map(serviceDescriptor -> serviceDescriptor.toProto().toBuilder()
-                    // filtering methods, note clearing the methods then readding back only the filtered ones
-                    .clearMethod()
-                .addAllMethod(serviceDescriptor.getMethods().stream()
-                    .filter(methodDescriptor -> !methodFilter.isPresent()
-                        || methodDescriptor.getName().toLowerCase().contains(methodFilter.get().toLowerCase()))
-                    .map(methodDescriptor -> methodDescriptor.toProto())
-                        .collect(Collectors.toList()))
-                .build())
-            .collect(Collectors.toList()));
+      .copyOf(serviceDescriptors.stream().map(serviceDescriptor -> serviceDescriptor.toProto().toBuilder()
+        // filtering methods by clearing the methods then readding back only the filtered ones
+        .clearMethod()
+        .addAllMethod(serviceDescriptor.getMethods().stream()
+          .filter(methodDescriptor -> !methodFilter.isPresent()
+              || methodDescriptor.getName().toLowerCase().contains(methodFilter.get().toLowerCase()))
+          .map(methodDescriptor -> methodDescriptor.toProto()).collect(Collectors.toList()))
+        .build()).collect(Collectors.toList()));
 
     listServicesJsonOutputBuilder.addAllServices(serviceDescriptorProtos);
 
@@ -150,15 +147,13 @@ public class ServiceList {
     serviceDescriptors.forEach(serviceDescriptor -> {
       fileProtosSet.add(serviceDescriptor.getFile().toProto());
       serviceDescriptor.getFile().getDependencies().stream()
-          .forEach(fileDescriptor -> fileProtosSet.add(fileDescriptor.toProto()));
+        .forEach(fileDescriptor -> fileProtosSet.add(fileDescriptor.toProto()));
     });
 
     listServicesJsonOutputBuilder.addAllDependencies(fileProtosSet);
 
-    ListServicesJsonOutput listServicesJsonOutput = listServicesJsonOutputBuilder.build();
-
     try {
-      String jsonOut = JsonFormat.printer().print(listServicesJsonOutput);
+      String jsonOut = JsonFormat.printer().print(listServicesJsonOutputBuilder.build());
       output.writeLine(jsonOut);
     } catch (com.google.protobuf.InvalidProtocolBufferException e) {
       logger.error("Error printing JSON output.", e);
