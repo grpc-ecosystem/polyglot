@@ -4,7 +4,7 @@
 
 Polyglot is a grpc client which can talk to any grpc server. In order to make a call, the following are required:
 * A compiled Polyglot binary, 
-* the .proto files for the service,
+* the .proto files for the service *or* grpc reflection enabled on the remote server,
 * and a request proto instance in text format.
 
 In particular, it is not necessary to generate grpc classes for the service or to compile the protos into the Polyglot binary.
@@ -14,6 +14,7 @@ In particular, it is not necessary to generate grpc classes for the service or t
 * Supports unary, client streaming, server streaming, and bidi streaming rpcs.
 * Runs on Windows, Mac and Linux.
 * Parses proto files at runtime to discover services. Supports pretty-printing discovered services.
+* Can discover services by reflection if the remote server has reflection enabled
 * Supports authentication via oauth.
 * Accepts request protos through stdin and can output responses to stdout to allow chaining.
 * Supports plain text connections as well as TLS.
