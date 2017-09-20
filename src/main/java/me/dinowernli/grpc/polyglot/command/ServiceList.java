@@ -37,7 +37,7 @@ public class ServiceList {
     ServiceResolver serviceResolver = ServiceResolver.fromFileDescriptorSet(fileDescriptorSet);
 
     if (listOutputFormat.isPresent() && listOutputFormat.get().equals("json")) {
-      printJsonOutput(output, serviceResolver, serviceFilter);
+      printJsonOutput(output, serviceResolver, serviceFilter, methodFilter);
     } else {
 
       // Add white-space before the rendered output
@@ -65,7 +65,7 @@ public class ServiceList {
     File protoDiscoveryDir = new File(protoDiscoveryRoot).getParentFile();
 
     for (MethodDescriptor method : descriptor.getMethods()) {
-      if (!methodFilter.isPresent() || method.getName().contains(methodFilter.get())) {
+      if (!methodFilter.isPresent() || method.getName().toLowerCase().contains(methodFilter.get().toLowerCase())) {
 
         // Only print the service name once - and only if a method is going to be printed
         if (!printedService) {
@@ -119,16 +119,29 @@ public class ServiceList {
     }
   }
 
-  private static void printJsonOutput(Output output, ServiceResolver serviceResolver, Optional<String> serviceFilter) {
+  private static void printJsonOutput(Output output, ServiceResolver serviceResolver, Optional<String> serviceFilter,
+      Optional<String> methodFilter) {
     ListServicesJsonOutput.Builder listServicesJsonOutputBuilder = ListServicesJsonOutput.newBuilder();
 
-    List<ServiceDescriptor> serviceDescriptors = Lists.newArrayList(serviceResolver.listServices()).stream()
-        .filter(serviceDescriptor -> !serviceFilter.isPresent()
+    // Filter service descriptors (case insensitive)
+    ImmutableList<ServiceDescriptor> serviceDescriptors = ImmutableList
+        .copyOf(Lists.newArrayList(serviceResolver.listServices()).stream()
+            .filter(serviceDescriptor -> !serviceFilter.isPresent()
                 || serviceDescriptor.getFullName().toLowerCase().contains(serviceFilter.get().toLowerCase()))
-        .collect(Collectors.toList());
+            .collect(Collectors.toList()));
 
-    ImmutableList<DescriptorProtos.ServiceDescriptorProto> serviceDescriptorProtos = ImmutableList.copyOf(
-        serviceDescriptors.stream().map(serviceDescriptor -> serviceDescriptor.toProto()).collect(Collectors.toList()));
+    ImmutableList<DescriptorProtos.ServiceDescriptorProto> serviceDescriptorProtos = ImmutableList
+        .copyOf(serviceDescriptors.stream()
+            .map(serviceDescriptor -> serviceDescriptor.toProto().toBuilder()
+                    // filtering methods, note clearing the methods then readding back only the filtered ones
+                    .clearMethod()
+                .addAllMethod(serviceDescriptor.getMethods().stream()
+                    .filter(methodDescriptor -> !methodFilter.isPresent()
+                        || methodDescriptor.getName().toLowerCase().contains(methodFilter.get().toLowerCase()))
+                    .map(methodDescriptor -> methodDescriptor.toProto())
+                        .collect(Collectors.toList()))
+                .build())
+            .collect(Collectors.toList()));
 
     listServicesJsonOutputBuilder.addAllServices(serviceDescriptorProtos);
 

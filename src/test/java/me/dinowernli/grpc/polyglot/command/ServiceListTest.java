@@ -1,18 +1,8 @@
 package me.dinowernli.grpc.polyglot.command;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
 import me.dinowernli.grpc.polyglot.testing.RecordingOutput;
 import me.dinowernli.junit.TestClass;
@@ -20,7 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 import polyglot.test.TestProto;
 import polyglot.test.foo.FooProto;
-import sun.misc.IOUtils;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -177,152 +166,110 @@ public class ServiceListTest {
 
   /** Ensures that the message-rendering logic is correct */
   private void validateJsonMessageOutput(String output) {
-    JsonElement parsedJSONOutput = new JsonParser().parse(output);
-    JsonElement parsedExpectedJson = new JsonParser().parse(JSON_GOLD);
-    assertThat(parsedExpectedJson.toString()).isEqualTo(parsedJSONOutput.toString());
+    String[] lines = output.trim().split("\n");
+
+    for (int i = 0; i < JSON_GOLD.size(); i++) {
+      assertThat(lines[i].trim()).isEqualTo(JSON_GOLD.get(i));
+    }
   }
 
-  private static final String JSON_GOLD = "{" +
-          "\"services\": ["+
-          "{"+
-          "\"name\": \"TestService\","+
-          "\"method\": ["+
-          "{"+
-          "\"name\": \"TestMethod\","+
-          "\"inputType\": \".polyglot.test.TestRequest\","+
-          "\"outputType\": \".polyglot.test.TestResponse\","+
-          "\"options\": {}"+
-          "},"+
-          "{"+
-          "\"name\": \"TestMethodStream\","+
-          "\"inputType\": \".polyglot.test.TestRequest\","+
-          "\"outputType\": \".polyglot.test.TestResponse\","+
-          "\"options\": {},"+
-          "\"serverStreaming\": true"+
-          "},"+
-          "{"+
-          "\"name\": \"TestMethodClientStream\","+
-          "\"inputType\": \".polyglot.test.TestRequest\","+
-          "\"outputType\": \".polyglot.test.TestResponse\","+
-          "\"options\": {},"+
-          "\"clientStreaming\": true"+
-          "},"+
-          "{"+
-          "\"name\": \"TestMethodBidi\","+
-          "\"inputType\": \".polyglot.test.TestRequest\","+
-          "\"outputType\": \".polyglot.test.TestResponse\","+
-          "\"options\": {},"+
-          "\"clientStreaming\": true,"+
-          "\"serverStreaming\": true"+
-          "}"+
-          "]"+
-          "}"+
-          "],"+
-          "\"dependencies\": ["+
-          "{"+
-          "\"name\": \"src/main/proto/testing/test_service.proto\","+
-          "\"package\": \"polyglot.test\","+
-          "\"dependency\": ["+
-          "\"src/main/proto/testing/foo/foo.proto\""+
-          "],"+
-          "\"messageType\": ["+
-          "{"+
-          "\"name\": \"TestRequest\","+
-          "\"field\": ["+
-          "{"+
-          "\"name\": \"message\","+
-          "\"number\": 1,"+
-          "\"label\": \"LABEL_OPTIONAL\","+
-          "\"type\": \"TYPE_STRING\""+
-          "},"+
-          "{"+
-          "\"name\": \"foo\","+
-          "\"number\": 2,"+
-          "\"label\": \"LABEL_OPTIONAL\","+
-          "\"type\": \"TYPE_MESSAGE\","+
-          "\"typeName\": \".polyglot.test.foo.Foo\""+
-          "},"+
-          "{"+
-          "\"name\": \"number\","+
-          "\"number\": 3,"+
-          "\"label\": \"LABEL_OPTIONAL\","+
-          "\"type\": \"TYPE_INT32\""+
-          "}"+
-          "]"+
-          "},"+
-          "{"+
-          "\"name\": \"TestResponse\","+
-          "\"field\": ["+
-          "{"+
-          "\"name\": \"message\","+
-          "\"number\": 1,"+
-          "\"label\": \"LABEL_OPTIONAL\","+
-          "\"type\": \"TYPE_STRING\""+
-          "}"+
-          "]"+
-          "}"+
-          "],"+
-          "\"service\": ["+
-          "{"+
-          "\"name\": \"TestService\","+
-          "\"method\": ["+
-          "{"+
-          "\"name\": \"TestMethod\","+
-          "\"inputType\": \".polyglot.test.TestRequest\","+
-          "\"outputType\": \".polyglot.test.TestResponse\","+
-          "\"options\": {}"+
-          "},"+
-          "{"+
-          "\"name\": \"TestMethodStream\","+
-          "\"inputType\": \".polyglot.test.TestRequest\","+
-          "\"outputType\": \".polyglot.test.TestResponse\","+
-          "\"options\": {},"+
-          "\"serverStreaming\": true"+
-          "},"+
-          "{"+
-          "\"name\": \"TestMethodClientStream\","+
-          "\"inputType\": \".polyglot.test.TestRequest\","+
-          "\"outputType\": \".polyglot.test.TestResponse\","+
-          "\"options\": {},"+
-          "\"clientStreaming\": true"+
-          "},"+
-          "{"+
-          "\"name\": \"TestMethodBidi\","+
-          "\"inputType\": \".polyglot.test.TestRequest\","+
-          "\"outputType\": \".polyglot.test.TestResponse\","+
-          "\"options\": {},"+
-          "\"clientStreaming\": true,"+
-          "\"serverStreaming\": true"+
-          "}"+
-          "]"+
-          "}"+
-          "],"+
-          "\"options\": {"+
-          "\"javaOuterClassname\": \"TestProto\""+
-          "},"+
-          "\"syntax\": \"proto3\""+
-          "},"+
-          "{"+
-          "\"name\": \"src/main/proto/testing/foo/foo.proto\","+
-          "\"package\": \"polyglot.test.foo\","+
-          "\"messageType\": ["+
-          "{"+
-          "\"name\": \"Foo\","+
-          "\"field\": ["+
-          "{"+
-          "\"name\": \"message\","+
-          "\"number\": 1,"+
-          "\"label\": \"LABEL_OPTIONAL\","+
-          "\"type\": \"TYPE_STRING\""+
-          "}"+
-          "]"+
-          "}"+
-          "],"+
-          "\"options\": {"+
-          "\"javaOuterClassname\": \"FooProto\""+
-          "},"+
-          "\"syntax\": \"proto3\""+
-          "}"+
-          "]"+
-          "}";
+  private static final ImmutableList<String> JSON_GOLD = ImmutableList.of(
+    "{",
+    "\"services\": [{",
+    "\"name\": \"TestService\",",
+    "\"method\": [{",
+    "\"name\": \"TestMethodStream\",",
+    "\"inputType\": \".polyglot.test.TestRequest\",",
+    "\"outputType\": \".polyglot.test.TestResponse\",",
+    "\"options\": {",
+    "},",
+    "\"serverStreaming\": true",
+    "}]",
+    "}],",
+    "\"dependencies\": [{",
+    "\"name\": \"src/main/proto/testing/test_service.proto\",",
+    "\"package\": \"polyglot.test\",",
+    "\"dependency\": [\"src/main/proto/testing/foo/foo.proto\"],",
+    "\"messageType\": [{",
+    "\"name\": \"TestRequest\",",
+    "\"field\": [{",
+    "\"name\": \"message\",",
+    "\"number\": 1,",
+    "\"label\": \"LABEL_OPTIONAL\",",
+    "\"type\": \"TYPE_STRING\"",
+    "}, {",
+    "\"name\": \"foo\",",
+    "\"number\": 2,",
+    "\"label\": \"LABEL_OPTIONAL\",",
+    "\"type\": \"TYPE_MESSAGE\",",
+    "\"typeName\": \".polyglot.test.foo.Foo\"",
+    "}, {",
+    "\"name\": \"number\",",
+    "\"number\": 3,",
+    "\"label\": \"LABEL_OPTIONAL\",",
+    "\"type\": \"TYPE_INT32\"",
+    "}]",
+    "}, {",
+    "\"name\": \"TestResponse\",",
+    "\"field\": [{",
+    "\"name\": \"message\",",
+    "\"number\": 1,",
+    "\"label\": \"LABEL_OPTIONAL\",",
+    "\"type\": \"TYPE_STRING\"",
+    "}]",
+    "}],",
+    "\"service\": [{",
+    "\"name\": \"TestService\",",
+    "\"method\": [{",
+    "\"name\": \"TestMethod\",",
+    "\"inputType\": \".polyglot.test.TestRequest\",",
+    "\"outputType\": \".polyglot.test.TestResponse\",",
+    "\"options\": {",
+    "}",
+    "}, {",
+    "\"name\": \"TestMethodStream\",",
+    "\"inputType\": \".polyglot.test.TestRequest\",",
+    "\"outputType\": \".polyglot.test.TestResponse\",",
+    "\"options\": {",
+    "},",
+    "\"serverStreaming\": true",
+    "}, {",
+    "\"name\": \"TestMethodClientStream\",",
+    "\"inputType\": \".polyglot.test.TestRequest\",",
+    "\"outputType\": \".polyglot.test.TestResponse\",",
+    "\"options\": {",
+    "},",
+    "\"clientStreaming\": true",
+    "}, {",
+    "\"name\": \"TestMethodBidi\",",
+    "\"inputType\": \".polyglot.test.TestRequest\",",
+    "\"outputType\": \".polyglot.test.TestResponse\",",
+    "\"options\": {",
+    "},",
+    "\"clientStreaming\": true,",
+    "\"serverStreaming\": true",
+    "}]",
+    "}],",
+    "\"options\": {",
+    "\"javaOuterClassname\": \"TestProto\"",
+    "},",
+    "\"syntax\": \"proto3\"",
+    "}, {",
+    "\"name\": \"src/main/proto/testing/foo/foo.proto\",",
+    "\"package\": \"polyglot.test.foo\",",
+    "\"messageType\": [{",
+    "\"name\": \"Foo\",",
+    "\"field\": [{",
+    "\"name\": \"message\",",
+    "\"number\": 1,",
+    "\"label\": \"LABEL_OPTIONAL\",",
+    "\"type\": \"TYPE_STRING\"",
+    "}]",
+    "}],",
+    "\"options\": {",
+    "\"javaOuterClassname\": \"FooProto\"",
+    "},",
+    "\"syntax\": \"proto3\"",
+    "}]",
+    "}");
 }

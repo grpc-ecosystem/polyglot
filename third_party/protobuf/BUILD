@@ -11,8 +11,3 @@ java_library(
         "@protobuf_java_util_artifact//jar",
     ],
 )
-
-java_proto_library(
-    name = "descriptor_java_proto",
-    protos = ["google/protobuf/descriptor.proto"],
-)

@@ -10,8 +10,8 @@ java_proto_library(
 java_proto_library(
     name = "output_proto",
     protos = ["output.proto"],
-    proto_deps = ["//third_party/protobuf:descriptor_java_proto"],
-    imports = ["third_party/protobuf"],
+    imports = ["external/com_github_google_protobuf/src/"],
+    inputs = ["@com_github_google_protobuf//:well_known_protos"],
 )
 
 java_proto_library(
