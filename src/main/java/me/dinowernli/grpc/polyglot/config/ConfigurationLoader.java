@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -136,6 +137,15 @@ public class ConfigurationLoader {
 
     overrides.tlsClientOverrideAuthority()
         .ifPresent(resultBuilder.getCallConfigBuilder()::setTlsClientOverrideAuthority);
+
+    overrides.metadata().ifPresent(metadata -> {
+      for (Map.Entry<String, String> keyValue : metadata.entries().asList()) {
+        resultBuilder.getCallConfigBuilder().addMetadataBuilder()
+            .setName(keyValue.getKey())
+            .setValue(keyValue.getValue())
+            .build();
+      }
+    });
 
     return resultBuilder.build();
   }
