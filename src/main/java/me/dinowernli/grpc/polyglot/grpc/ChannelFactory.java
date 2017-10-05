@@ -13,8 +13,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.net.HostAndPort;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import io.grpc.CallOptions;
 import io.grpc.Channel;
+import io.grpc.ClientCall;
+import io.grpc.ClientInterceptor;
 import io.grpc.ClientInterceptors;
+import io.grpc.Metadata;
+import io.grpc.StatusException;
 import io.grpc.auth.ClientAuthInterceptor;
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NegotiationType;
@@ -43,13 +48,7 @@ public class ChannelFactory {
   }
 
   public Channel createChannel(HostAndPort endpoint) {
-    if (!callConfiguration.getUseTls()) {
-      return createPlaintextChannel(endpoint);
-    }
-    NettyChannelBuilder nettyChannelBuilder =
-        NettyChannelBuilder.forAddress(endpoint.getHostText(), endpoint.getPort())
-            .sslContext(createSslContext())
-            .negotiationType(NegotiationType.TLS);
+    NettyChannelBuilder nettyChannelBuilder = createChannelBuilder(endpoint);
 
     if (!callConfiguration.getTlsClientOverrideAuthority().isEmpty()) {
       nettyChannelBuilder.overrideAuthority(callConfiguration.getTlsClientOverrideAuthority());
@@ -63,10 +62,38 @@ public class ChannelFactory {
         createChannel(endpoint), new ClientAuthInterceptor(credentials, authExecutor));
   }
 
-  private static Channel createPlaintextChannel(HostAndPort endpoint) {
-    return NettyChannelBuilder.forAddress(endpoint.getHostText(), endpoint.getPort())
-        .negotiationType(NegotiationType.PLAINTEXT)
-        .build();
+  private NettyChannelBuilder createChannelBuilder(HostAndPort endpoint) {
+    if (!callConfiguration.getUseTls()) {
+      return NettyChannelBuilder.forAddress(endpoint.getHostText(), endpoint.getPort())
+          .negotiationType(NegotiationType.PLAINTEXT);
+    } else {
+      return NettyChannelBuilder.forAddress(endpoint.getHostText(), endpoint.getPort())
+          .sslContext(createSslContext())
+          .negotiationType(NegotiationType.TLS)
+          .intercept(metadataInterceptor());
+    }
+  }
+
+  private ClientInterceptor metadataInterceptor() {
+    ClientInterceptor interceptor = new ClientInterceptor() {
+      @Override
+      public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
+          final io.grpc.MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, final Channel next) {
+        return new ClientInterceptors.CheckedForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)) {
+          @Override
+          protected void checkedStart(Listener<RespT> responseListener, Metadata headers)
+              throws StatusException {
+            for (ConfigProto.CallMetadataEntry entry : callConfiguration.getMetadataList()) {
+              Metadata.Key<String> key = Metadata.Key.of(entry.getName(), Metadata.ASCII_STRING_MARSHALLER);
+              headers.put(key, entry.getValue());
+            }
+            delegate().start(responseListener, headers);
+          }
+        };
+      }
+    };
+
+    return interceptor;
   }
 
   private SslContext createSslContext() {

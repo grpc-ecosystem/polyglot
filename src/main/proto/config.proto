@@ -32,7 +32,18 @@ message CallConfiguration {
   string tls_client_cert_path = 5;
   string tls_client_key_path = 6;
   string tls_client_override_authority = 7;
+
+  // Metadata to be included with the call.
+  // Entries will be appended to any existing metadata.
+  // Entries whose name already exists as a metadata entry will have the value appended to the values list.
+  repeated CallMetadataEntry metadata = 8;
 }
+
+message CallMetadataEntry {
+  string name = 1;
+  string value = 2;
+}
+
 
 // Holds the necessary parameters for adding authentication to requests using
 // Oauth2.
@@ -66,7 +77,7 @@ message OauthConfiguration {
     // the access token will be used to authenticate the request.
     RefreshTokenCredentials refresh_token_credentials = 1;
 
-    // If present, the access token will be used to authenticate the request.    
+    // If present, the access token will be used to authenticate the request.
     AccessTokenCredentials access_token_credentials = 2;
   }
 }
@@ -76,7 +87,7 @@ message OutputConfiguration {
   enum Destination {
     // Content is written to standard output.
     STDOUT = 0;
-  
+
     // Content is written to the execution log, i.e., to standard error.
     LOG = 1;
 

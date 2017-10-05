@@ -4,6 +4,7 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMultimap;
 import me.dinowernli.junit.TestClass;
 import org.junit.After;
 import org.junit.Before;
@@ -82,6 +83,8 @@ public class ConfigurationLoaderTest {
     when(mockOverrides.tlsClientCertPath()).thenReturn(Optional.of(Paths.get("client_cert")));
     when(mockOverrides.tlsClientKeyPath()).thenReturn(Optional.of(Paths.get("client_key")));
     when(mockOverrides.tlsClientOverrideAuthority()).thenReturn(Optional.of("override_authority"));
+    ImmutableMultimap<String, String> metadata = ImmutableMultimap.of("key1", "value1", "key2", "value2");
+    when(mockOverrides.metadata()).thenReturn(Optional.of(metadata));
 
     Configuration config = ConfigurationLoader
         .forDefaultConfigSet()
@@ -97,6 +100,7 @@ public class ConfigurationLoaderTest {
     assertThat(callConfig.getTlsClientCertPath()).isEqualTo("client_cert");
     assertThat(callConfig.getTlsClientKeyPath()).isEqualTo("client_key");
     assertThat(callConfig.getTlsClientOverrideAuthority()).isEqualTo("override_authority");
+    assertThat(callConfig.getMetadataCount()).isEqualTo(2);
   }
 
   private static Configuration namedConfig(String name) {

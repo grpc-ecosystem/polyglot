@@ -5,11 +5,17 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Maps;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
@@ -95,6 +101,9 @@ public class CommandLineArgs {
       metaVar = "true|false",
       usage="If true, then the message specification for the method is rendered")
   private String withMessageArg;
+
+  @Option(name = "--metadata", metaVar = "k1:v1,k2:v2,...")
+  private String metadataArg;
 
   // *************************************************************************
 
@@ -212,6 +221,33 @@ public class CommandLineArgs {
     return Optional.of(Boolean.parseBoolean(withMessageArg));
   }
   // *************************************************************************
+
+  public Optional<ImmutableMultimap<String, String>> metadata() {
+    if (metadataArg == null) {
+      return Optional.empty();
+    }
+
+    List<Map.Entry<String, String>> parts = Splitter.on(",")
+        .omitEmptyStrings()
+        .splitToList(metadataArg)
+        .stream()
+        .map(s -> {
+          String[] keyValue = s.split(":");
+
+          Preconditions.checkArgument(keyValue.length == 2,
+              "Metadata entry must be defined in key:value format: " + metadataArg);
+
+          return Maps.immutableEntry(keyValue[0], keyValue[1]);
+        })
+        .collect(Collectors.toList());
+
+    ImmutableMultimap.Builder<String, String> builder = new ImmutableMultimap.Builder<>();
+    for (Map.Entry<String, String> keyValue : parts) {
+      builder.put(keyValue.getKey(), keyValue.getValue());
+    }
+
+    return Optional.of(builder.build());
+  }
 
   public ImmutableList<Path> additionalProtocIncludes() {
     if (addProtocIncludesArg == null) {
