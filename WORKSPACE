@@ -200,6 +200,11 @@ maven_jar(
 )
 
 maven_jar(
+    name = "jcommander",
+    artifact = "com.beust:jcommander:1.72",
+)
+
+maven_jar(
     name = "com_google_instrumentation_instrumentation_api",
     artifact = "com.google.instrumentation:instrumentation-api:0.4.3",
     sha1 = "41614af3429573dc02645d541638929d877945a2",

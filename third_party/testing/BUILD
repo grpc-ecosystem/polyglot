@@ -7,5 +7,7 @@ java_library(
         "@junit_artifact//jar",
         "@mockito_artifact//jar",
         "@truth_artifact//jar",
+        #TODO(dino): remove this
+        "@jcommander//jar",
     ],
 )
