@@ -5,6 +5,7 @@ import java.util.logging.LogManager;
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
 import me.dinowernli.grpc.polyglot.command.ServiceCall;
 import me.dinowernli.grpc.polyglot.command.ServiceList;
+import me.dinowernli.grpc.polyglot.command.v2.Commands.CommandRoot;
 import me.dinowernli.grpc.polyglot.config.CommandLineArgs;
 import me.dinowernli.grpc.polyglot.config.ConfigurationLoader;
 import me.dinowernli.grpc.polyglot.io.Output;
@@ -26,6 +27,23 @@ public class Main {
 
     logger.info("Polyglot version: " + VERSION);
 
+    if (useLegacyCommandStructure(args)) {
+      mainLegacy(args);
+    } else {
+      mainInternal(args);
+    }
+  }
+
+  private static boolean useLegacyCommandStructure(String[] args) {
+    for (String arg : args) {
+      if (arg.contains("--use_legacy_command_structure")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static void mainLegacy(String[] args) {
     final CommandLineArgs arguments;
     try {
       arguments = CommandLineArgs.parse(args);
@@ -85,6 +103,10 @@ public class Main {
     } catch (Exception e) {
       throw new RuntimeException("Caught exception during command execution", e);
     }
+  }
+
+  private static void mainInternal(String[] args) {
+    CommandRoot.create().parse(args).run();
   }
 
   /** Invokes protoc and returns a {@link FileDescriptorSet} used for discovery. */

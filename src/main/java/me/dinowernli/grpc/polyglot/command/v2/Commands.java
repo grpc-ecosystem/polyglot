@@ -20,7 +20,7 @@ public class Commands {
       commandCall.attach(jCommander);
 
       SharedFlags sharedFlags = new SharedFlags();
-
+      commandCall.attach(jCommander);
 
       return new CommandRoot(jCommander.build(), commandCall, commandList);
     }
@@ -31,12 +31,20 @@ public class Commands {
       this.commandList = commandList;
     }
 
-    public CommandCall callCommand() {
-      return commandCall;
+    public CommandRoot parse(String[] args) {
+      jCommander.parse(args);
+      return this;
     }
 
-    public CommandList listCommand() {
-      return commandList;
+    public void run() {
+      String parsedCommand = jCommander.getParsedCommand();
+      if (parsedCommand.equals("call")) {
+        commandCall.run();
+      } else if (parsedCommand.equals("list")) {
+        commandList.run();
+      } else {
+        throw new IllegalArgumentException("Unknown command: " + parsedCommand);
+      }
     }
   }
 
@@ -45,6 +53,10 @@ public class Commands {
     private void attach(JCommander.Builder commandBuilder) {
       commandBuilder.addCommand("call", this);
     }
+
+    private void run() {
+
+    }
   }
 
   @Parameters(separators = "=", commandDescription = "List all grpc methods on a remote server")
@@ -52,14 +64,16 @@ public class Commands {
     private void attach(JCommander.Builder commandBuilder) {
       commandBuilder.addCommand("list", this);
     }
+
+    private void run() {
+
+    }
   }
 
   @Parameters(separators = "=")
   public static class SharedFlags {
-
-  }
-
-  private interface Attachable {
-    void attach(JComm)
+    private void attach(JCommander.Builder commandBuilder) {
+      commandBuilder.addObject(this);
+    }
   }
 }
