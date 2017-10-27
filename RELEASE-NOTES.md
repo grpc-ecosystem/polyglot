@@ -6,6 +6,8 @@ Quick links:
 
 ## Upcoming release
 
+## 1.4.0
+
 * Added support for grpc server reflection.
 * Added support for custom metadata.
 * Upgraded the protoc version used to compile files to 3.2.0.
