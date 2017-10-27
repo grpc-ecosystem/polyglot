@@ -126,12 +126,12 @@ maven_jar(
 
 maven_jar(
     name = "protobuf_java_artifact",
-    artifact = "com.google.protobuf:protobuf-java:3.0.0-beta-3",
+    artifact = "com.google.protobuf:protobuf-java:3.2.0",
 )
 
 maven_jar(
     name = "protobuf_java_util_artifact",
-    artifact = "com.google.protobuf:protobuf-java-util:3.0.0-beta-3",
+    artifact = "com.google.protobuf:protobuf-java-util:3.2.0",
 )
 
 maven_jar(
@@ -161,7 +161,7 @@ maven_jar(
 
 maven_jar(
     name = "protoc_jar_artifact",
-    artifact = "com.github.os72:protoc-jar:3.0.0-b2.1",
+    artifact = "com.github.os72:protoc-jar:3.2.0",
 )
 
 maven_jar(
