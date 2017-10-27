@@ -6,7 +6,11 @@ Quick links:
 
 ## Upcoming release
 
+* Added support for grpc server reflection
+* Added support for custom metadata
+
 ## 1.3.0
+
 * Upgraded to grpc 1.4.0.
 * Added support for client certificates to TLS.
 

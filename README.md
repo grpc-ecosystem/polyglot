@@ -18,6 +18,7 @@ In particular, it is not necessary to generate grpc classes for the service or t
 * Supports authentication via oauth.
 * Accepts request protos through stdin and can output responses to stdout to allow chaining.
 * Supports plain text connections as well as TLS.
+* Supports passing custom grpc metadata over the command line.
 
 ## Usage
 
@@ -141,6 +142,10 @@ $ java -jar polyglot.jar \
 ```
 
 The printed services can be filtered using `--service_filter=<service_name>` or `--method_filter=<method_name>`, and the `--with_message` flag can be used to also print the exact format of the requests.
+
+### Custom metadata
+
+It is possible to add custom grpc metadata to calls made using Polyglot by setting the `--metadata=key1:value1,key2:value2` flag.
 
 ## Build requirements
 
