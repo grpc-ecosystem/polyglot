@@ -8,7 +8,11 @@ http_archive(
 
 load("@grpc_java//:repositories.bzl", "grpc_java_repositories")
 
-grpc_java_repositories(omit_com_google_code_findbugs_jsr305 = True)
+grpc_java_repositories(
+    omit_com_google_code_findbugs_jsr305 = True,
+    omit_com_google_errorprone_error_prone_annotations = True,
+    omit_com_google_protobuf = True,
+)
 
 # Autotest
 http_archive(
@@ -27,8 +31,8 @@ autotest_junit_repo(
 # Proto rules
 http_archive(
     name = "org_pubref_rules_protobuf",
-    strip_prefix = "rules_protobuf-0.7.2",
-    urls = ["https://github.com/pubref/rules_protobuf/archive/v0.7.2.zip"],
+    strip_prefix = "rules_protobuf-0.8.1",
+    urls = ["https://github.com/pubref/rules_protobuf/archive/v0.8.1.zip"],
 )
 
 load("@org_pubref_rules_protobuf//java:rules.bzl", "java_proto_repositories")
@@ -38,11 +42,11 @@ java_proto_repositories()
 # Buildifier
 http_archive(
     name = "io_bazel_rules_go",
-    sha256 = "f7e42a4c1f9f31abff9b2bdee6fe4db18bc373287b7e07a5b844446e561e67e2",
-    strip_prefix = "rules_go-4c9a52aba0b59511c5646af88d2f93a9c0193647",
+    sha256 = "d322432e804dfa7936c1f38c24b00f1fb71a0be090a1273d7100a1b4ce281ee7",
+    strip_prefix = "rules_go-a390e7f7eac912f6e67dc54acf67aa974d05f9c3",
     urls = [
-        "http://bazel-mirror.storage.googleapis.com/github.com/bazelbuild/rules_go/archive/4c9a52aba0b59511c5646af88d2f93a9c0193647.tar.gz",
-        "https://github.com/bazelbuild/rules_go/archive/4c9a52aba0b59511c5646af88d2f93a9c0193647.tar.gz",
+        "http://bazel-mirror.storage.googleapis.com/github.com/bazelbuild/rules_go/archive/a390e7f7eac912f6e67dc54acf67aa974d05f9c3.tar.gz",
+        "https://github.com/bazelbuild/rules_go/archive/a390e7f7eac912f6e67dc54acf67aa974d05f9c3.tar.gz",
     ],
 )
 
@@ -54,12 +58,6 @@ new_go_repository(
     name = "org_golang_x_tools",
     commit = "3d92dd60033c312e3ae7cac319c792271cf67e37",
     importpath = "golang.org/x/tools",
-)
-
-git_repository(
-    name = "com_github_bazelbuild_buildtools",
-    remote = "https://github.com/bazelbuild/buildtools",
-    tag = "0.4.5",
 )
 
 # Direct java deps
@@ -197,10 +195,4 @@ maven_jar(
 maven_jar(
     name = "jackson_core_artifact",
     artifact = "com.fasterxml.jackson.core:jackson-core:2.6.3",
-)
-
-maven_jar(
-    name = "com_google_instrumentation_instrumentation_api",
-    artifact = "com.google.instrumentation:instrumentation-api:0.4.3",
-    sha1 = "41614af3429573dc02645d541638929d877945a2",
 )
