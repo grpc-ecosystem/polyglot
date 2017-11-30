@@ -6,6 +6,8 @@ Quick links:
 
 ## Upcoming release
 
+* Made sure exit code 1 is returned if command line arguments fail to parse.
+
 ## 1.4.0
 
 * Added support for grpc server reflection.
