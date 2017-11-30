@@ -82,7 +82,7 @@ public class Main {
           logger.warn("Unknown command: " + arguments.command().get());
       }
     } catch (Throwable t) {
-      throw new RuntimeException("Caught top-level during command execution", t);
+      throw new RuntimeException("Caught top-level during exception command execution", t);
     }
   }
 
