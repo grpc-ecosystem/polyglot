@@ -1,16 +1,9 @@
 package me.dinowernli.grpc.polyglot.grpc;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.DynamicMessage;
 import io.grpc.CallOptions;
@@ -28,19 +21,16 @@ public class DynamicGrpcClient {
   private static final Logger logger = LoggerFactory.getLogger(DynamicGrpcClient.class);
   private final MethodDescriptor protoMethodDescriptor;
   private final Channel channel;
-  private final ListeningExecutorService executor;
 
   /** Creates a client for the supplied method, talking to the supplied endpoint. */
   public static DynamicGrpcClient create(MethodDescriptor protoMethod, Channel channel) {
-    return new DynamicGrpcClient(protoMethod, channel, createExecutorService());
+    return new DynamicGrpcClient(protoMethod, channel);
   }
 
   @VisibleForTesting
-  DynamicGrpcClient(
-      MethodDescriptor protoMethodDescriptor, Channel channel, ListeningExecutorService executor) {
+  DynamicGrpcClient(MethodDescriptor protoMethodDescriptor, Channel channel) {
     this.protoMethodDescriptor = protoMethodDescriptor;
     this.channel = channel;
-    this.executor = executor;
   }
 
   /**
@@ -85,7 +75,7 @@ public class DynamicGrpcClient {
         CompositeStreamObserver.of(responseObserver, doneObserver));
     requests.forEach(requestObserver::onNext);
     requestObserver.onCompleted();
-    return submitWaitTask(doneObserver);
+    return doneObserver.getCompletionFuture();
   }
 
   private ListenableFuture<Void> callClientStreaming(
@@ -98,7 +88,7 @@ public class DynamicGrpcClient {
         CompositeStreamObserver.of(responseObserver, doneObserver));
     requests.forEach(requestObserver::onNext);
     requestObserver.onCompleted();
-    return submitWaitTask(doneObserver);
+    return doneObserver.getCompletionFuture();
   }
 
   private ListenableFuture<Void> callServerStreaming(
@@ -110,40 +100,23 @@ public class DynamicGrpcClient {
         createCall(callOptions),
         request,
         CompositeStreamObserver.of(responseObserver, doneObserver));
-    return submitWaitTask(doneObserver);
+    return doneObserver.getCompletionFuture();
   }
 
   private ListenableFuture<Void> callUnary(
       DynamicMessage request,
       StreamObserver<DynamicMessage> responseObserver,
       CallOptions callOptions) {
-    ListenableFuture<DynamicMessage> response =
-        ClientCalls.futureUnaryCall(createCall(callOptions), request);
-
-    // TODO(dino): Consider using asyncUnaryCall for symmetry with the other calls.
-
     DoneObserver<DynamicMessage> doneObserver = new DoneObserver<>();
-    SingleResponseCallback<DynamicMessage> callback = new SingleResponseCallback<>(
+    ClientCalls.asyncUnaryCall(
+        createCall(callOptions),
+        request,
         CompositeStreamObserver.of(responseObserver, doneObserver));
-    Futures.addCallback(response, callback);
-    return submitWaitTask(doneObserver);
+    return doneObserver.getCompletionFuture();
   }
 
   private ClientCall<DynamicMessage, DynamicMessage> createCall(CallOptions callOptions) {
     return channel.newCall(createGrpcMethodDescriptor(), callOptions);
-  }
-
-  /** Returns a {@link ListenableFuture} which completes when the supplied observer is done. */
-  private ListenableFuture<Void> submitWaitTask(DoneObserver<?> doneObserver) {
-    return executor.submit(new Callable<Void>() {
-      @Override
-      public Void call() throws Exception {
-        synchronized (doneObserver) {
-          doneObserver.wait();
-        }
-        return null;
-      }
-    });
   }
 
   private io.grpc.MethodDescriptor<DynamicMessage, DynamicMessage> createGrpcMethodDescriptor() {
@@ -174,14 +147,5 @@ public class DynamicGrpcClient {
     } else {
       return MethodType.BIDI_STREAMING;
     }
-  }
-
-  /**
-   * Returns an executor in daemon-mode, allowing callers to actively decide whether they want to
-   * wait for rpc streams to complete.
-   */
-  private static ListeningExecutorService createExecutorService() {
-    return MoreExecutors.listeningDecorator(
-        Executors.newCachedThreadPool(new ThreadFactoryBuilder().setDaemon(true).build()));
   }
 }

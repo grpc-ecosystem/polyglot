@@ -1,11 +1,12 @@
 package me.dinowernli.grpc.polyglot.grpc;
 
-import java.util.concurrent.TimeUnit;
-
-import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
+import com.google.common.collect.ImmutableList;
+import com.google.protobuf.Descriptors.MethodDescriptor;
+import com.google.protobuf.DynamicMessage;
+import io.grpc.CallOptions;
+import io.grpc.Channel;
+import io.grpc.ClientCall;
+import io.grpc.stub.StreamObserver;
 import me.dinowernli.junit.TestClass;
 import org.junit.Before;
 import org.junit.Rule;
@@ -16,18 +17,14 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.protobuf.Descriptors.MethodDescriptor;
-import com.google.protobuf.DynamicMessage;
-
-import io.grpc.CallOptions;
-import io.grpc.Channel;
-import io.grpc.ClientCall;
-import io.grpc.stub.StreamObserver;
 import polyglot.test.TestProto;
 import polyglot.test.TestProto.TestRequest;
+
+import java.util.concurrent.TimeUnit;
+
+import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /** Unit tests for {@link DynamicGrpcClient}. */
 @TestClass
@@ -58,7 +55,6 @@ public class DynamicGrpcClientTest {
 
   @Rule public MockitoRule mockitoJunitRule = MockitoJUnit.rule();
   @Mock private Channel mockChannel;
-  @Mock private ListeningExecutorService mockExecutor;
   @Mock private StreamObserver<DynamicMessage> mockStreamObserver;
   @Mock private ClientCall<DynamicMessage, DynamicMessage> mockClientCall;
   @Captor private ArgumentCaptor<CallOptions> callOptionsCaptor;
@@ -75,14 +71,14 @@ public class DynamicGrpcClientTest {
 
   @Test
   public void unaryMethodCall() {
-    client = new DynamicGrpcClient(UNARY_METHOD, mockChannel, mockExecutor);
+    client = new DynamicGrpcClient(UNARY_METHOD, mockChannel);
     client.call(ImmutableList.of(REQUEST), mockStreamObserver, CALL_OPTIONS);
     // No crash.
   }
 
   @Test
   public void passesCallOptions() {
-    client = new DynamicGrpcClient(UNARY_METHOD, mockChannel, mockExecutor);
+    client = new DynamicGrpcClient(UNARY_METHOD, mockChannel);
     client.call(ImmutableList.of(REQUEST), mockStreamObserver, CALL_OPTIONS);
 
     verify(mockChannel).newCall(
