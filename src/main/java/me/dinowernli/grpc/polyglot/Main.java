@@ -1,7 +1,5 @@
 package me.dinowernli.grpc.polyglot;
 
-import java.util.logging.LogManager;
-
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
 import me.dinowernli.grpc.polyglot.command.ServiceCall;
 import me.dinowernli.grpc.polyglot.command.ServiceList;
@@ -16,6 +14,8 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import polyglot.ConfigProto.Configuration;
 import polyglot.ConfigProto.ProtoConfiguration;
 
+import java.util.logging.LogManager;
+
 public class Main {
   private static final Logger logger = LoggerFactory.getLogger(Main.class);
   private static final String VERSION = "1.5.0+dev";
@@ -29,9 +29,8 @@ public class Main {
     final CommandLineArgs arguments;
     try {
       arguments = CommandLineArgs.parse(args);
-    } catch (RuntimeException e) {
-      logger.info("Unable to parse flags", e);
-      return;
+    } catch (Throwable t) {
+      throw new RuntimeException("Unable to parse command line flags", t);
     }
 
     // Catch the help case.
@@ -82,8 +81,8 @@ public class Main {
         default:
           logger.warn("Unknown command: " + arguments.command().get());
       }
-    } catch (Exception e) {
-      throw new RuntimeException("Caught exception during command execution", e);
+    } catch (Throwable t) {
+      throw new RuntimeException("Caught top-level during command execution", t);
     }
   }
 
