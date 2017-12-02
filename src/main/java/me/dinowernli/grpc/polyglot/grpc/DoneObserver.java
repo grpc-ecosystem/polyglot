@@ -21,7 +21,7 @@ class DoneObserver<T> implements StreamObserver<T> {
 
   @Override
   public synchronized void onError(Throwable t) {
-    doneFuture.set(null);
+    doneFuture.setException(t);
   }
 
   @Override
@@ -30,8 +30,8 @@ class DoneObserver<T> implements StreamObserver<T> {
   }
 
   /**
-   * Returns a future which completes when the rpc finishes. Note that even if the rpc finishes
-   * with an error, the returned future always completes successfully.
+   * Returns a future which completes when the rpc finishes. The returned future fails if the rpc
+   * fails.
    */
   ListenableFuture<Void> getCompletionFuture() {
     return doneFuture;

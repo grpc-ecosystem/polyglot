@@ -6,7 +6,7 @@ Quick links:
 
 ## Upcoming release
 
-* Made sure exit code 1 is returned if command line arguments fail to parse.
+* Made sure exit code 1 is returned if command line arguments fail to parse or the rpc fails.
 
 ## 1.4.0
 

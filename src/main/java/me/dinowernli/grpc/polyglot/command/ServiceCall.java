@@ -102,8 +102,8 @@ public class ServiceCall {
         "Making rpc with %d request(s) to endpoint [%s]", requestMessages.size(), hostAndPort));
     try {
       dynamicClient.call(requestMessages, streamObserver, callOptions(callConfig)).get();
-    } catch (InterruptedException | ExecutionException e) {
-      throw new RuntimeException("Caught exeception while waiting for rpc", e);
+    } catch (Throwable t) {
+      throw new RuntimeException("Caught exception while waiting for rpc", t);
     }
   }
 
