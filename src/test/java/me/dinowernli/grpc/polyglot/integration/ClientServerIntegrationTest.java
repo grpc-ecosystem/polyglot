@@ -8,12 +8,15 @@ import java.util.Optional;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
-import me.dinowernli.junit.TestClass;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import me.dinowernli.grpc.polyglot.io.MessageWriter;
 import me.dinowernli.grpc.polyglot.testing.RecordingTestService;
 import me.dinowernli.grpc.polyglot.testing.TestServer;
 import me.dinowernli.grpc.polyglot.testing.TestUtils;
+import me.dinowernli.junit.TestClass;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -165,7 +168,7 @@ public class ClientServerIntegrationTest {
   }
 
   @Test(expected = RuntimeException.class)
-  public void rejectsBadInput() throws Throwable {
+  public void rejectsBadInput() {
     ImmutableList<String> args = makeArgs(testServer.getGrpcServerPort(), TEST_UNARY_METHOD);
     setStdinContents("this is not a valid text proto!");
 
@@ -175,6 +178,28 @@ public class ClientServerIntegrationTest {
     RecordingTestService recordingTestService = testServer.getServiceImpl();
     assertThat(recordingTestService.numRequests()).isEqualTo(1);
     assertThat(recordingTestService.getRequest(0)).isEqualTo(REQUEST);
+  }
+
+  @Test
+  public void throwsErrorOnRpcTimeout() {
+    int serverPort = testServer.getGrpcServerPort();
+    ImmutableList<String> args = ImmutableList.<String>builder()
+        .addAll(makeArgs(serverPort, TEST_UNARY_METHOD))
+        .add(makeArgument("output_file_path", responseFilePath.toString()))
+        .add(makeArgument("deadline_ms", "1"))  // Small enough to guarantee a timeout.
+        .build();
+    setStdinContents(MessageWriter.writeJsonStream(ImmutableList.of(REQUEST)));
+
+    // Run the full client.
+    try {
+      me.dinowernli.grpc.polyglot.Main.main(args.toArray(new String[0]));
+      throw new RuntimeException("The rpc should have timed out and thrown");
+    } catch (Throwable t) {
+      Throwable rootCause = Throwables.getRootCause(t);
+      assertThat(rootCause).isInstanceOf(StatusRuntimeException.class);
+      assertThat(((StatusRuntimeException) rootCause).getStatus().getCode())
+          .isEqualTo(Status.DEADLINE_EXCEEDED.getCode());
+    }
   }
 
   private static ImmutableList<String> makeArgs(int port, String method) {
