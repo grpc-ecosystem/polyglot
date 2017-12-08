@@ -126,7 +126,7 @@ public class ServiceCall {
       if (root instanceof StatusRuntimeException) {
         if (((StatusRuntimeException) root).getStatus().getCode() == Status.Code.UNIMPLEMENTED) {
           logger.warn("Could not list services because the remote host does not support " +
-              "reflection. To disable resolving services by reflection, either pass  the flag" +
+              "reflection. To disable resolving services by reflection, either pass the flag " +
               "--use_reflection=false or disable reflection in your config file.");
         }
       }
