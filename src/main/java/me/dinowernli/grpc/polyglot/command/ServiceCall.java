@@ -122,10 +122,12 @@ public class ServiceCall {
       services = serverReflectionClient.listServices().get();
     } catch (Throwable t) {
       // Listing services failed, try and provide an explanation.
-      Throwable rootCause = Throwables.getRootCause(t);
-      if (rootCause instanceof StatusRuntimeException) {
-        if (((StatusRuntimeException) rootCause).getStatus().getCode() == Status.Code.UNIMPLEMENTED) {
-          logger.warn("Could not list services because the remote host does not support reflection");
+      Throwable root = Throwables.getRootCause(t);
+      if (root instanceof StatusRuntimeException) {
+        if (((StatusRuntimeException) root).getStatus().getCode() == Status.Code.UNIMPLEMENTED) {
+          logger.warn("Could not list services because the remote host does not support " +
+              "reflection. To disable resolving services by reflection, either pass  the flag" +
+              "--use_reflection=false or disable reflection in your config file.");
         }
       }
 
