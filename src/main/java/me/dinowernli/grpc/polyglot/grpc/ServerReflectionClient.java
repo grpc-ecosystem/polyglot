@@ -1,10 +1,5 @@
 package me.dinowernli.grpc.polyglot.grpc;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -23,13 +18,18 @@ import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 public class ServerReflectionClient {
   private static final Logger logger = LoggerFactory.getLogger(ServerReflectionClient.class);
   private static final long LIST_RPC_DEADLINE_MS = 1_000;
   private static final long LOOKUP_RPC_DEADLINE_MS = 10_000;
   private static final ServerReflectionRequest LIST_SERVICES_REQUEST =
       ServerReflectionRequest.newBuilder()
-          .setListServices("")  // Note sure what this is for, appears to be ignored.
+          .setListServices("")  // Not sure what this is for, appears to be ignored.
           .build();
 
   private final Channel channel;
@@ -95,14 +95,13 @@ public class ServerReflectionClient {
 
     @Override
     public void onError(Throwable t) {
-      logger.error("Error in the server reflection rpc", t);
-      resultFuture.setException(t);
+      resultFuture.setException(new RuntimeException("Error in server reflection rpc while listing services", t));
     }
 
     @Override
     public void onCompleted() {
       if (!resultFuture.isDone()) {
-        logger.error("Unexpected completion of the server reflection rpc");
+        logger.error("Unexpected completion of server reflection rpc while listing services");
         resultFuture.setException(new RuntimeException("Unexpected end of rpc"));
       }
     }
@@ -160,8 +159,7 @@ public class ServerReflectionClient {
 
     @Override
     public void onError(Throwable t) {
-      logger.error("Error in the server reflection rpc", t);
-      resultFuture.setException(t);
+      resultFuture.setException(new RuntimeException("Reflection lookup rpc failed for: " + serviceName, t));
     }
 
     @Override

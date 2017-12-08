@@ -1,12 +1,7 @@
 package me.dinowernli.grpc.polyglot.command;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.net.HostAndPort;
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
@@ -15,6 +10,7 @@ import com.google.protobuf.DynamicMessage;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import me.dinowernli.grpc.polyglot.grpc.ChannelFactory;
 import me.dinowernli.grpc.polyglot.grpc.CompositeStreamObserver;
@@ -32,6 +28,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import polyglot.ConfigProto.CallConfiguration;
 import polyglot.ConfigProto.ProtoConfiguration;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /** Makes a call to an endpoint, rendering the result */
 public class ServiceCall {
@@ -111,7 +112,7 @@ public class ServiceCall {
    * Returns a {@link FileDescriptorSet} describing the supplied service if the remote server
    * advertizes it by reflection. Returns an empty optional if the remote server doesn't support
    * reflection. Throws a NOT_FOUND exception if we determine that the remote server does not
-   * support the service.
+   * support the requested service (but *does* support the reflection service).
    */
   private static Optional<FileDescriptorSet> resolveServiceByReflection(
       Channel channel, String serviceName) {
@@ -120,7 +121,17 @@ public class ServiceCall {
     try {
       services = serverReflectionClient.listServices().get();
     } catch (Throwable t) {
-      // If this fails, assume the remote server just doesn't to reflection.
+      // Listing services failed, try and provide an explanation.
+      Throwable root = Throwables.getRootCause(t);
+      if (root instanceof StatusRuntimeException) {
+        if (((StatusRuntimeException) root).getStatus().getCode() == Status.Code.UNIMPLEMENTED) {
+          logger.warn("Could not list services because the remote host does not support " +
+              "reflection. To disable resolving services by reflection, either pass the flag " +
+              "--use_reflection=false or disable reflection in your config file.");
+        }
+      }
+
+      // In any case, return an empty optional to indicate that this failed.
       return Optional.empty();
     }
 
