@@ -18,7 +18,7 @@ import polyglot.ConfigProto.ProtoConfiguration;
 
 public class Main {
   private static final Logger logger = LoggerFactory.getLogger(Main.class);
-  private static final String VERSION = "1.5.0+dev";
+  private static final String VERSION = "1.5.0";
 
   public static void main(String[] args) {
     // Fix the logging setup.

@@ -6,6 +6,8 @@ Quick links:
 
 ## Upcoming release
 
+## 1.5.0
+
 * Made sure exit code 1 is returned if command line arguments fail to parse or the rpc fails.
 * Fixed a bug where Polyglot would error out if the remote server didn't support reflection.
 
