@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.Executors;
 
 import javax.net.ssl.SSLException;
@@ -102,9 +103,23 @@ public class ChannelFactory {
       resultBuilder.trustManager(loadFile(callConfiguration.getTlsCaCertPath()));
     }
     if (!callConfiguration.getTlsClientCertPath().isEmpty()) {
-      resultBuilder.keyManager(
-          loadFile(callConfiguration.getTlsClientCertPath()),
-          loadFile(callConfiguration.getTlsClientKeyPath()));
+      File cert = loadFile(callConfiguration.getTlsClientCertPath());
+      File key = loadFile(callConfiguration.getTlsClientKeyPath());
+
+      try {
+        resultBuilder.keyManager(cert, key);
+      } catch (IllegalArgumentException e) {
+        if (e.getCause() instanceof NoSuchAlgorithmException) {
+          // Catching the illegal argument seems a bit nasty, but it's the only way to react to
+          // netty not being able to parse a key which is not in the PKCS8 format.
+          throw new RuntimeException(
+              "Unable to load private key. Please make sure that the key is in PKCS8 format. See "
+                  + "https://github.com/grpc-ecosystem/polyglot/issues/85 for details.", e);
+        } else {
+          // For all other cases, just let the exception bubble up.
+          throw e;
+        }
+      }
     }
     try {
       return resultBuilder.build();
