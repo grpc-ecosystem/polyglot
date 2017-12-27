@@ -147,6 +147,10 @@ The printed services can be filtered using `--service_filter=<service_name>` or 
 
 It is possible to add custom grpc metadata to calls made using Polyglot by setting the `--metadata=key1:value1,key2:value2` flag.
 
+### Configuring logs
+
+Polyglot uses the `slf4j` logging framework with the `org.slf4j.impl.SimpleLogger` implementation. It also redirects grpc's JUL logs to `slf4j`. To change the default log level, specify the `org.slf4j.simpleLogger.defaultLogLevel` JVM argument, e.g., by passing the argument `-Dorg.slf4j.simpleLogger.defaultLogLevel=debug`.
+
 ## Build requirements
 
 In order to build Polyglot from source, you will need:
