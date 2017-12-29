@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.concurrent.Executors;
 
 import javax.net.ssl.SSLException;
@@ -109,7 +110,8 @@ public class ChannelFactory {
       try {
         resultBuilder.keyManager(cert, key);
       } catch (IllegalArgumentException e) {
-        if (e.getCause() instanceof NoSuchAlgorithmException) {
+        if (e.getCause() instanceof NoSuchAlgorithmException
+            || e.getCause() instanceof InvalidKeySpecException) {
           // Catching the illegal argument seems a bit nasty, but it's the only way to react to
           // netty not being able to parse a key which is not in the PKCS8 format.
           throw new RuntimeException(
