@@ -11,6 +11,7 @@ auto_java_test(
         "//src/main/java/me/dinowernli/grpc/polyglot/io",
         "//src/main/java/me/dinowernli/grpc/polyglot/io/testing",
         "//src/main/java/me/dinowernli/grpc/polyglot/testing",
+        "//src/main/proto:config_proto",
         "//src/main/proto/testing:test_service_proto",
         "//third_party/grpc",
         "//third_party/guava",
