@@ -147,12 +147,12 @@ public class CommandLineArgs {
 
   /** Returns the root of the directory tree in which to discover proto files. */
   public Optional<Path> protoDiscoveryRoot() {
-    return maybePath(protoDiscoveryRootArg);
+    return maybeInputPath(protoDiscoveryRootArg);
   }
 
   /** Returns the location in which to store the response proto. */
   public Optional<Path> outputFilePath() {
-    return maybePath(outputFilePathArg);
+    return maybeOutputPath(outputFilePathArg);
   }
 
   public Optional<Boolean> useTls() {
@@ -163,7 +163,7 @@ public class CommandLineArgs {
   }
 
   public Optional<Path> configSetPath() {
-    return maybePath(configSetPathArg);
+    return maybeInputPath(configSetPathArg);
   }
 
   public Optional<String> configName() {
@@ -171,15 +171,15 @@ public class CommandLineArgs {
   }
 
   public Optional<Path> tlsCaCertPath() {
-    return maybePath(tlsCaCertPath);
+    return maybeInputPath(tlsCaCertPath);
   }
 
   public Optional<Path> tlsClientCertPath() {
-    return maybePath(tlsClientCertPath);
+    return maybeInputPath(tlsClientCertPath);
   }
 
   public Optional<Path> tlsClientKeyPath() {
-    return maybePath(tlsClientKeyPath);
+    return maybeInputPath(tlsClientKeyPath);
   }
 
   public Optional<String> tlsClientOverrideAuthority() {
@@ -271,12 +271,18 @@ public class CommandLineArgs {
     return help != null && help;
   }
 
-  private static Optional<Path> maybePath(String rawPath) {
+  private static Optional<Path> maybeOutputPath(String rawPath) {
     if (rawPath == null) {
       return Optional.empty();
     }
     Path path = Paths.get(rawPath);
-    Preconditions.checkArgument(Files.exists(path), "File " + rawPath + " does not exist");
     return Optional.of(Paths.get(rawPath));
+  }
+
+  private static Optional<Path> maybeInputPath(String rawPath) {
+    return maybeOutputPath(rawPath).map(path -> {
+      Preconditions.checkArgument(Files.exists(path), "File " + rawPath + " does not exist");
+      return path;
+    });
   }
 }

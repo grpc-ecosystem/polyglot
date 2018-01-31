@@ -7,30 +7,28 @@ import me.dinowernli.junit.TestClass;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
+import org.junit.rules.TemporaryFolder;
 
 /** Unit tests for {@link CommandLineArgs}. */
 @TestClass
 public class CommandLineArgsTest {
+  @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
   private Path tempFile1;
   private Path tempFile2;
 
   @Before
   public void setUp() throws Throwable {
-    tempFile1 = Files.createTempFile("a", ".txt");
-    tempFile2 = Files.createTempFile("b", ".txt");
-  }
-
-  @After
-  public void tearDown() throws Throwable {
-    Files.delete(tempFile1);
-    Files.delete(tempFile2);
+    tempFile1 = Paths.get(tempFolder.newFile().toURI());
+    tempFile2 = Paths.get(tempFolder.newFile().toURI());
   }
 
   @Test
@@ -50,10 +48,11 @@ public class CommandLineArgsTest {
   @Test
   public void parseMetadata() {
     CommandLineArgs params = parseArgs(ImmutableList.of(
-        String.format("--metadata=%s:%s,%s:%s,%s:%s", "key1", "value1", "key1", "value2", "key2", "value2")));
+        String.format("--metadata=%s:%s,%s:%s,%s:%s",
+            "key1", "value1", "key1", "value2", "key2", "value2")));
 
-
-    ImmutableMultimap<Object, Object> expectedResult = ImmutableMultimap.of("key1", "value1", "key1", "value2", "key2", "value2");
+    ImmutableMultimap<Object, Object> expectedResult =
+        ImmutableMultimap.of("key1", "value1", "key1", "value2", "key2", "value2");
     assertThat(params.metadata()).isEqualTo(Optional.of(expectedResult));
   }
 
@@ -63,6 +62,14 @@ public class CommandLineArgsTest {
         String.format("--metadata=%s:%s,%s", "key1", "value1", "key2")));
 
     params.metadata();
+  }
+
+  @Test
+  public void parseOutputFileEvenIfAbsent() {
+    Path filePath = Paths.get(tempFolder.getRoot().getAbsolutePath(), "some-file.txt");
+    CommandLineArgs params = parseArgs(ImmutableList.of(
+        "--output_file_path=" + filePath.toAbsolutePath().toString()));
+    assertThat(params.outputFilePath().isPresent()).isTrue();
   }
 
   private static CommandLineArgs parseArgs(ImmutableList<String> args) {
