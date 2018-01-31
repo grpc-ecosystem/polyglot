@@ -6,6 +6,8 @@ Quick links:
 
 ## Upcoming release
 
+* Fixed a bug where Polyglot would bail out if the specified output file didn't already exist.
+
 ## 1.5.0
 
 * Made sure exit code 1 is returned if command line arguments fail to parse or the rpc fails.
