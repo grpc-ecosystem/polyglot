@@ -99,7 +99,7 @@ public class ProtocInvoker {
       resultBuilder.add("-I" + path.toString());
     }
 
-    // Add the include path which makes sure that protoc find the well known types. Note that we
+    // Add the include path which makes sure that protoc finds the well known types. Note that we
     // add this *after* the user types above in case users want to provide their own well known
     // types.
     resultBuilder.add("-I" + wellKnownTypesInclude.toString());
