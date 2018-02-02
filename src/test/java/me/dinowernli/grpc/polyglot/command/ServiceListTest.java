@@ -3,7 +3,9 @@ package me.dinowernli.grpc.polyglot.command;
 import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
+import com.google.protobuf.Any;
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
+import me.dinowernli.grpc.polyglot.protobuf.WellKnownTypes;
 import me.dinowernli.grpc.polyglot.testing.RecordingOutput;
 import me.dinowernli.junit.TestClass;
 import org.junit.Before;
@@ -19,6 +21,7 @@ public class ServiceListTest {
   private static FileDescriptorSet PROTO_FILE_DESCRIPTORS = FileDescriptorSet.newBuilder()
       .addFile(TestProto.getDescriptor().toProto())
       .addFile(FooProto.getDescriptor().toProto())
+      .addAllFile(WellKnownTypes.descriptors())
       .build();
 
   private static final String EXPECTED_SERVICE = "polyglot.test.TestService";

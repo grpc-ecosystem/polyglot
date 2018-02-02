@@ -6,6 +6,7 @@ auto_java_test(
     srcs = glob(["*.java"]),
     deps = [
         "//src/main/java/me/dinowernli/grpc/polyglot/command",
+        "//src/main/java/me/dinowernli/grpc/polyglot/protobuf",
         "//src/main/java/me/dinowernli/grpc/polyglot/testing",
         "//src/main/proto/testing:test_service_proto",
         "//src/main/proto/testing/foo:foo_proto",
