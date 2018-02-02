@@ -106,8 +106,8 @@ public class ServiceCall {
 
 
 
-    StreamObserver<DynamicMessage> streamObserver =
-        CompositeStreamObserver.of(new LoggingStatsWriter(), MessageWriter.create(output));
+    StreamObserver<DynamicMessage> streamObserver = CompositeStreamObserver.of(
+        new LoggingStatsWriter(), MessageWriter.create(output, registry));
     logger.info(String.format(
         "Making rpc with %d request(s) to endpoint [%s]", requestMessages.size(), hostAndPort));
     try {

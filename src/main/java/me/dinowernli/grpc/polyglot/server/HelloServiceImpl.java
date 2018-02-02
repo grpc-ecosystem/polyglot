@@ -1,7 +1,10 @@
 package me.dinowernli.grpc.polyglot.server;
 
+import com.google.protobuf.Any;
+import com.google.protobuf.Timestamp;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
+import polyglot.HelloProto.AnyPayload;
 import polyglot.HelloProto.HelloRequest;
 import polyglot.HelloProto.HelloResponse;
 import polyglot.HelloServiceGrpc.HelloServiceImplBase;
@@ -14,6 +17,13 @@ public class HelloServiceImpl extends HelloServiceImplBase {
   public void sayHello(HelloRequest request, StreamObserver<HelloResponse> responseStream) {
     responseStream.onNext(HelloResponse.newBuilder()
         .setMessage("Hello, " + request.getRecipient())
+        .setTimestamp(Timestamp.newBuilder()
+            .setSeconds(1234)
+            .setNanos(5678)
+            .build())
+        .setAny(Any.pack(AnyPayload.newBuilder()
+            .setNumber(42)
+            .build()))
         .build());
     responseStream.onCompleted();
   }

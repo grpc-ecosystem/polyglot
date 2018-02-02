@@ -4,6 +4,8 @@ package polyglot;
 
 option java_outer_classname = "HelloProto";
 
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
 import "src/main/proto/greeting.proto";
 
 message HelloRequest {
@@ -13,6 +15,13 @@ message HelloRequest {
 message HelloResponse {
   string message = 1;
   Greeting greeting = 2;
+  google.protobuf.Any any = 3;
+  google.protobuf.Timestamp timestamp = 4;
+}
+
+// A message used as the payload of the "any" field above.
+message AnyPayload {
+  int32 number = 1;
 }
 
 service HelloService {

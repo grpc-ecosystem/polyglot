@@ -14,6 +14,9 @@ import com.google.protobuf.TimestampProto;
 import com.google.protobuf.TypeProto;
 import com.google.protobuf.WrappersProto;
 
+/**
+ * Central place to store information about the protobuf well-known-types.
+ */
 public class WellKnownTypes {
   private static final ImmutableSet<FileDescriptorProto> DESCRIPTORS = ImmutableSet.of(
       AnyProto.getDescriptor().getFile().toProto(),

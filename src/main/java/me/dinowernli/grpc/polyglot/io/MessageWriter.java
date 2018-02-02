@@ -3,6 +3,7 @@ package me.dinowernli.grpc.polyglot.io;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
+import com.google.protobuf.util.JsonFormat.TypeRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +32,8 @@ public class MessageWriter<T extends Message> implements StreamObserver<T> {
    * Creates a new {@link MessageWriter} which writes the messages it sees to the supplied
    * {@link Output}.
    */
-  public static <T extends Message> MessageWriter<T> create(Output output) {
-    return new MessageWriter<T>(JsonFormat.printer(), output);
+  public static <T extends Message> MessageWriter<T> create(Output output, TypeRegistry registry) {
+    return new MessageWriter<>(JsonFormat.printer().usingTypeRegistry(registry), output);
   }
 
   /**
@@ -40,8 +41,18 @@ public class MessageWriter<T extends Message> implements StreamObserver<T> {
    * is represented as valid json, but not that the whole result is, itself, *not* valid json.
    */
   public static <M extends Message> String writeJsonStream(ImmutableList<M> messages) {
+    return writeJsonStream(messages, TypeRegistry.getEmptyTypeRegistry());
+  }
+
+  /**
+   * Returns the string representation of the stream of supplied messages. Each individual message
+   * is represented as valid json, but not that the whole result is, itself, *not* valid json.
+   */
+  public static <M extends Message> String writeJsonStream(
+      ImmutableList<M> messages, TypeRegistry registry) {
     ByteArrayOutputStream resultStream = new ByteArrayOutputStream();
-    MessageWriter<M> writer = MessageWriter.create(Output.forStream(new PrintStream(resultStream)));
+    MessageWriter<M> writer =
+        MessageWriter.create(Output.forStream(new PrintStream(resultStream)), registry);
     writer.writeAll(messages);
     return resultStream.toString();
   }
