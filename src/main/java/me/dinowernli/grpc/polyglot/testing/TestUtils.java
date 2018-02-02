@@ -8,8 +8,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 
+import com.google.protobuf.util.JsonFormat.TypeRegistry;
 import me.dinowernli.grpc.polyglot.io.MessageReader;
 import polyglot.test.TestProto.TestResponse;
+import polyglot.test.TestProto.TunnelMessage;
 
 /** Utilities shared across tests. */
 public class TestUtils {
@@ -44,7 +46,10 @@ public class TestUtils {
   /** Attempts to read a response proto from the supplied file. */
   public static ImmutableList<TestResponse> readResponseFile(Path file)
       throws InvalidProtocolBufferException {
-    MessageReader reader = MessageReader.forFile(file, TestResponse.getDescriptor());
+    TypeRegistry registry = TypeRegistry.newBuilder()
+        .add(TunnelMessage.getDescriptor())
+        .build();
+    MessageReader reader = MessageReader.forFile(file, TestResponse.getDescriptor(), registry);
     ImmutableList<DynamicMessage> responses = reader.read();
 
     ImmutableList.Builder<TestResponse> resultBuilder = ImmutableList.builder();

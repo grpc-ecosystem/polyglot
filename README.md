@@ -19,6 +19,7 @@ In particular, it is not necessary to generate grpc classes for the service or t
 * Accepts request protos through stdin and can output responses to stdout to allow chaining.
 * Supports plain text connections as well as TLS.
 * Supports passing custom grpc metadata over the command line.
+* Supports all protobuf well-known-types, including fields of type "Any".
 
 ## Usage
 

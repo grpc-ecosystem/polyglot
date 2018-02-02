@@ -7,6 +7,7 @@ Quick links:
 ## Upcoming release
 
 * Fixed a bug where Polyglot would bail out if the specified output file didn't already exist.
+* Added support for protobuf's well-known-types, including proper handling of "Any".
 
 ## 1.5.0
 

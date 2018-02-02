@@ -1,17 +1,18 @@
 package me.dinowernli.grpc.polyglot.io;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.util.JsonFormat;
+import com.google.protobuf.util.JsonFormat.TypeRegistry;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /** A utility class which knows how to read proto files written using {@link MessageWriter}. */
 public class MessageReader {
@@ -20,19 +21,32 @@ public class MessageReader {
   private final BufferedReader bufferedReader;
   private final String source;
 
+  /** Creates a {@link MessageReader} which reads messages from stdin. */
+  public static MessageReader forStdin(Descriptor descriptor, TypeRegistry registry) {
+    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+    return new MessageReader(
+        JsonFormat.parser().usingTypeRegistry(registry),
+        descriptor,
+        reader,
+        "STDIN");
+  }
+
   /** Creates a {@link MessageReader} which reads the messages from a file. */
   public static MessageReader forFile(Path path, Descriptor descriptor) {
+    return forFile(path, descriptor, TypeRegistry.getEmptyTypeRegistry());
+  }
+
+  /** Creates a {@link MessageReader} which reads the messages from a file. */
+  public static MessageReader forFile(Path path, Descriptor descriptor, TypeRegistry registry) {
     try {
       return new MessageReader(
-          JsonFormat.parser(), descriptor, Files.newBufferedReader(path), path.toString());
+          JsonFormat.parser().usingTypeRegistry(registry),
+          descriptor,
+          Files.newBufferedReader(path),
+          path.toString());
     } catch (IOException e) {
       throw new IllegalArgumentException("Unable to read file: " + path.toString(), e);
     }
-  }
-
-  public static MessageReader forStdin(Descriptor descriptor) {
-    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-    return new MessageReader(JsonFormat.parser(), descriptor, reader, "STDIN");
   }
 
   @VisibleForTesting

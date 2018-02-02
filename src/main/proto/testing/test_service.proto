@@ -4,6 +4,8 @@ package polyglot.test;
 
 option java_outer_classname = "TestProto";
 
+import "google/protobuf/any.proto";
+import "google/protobuf/duration.proto";
 import "src/main/proto/testing/foo/foo.proto";
 
 message TestRequest {
@@ -14,6 +16,13 @@ message TestRequest {
 
 message TestResponse {
   string message = 1;
+  google.protobuf.Any any = 2;
+  google.protobuf.Duration duration = 3;
+}
+
+// Used as a payload type for the any message above.
+message TunnelMessage {
+  int32 number = 1;
 }
 
 service TestService {

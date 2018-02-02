@@ -1,11 +1,8 @@
 package me.dinowernli.grpc.polyglot.testing;
 
-import java.io.IOException;
-import java.util.Optional;
-import java.util.Random;
-
 import com.google.common.base.Throwables;
-
+import com.google.protobuf.Any;
+import com.google.protobuf.Duration;
 import io.grpc.Server;
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NettyServerBuilder;
@@ -15,7 +12,12 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import polyglot.test.TestProto.TestResponse;
+import polyglot.test.TestProto.TunnelMessage;
 import polyglot.test.TestServiceGrpc.TestServiceImplBase;
+
+import java.io.IOException;
+import java.util.Optional;
+import java.util.Random;
 
 /**
  * Holds a real grpc server for use in tests. The server returns canned responses for a fixed set of
@@ -25,11 +27,17 @@ public class TestServer {
   /** A response sent whenever the test server sees a request to its unary method. */
   public static final TestResponse UNARY_SERVER_RESPONSE = TestResponse.newBuilder()
       .setMessage("some fancy message")
+      .setAny(Any.pack(TunnelMessage.newBuilder()
+          .setNumber(12345)
+          .build()))
       .build();
 
   /** A response sent whenever the test server sees a request to its streaming method. */
   public static final TestResponse STREAMING_SERVER_RESPONSE = TestResponse.newBuilder()
       .setMessage("some other message")
+      .setDuration(Duration.newBuilder()
+          .setSeconds(12)
+          .setNanos(45))
       .build();
 
   /** A response sent whenever the test server sees a request to its client streaming method. */

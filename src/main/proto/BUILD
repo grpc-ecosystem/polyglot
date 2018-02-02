@@ -14,6 +14,12 @@ java_proto_library(
 
 java_proto_library(
     name = "hello_proto_grpc",
+    imports = [
+        "external/com_google_protobuf/src/",
+    ],
+    inputs = [
+        "@com_google_protobuf//:well_known_protos",
+    ],
     proto_deps = [":greeting_proto"],
     protos = ["hello.proto"],
     with_grpc = True,
@@ -21,6 +27,12 @@ java_proto_library(
 
 java_proto_library(
     name = "hello_proto",
+    imports = [
+        "external/com_google_protobuf/src/",
+    ],
+    inputs = [
+        "@com_google_protobuf//:well_known_protos",
+    ],
     proto_deps = [":greeting_proto"],
     protos = ["hello.proto"],
     with_grpc = False,

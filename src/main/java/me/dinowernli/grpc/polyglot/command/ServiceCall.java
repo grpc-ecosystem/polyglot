@@ -7,6 +7,7 @@ import com.google.common.net.HostAndPort;
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.DynamicMessage;
+import com.google.protobuf.util.JsonFormat.TypeRegistry;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.Status;
@@ -95,10 +96,15 @@ public class ServiceCall {
     logger.info("Creating dynamic grpc client");
     DynamicGrpcClient dynamicClient = DynamicGrpcClient.create(methodDescriptor, channel);
 
+    // This collects all known types into a registry for resolution of potential "Any" types.
+    TypeRegistry registry = TypeRegistry.newBuilder()
+        .add(serviceResolver.listMessageTypes())
+        .build();
+
     ImmutableList<DynamicMessage> requestMessages =
-        MessageReader.forStdin(methodDescriptor.getInputType()).read();
-    StreamObserver<DynamicMessage> streamObserver =
-        CompositeStreamObserver.of(new LoggingStatsWriter(), MessageWriter.create(output));
+        MessageReader.forStdin(methodDescriptor.getInputType(), registry).read();
+    StreamObserver<DynamicMessage> streamObserver = CompositeStreamObserver.of(
+        new LoggingStatsWriter(), MessageWriter.create(output, registry));
     logger.info(String.format(
         "Making rpc with %d request(s) to endpoint [%s]", requestMessages.size(), hostAndPort));
     try {
