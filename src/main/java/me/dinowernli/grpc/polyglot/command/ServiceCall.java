@@ -96,16 +96,13 @@ public class ServiceCall {
     logger.info("Creating dynamic grpc client");
     DynamicGrpcClient dynamicClient = DynamicGrpcClient.create(methodDescriptor, channel);
 
-
+    // This collects all known types into a registry for resolution of potential "Any" types.
     TypeRegistry registry = TypeRegistry.newBuilder()
         .add(serviceResolver.listMessageTypes())
         .build();
+
     ImmutableList<DynamicMessage> requestMessages =
         MessageReader.forStdin(methodDescriptor.getInputType(), registry).read();
-
-
-
-
     StreamObserver<DynamicMessage> streamObserver = CompositeStreamObserver.of(
         new LoggingStatsWriter(), MessageWriter.create(output, registry));
     logger.info(String.format(

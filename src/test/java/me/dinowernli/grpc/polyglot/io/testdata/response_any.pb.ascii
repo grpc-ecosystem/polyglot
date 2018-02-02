@@ -1,0 +1,8 @@
+{
+  "any": {
+    "@type": "type.googleapis.com/polyglot.test.TunnelMessage",
+    "number": 42
+  },
+  "duration": "5678.000001234s"
+}
+
