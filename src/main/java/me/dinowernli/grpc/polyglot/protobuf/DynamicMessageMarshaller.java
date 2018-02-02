@@ -7,6 +7,7 @@ import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.ExtensionRegistryLite;
 
+import com.google.protobuf.util.JsonFormat.TypeRegistry;
 import io.grpc.MethodDescriptor.Marshaller;
 
 /** A {@link Marshaller} for dynamic messages. */

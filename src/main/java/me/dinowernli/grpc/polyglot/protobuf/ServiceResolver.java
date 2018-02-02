@@ -1,21 +1,21 @@
 package me.dinowernli.grpc.polyglot.protobuf;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.DescriptorProtos.FileDescriptorProto;
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
+import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.DescriptorValidationException;
 import com.google.protobuf.Descriptors.FileDescriptor;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.Descriptors.ServiceDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /** A locator used to read proto file descriptors and extract method definitions. */
 public class ServiceResolver {
@@ -47,6 +47,13 @@ public class ServiceResolver {
       serviceDescriptors.addAll(fileDescriptor.getServices());
     }
     return serviceDescriptors;
+  }
+
+  /** Lists all the known message types. */
+  public ImmutableSet<Descriptor> listMessageTypes() {
+    ImmutableSet.Builder<Descriptor> resultBuilder = ImmutableSet.builder();
+    fileDescriptors.forEach(d -> resultBuilder.addAll(d.getMessageTypes()));
+    return resultBuilder.build();
   }
 
   private ServiceResolver(Iterable<FileDescriptor> fileDescriptors) {

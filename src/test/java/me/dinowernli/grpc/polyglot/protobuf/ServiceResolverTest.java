@@ -21,7 +21,7 @@ public class ServiceResolverTest {
   private ServiceResolver serviceResolver;
 
   @Before
-  public void setUp() throws Throwable {
+  public void setUp() {
     serviceResolver = ServiceResolver.fromFileDescriptorSet(PROTO_FILE_DESCRIPTORS);
   }
 

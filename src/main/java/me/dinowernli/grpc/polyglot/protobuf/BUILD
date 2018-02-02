@@ -3,6 +3,9 @@ package(default_visibility = ["//visibility:public"])
 java_library(
     name = "protobuf",
     srcs = glob(["*.java"]),
+    data = [
+      "@com_google_protobuf//:well_known_protos",
+    ],
     deps = [
         "//src/main/proto:config_proto",
         "//third_party/google-oauth",

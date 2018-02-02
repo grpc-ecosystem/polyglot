@@ -4,6 +4,12 @@ package(default_visibility = ["//visibility:public"])
 
 java_proto_library(
     name = "test_service_proto",
+    imports = [
+        "external/com_google_protobuf/src/",
+    ],
+    inputs = [
+        "@com_google_protobuf//:well_known_protos",
+    ],
     proto_deps = [
         "//src/main/proto/testing/foo:foo_proto",
     ],
@@ -12,6 +18,12 @@ java_proto_library(
 
 java_proto_library(
     name = "test_service_proto_grpc",
+    imports = [
+        "external/com_google_protobuf/src/",
+    ],
+    inputs = [
+        "@com_google_protobuf//:well_known_protos",
+    ],
     proto_deps = [
         "//src/main/proto/testing/foo:foo_proto",
     ],

@@ -2,7 +2,11 @@ syntax = "proto3";
 
 package polyglot.test.protoc;
 
+import "google/protobuf/any.proto";
+
 // This is a very simple file which is completely self-contained. It is used to
 // test the case where we pass no imports to the protoc invoker.
 message Standalone {
+    // This checks that the ProtocInvoker can do well-known-types.
+    google.protobuf.Any any = 1;
 }
