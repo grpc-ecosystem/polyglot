@@ -9,11 +9,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.util.JsonFormat;
+import com.google.protobuf.util.JsonFormat.TypeRegistry;
 import me.dinowernli.junit.TestClass;
 import me.dinowernli.grpc.polyglot.io.testing.TestData;
 import me.dinowernli.grpc.polyglot.testing.TestUtils;
 import org.junit.Test;
 import polyglot.test.TestProto.TestRequest;
+import polyglot.test.TestProto.TestResponse;
+import polyglot.test.TestProto.TunnelMessage;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -60,6 +63,19 @@ public class MessageReaderTest {
     reader = MessageReader.forFile(dataFilePath("request_with_primitives.pb.ascii"), DESCRIPTOR);
     ImmutableList<DynamicMessage> result = reader.read();
     assertThat(result).containsExactly(TestData.REQUEST_WITH_PRIMITIVE);
+  }
+
+  @Test
+  public void handlesAnyType() {
+    TypeRegistry registry = TypeRegistry.newBuilder()
+        .add(TunnelMessage.getDescriptor())
+        .build();
+    reader = MessageReader.forFile(
+        dataFilePath("response_any.pb.ascii"), TestResponse.getDescriptor(), registry);
+    ImmutableList<DynamicMessage> result = reader.read();
+
+    // If this doesn't crash, then we're happy.
+    assertThat(result).hasSize(1);
   }
 
   @Test
