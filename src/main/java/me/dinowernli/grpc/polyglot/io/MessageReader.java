@@ -37,7 +37,7 @@ public class MessageReader {
   }
 
   /** Creates a {@link MessageReader} which reads the messages from a file. */
-  private static MessageReader forFile(Path path, Descriptor descriptor, TypeRegistry registry) {
+  public static MessageReader forFile(Path path, Descriptor descriptor, TypeRegistry registry) {
     try {
       return new MessageReader(
           JsonFormat.parser().usingTypeRegistry(registry),
