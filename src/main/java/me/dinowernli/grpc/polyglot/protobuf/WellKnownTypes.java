@@ -31,7 +31,24 @@ public class WellKnownTypes {
       TypeProto.getDescriptor().getFile().toProto(),
       WrappersProto.getDescriptor().getFile().toProto());
 
+  private static final ImmutableSet<String> FILES = ImmutableSet.of(
+      "any.proto",
+      "api.proto",
+      "descriptor.proto",
+      "duration.proto",
+      "empty.proto",
+      "field_mask.proto",
+      "source_context.proto",
+      "struct.proto",
+      "timestamp.proto",
+      "type.proto",
+      "wrappers.proto");
+
   public static ImmutableSet<FileDescriptorProto> descriptors() {
     return DESCRIPTORS;
+  }
+
+  public static ImmutableSet<String> fileNames() {
+    return FILES;
   }
 }

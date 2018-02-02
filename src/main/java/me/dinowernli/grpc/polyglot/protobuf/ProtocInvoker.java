@@ -27,18 +27,6 @@ public class ProtocInvoker {
   private static final Logger logger = LoggerFactory.getLogger(ProtocInvoker.class);
   private static final PathMatcher PROTO_MATCHER =
       FileSystems.getDefault().getPathMatcher("glob:**/*.proto");
-  private static final ImmutableSet<String> WELL_KNOWN_TYPE_FILES = ImmutableSet.of(
-      "any.proto",
-      "api.proto",
-      "descriptor.proto",
-      "duration.proto",
-      "empty.proto",
-      "field_mask.proto",
-      "source_context.proto",
-      "struct.proto",
-      "timestamp.proto",
-      "type.proto",
-      "wrappers.proto");
 
   private final ImmutableList<Path> protocIncludePaths;
   private final Path discoveryRoot;
@@ -173,7 +161,7 @@ public class ProtocInvoker {
   private static Path setupWellKnownTypes() throws IOException {
     Path tmpdir = Files.createTempDirectory("polyglot-well-known-types");
     Path protoDir = Files.createDirectories(Paths.get(tmpdir.toString(), "google", "protobuf"));
-    for (String file : WELL_KNOWN_TYPE_FILES) {
+    for (String file : WellKnownTypes.fileNames()) {
       Files.copy(
           ProtocInvoker.class.getResourceAsStream("/google/protobuf/" + file),
           Paths.get(protoDir.toString(), file));
