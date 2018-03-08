@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A utility class which facilitates invoking the protoc compiler on all proto files in a
@@ -144,8 +145,8 @@ public class ProtocInvoker {
   }
 
   private ImmutableSet<String> scanProtoFiles(Path protoRoot) throws ProtocInvocationException {
-    try {
-      return ImmutableSet.copyOf(Files.walk(protoRoot)
+    try (final Stream<Path> protoPaths = Files.walk(protoRoot)) {
+      return ImmutableSet.copyOf(protoPaths
           .filter(path -> PROTO_MATCHER.matches(path))
           .map(path -> path.toAbsolutePath().toString())
           .collect(Collectors.toSet()));
