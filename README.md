@@ -167,6 +167,20 @@ After calling this, you should have a fresh binary at:
 
 `./bazel-bin/src/main/java/me/dinowernli/grpc/polyglot`
 
+## Setup project on Eclipse and Intellij
+
+Polyglot project uses [Bazel](http://bazel.io) as build tool and we have two Python scripts in order to setup Eclipse and Intellij projects:
+
+Intellij:
+```sh
+python src/tools/generate-intellij.py
+```
+
+Eclipse:
+```sh
+python src/tools/generate-eclipse.py
+```
+
 ## Running the examples
 
 Example invocations can be found in the [examples](https://github.com/grpc-ecosystem/polyglot/tree/master/src/tools/example) directory. In order to run a simple rpc call, invoke [`run-server.sh`](https://github.com/grpc-ecosystem/polyglot/tree/master/src/tools/example/run-server.sh) followed by (in a different terminal) [`call-command-example.sh`](https://github.com/grpc-ecosystem/polyglot/tree/master/src/tools/example/call-command-example.sh).
