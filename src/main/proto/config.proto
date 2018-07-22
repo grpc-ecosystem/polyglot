@@ -17,6 +17,7 @@ message Configuration {
   CallConfiguration call_config = 2;
   ProtoConfiguration proto_config = 3;
   OutputConfiguration output_config = 4;
+  InputConfiguration input_config = 5;
 }
 
 // Holds parameters used to make rpc calls.
@@ -98,6 +99,15 @@ message OutputConfiguration {
 
   // When using a destination of type FILE, indicates which file to write to.
   string file_path = 2;
+
+  // The format used to output message(s).
+  MessageFormat format = 3;
+}
+
+// Contains parameters controlling the input protos of polyglot.
+message InputConfiguration {
+  // The format of the expected input message(s).
+  MessageFormat format = 1;
 }
 
 // Contains the necessary information to locate .proto files for services.
@@ -112,4 +122,10 @@ message ProtoConfiguration {
 
   // If true, protos will first be resolved by reflection if applicable.
   bool use_reflection = 3;
+}
+
+// Represents the different formats for proto messages.
+enum MessageFormat {
+  JSON = 0;
+  TEXT = 1;
 }
