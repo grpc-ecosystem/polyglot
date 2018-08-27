@@ -167,6 +167,10 @@ After calling this, you should have a fresh binary at:
 
 `./bazel-bin/src/main/java/me/dinowernli/grpc/polyglot`
 
+If you would like to build a deployable (fat) jar, run:
+
+`$ bazel build src/main/java/me/dinowernli/grpc/polyglot:polyglot_deploy.jar`
+
 ## Running the examples
 
 Example invocations can be found in the [examples](https://github.com/grpc-ecosystem/polyglot/tree/master/src/tools/example) directory. In order to run a simple rpc call, invoke [`run-server.sh`](https://github.com/grpc-ecosystem/polyglot/tree/master/src/tools/example/run-server.sh) followed by (in a different terminal) [`call-command-example.sh`](https://github.com/grpc-ecosystem/polyglot/tree/master/src/tools/example/call-command-example.sh).
