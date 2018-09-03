@@ -56,6 +56,17 @@ public class CommandLineArgsTest {
     assertThat(params.metadata()).isEqualTo(Optional.of(expectedResult));
   }
 
+  @Test
+  public void parseMetadataWithSpaces() {
+    CommandLineArgs params = parseArgs(ImmutableList.of(
+        String.format("--metadata=%s:%s,%s:%s,%s:%s",
+            "key1", "value1 ", "key2", " value2", "key3", "value 3")));
+
+    ImmutableMultimap<Object, Object> expectedResult =
+        ImmutableMultimap.of("key1", "value1 ", "key2", " value2", "key3", "value 3");
+    assertThat(params.metadata()).isEqualTo(Optional.of(expectedResult));
+  }
+
   @Test(expected = IllegalArgumentException.class)
   public void parseMetadataWithKeyWithoutValue() {
     CommandLineArgs params = parseArgs(ImmutableList.of(
