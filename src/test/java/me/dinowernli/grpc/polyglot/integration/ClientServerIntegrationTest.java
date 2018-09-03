@@ -73,9 +73,9 @@ public class ClientServerIntegrationTest {
   public void makesRoundTripUnary() throws Throwable {
     int serverPort = testServer.getGrpcServerPort();
     ImmutableList<String> args = ImmutableList.<String>builder()
-        .addAll(makeArgs(serverPort, TEST_UNARY_METHOD))
         .add(makeArgument("output_file_path", responseFilePath.toString()))
         .add(makeArgument("use_reflection", "false"))
+        .addAll(makeArgs(serverPort, TEST_UNARY_METHOD))
         .build();
     setStdinContents(MessageWriter.writeJsonStream(ImmutableList.of(REQUEST)));
 
@@ -92,11 +92,11 @@ public class ClientServerIntegrationTest {
   public void makesRoundTripUnary_WithReflection() throws Throwable {
     int serverPort = testServer.getGrpcServerPort();
     ImmutableList<String> args = ImmutableList.<String>builder()
-        .add(makeArgument("command", "call"))
-        .add(makeArgument("endpoint", Joiner.on(':').join("localhost", serverPort)))
-        .add(makeArgument("full_method", TEST_UNARY_METHOD))
         .add(makeArgument("use_reflection", "true"))
         .add(makeArgument("output_file_path", responseFilePath.toString()))
+        .add("call")
+        .add(makeArgument("endpoint", Joiner.on(':').join("localhost", serverPort)))
+        .add(makeArgument("full_method", TEST_UNARY_METHOD))
         .build();
 
     setStdinContents(MessageWriter.writeJsonStream(ImmutableList.of(REQUEST)));
@@ -114,9 +114,9 @@ public class ClientServerIntegrationTest {
   public void makesRoundTripServerStream() throws Throwable {
     int serverPort = testServer.getGrpcServerPort();
     ImmutableList<String> args = ImmutableList.<String>builder()
-        .addAll(makeArgs(serverPort, TEST_STREAM_METHOD))
         .add(makeArgument("output_file_path", responseFilePath.toString()))
         .add(makeArgument("use_reflection", "false"))
+        .addAll(makeArgs(serverPort, TEST_STREAM_METHOD))
         .build();
     setStdinContents(MessageWriter.writeJsonStream(ImmutableList.of(REQUEST)));
 
@@ -132,9 +132,9 @@ public class ClientServerIntegrationTest {
   public void makesRoundTripClientStream() throws Throwable {
     int serverPort = testServer.getGrpcServerPort();
     ImmutableList<String> args = ImmutableList.<String>builder()
-        .addAll(makeArgs(serverPort, TEST_CLIENT_STREAM_METHOD))
         .add(makeArgument("output_file_path", responseFilePath.toString()))
         .add(makeArgument("use_reflection", "false"))
+        .addAll(makeArgs(serverPort, TEST_CLIENT_STREAM_METHOD))
         .build();
     setStdinContents(MessageWriter.writeJsonStream(ImmutableList.of(REQUEST, REQUEST, REQUEST)));
 
@@ -150,9 +150,9 @@ public class ClientServerIntegrationTest {
   public void makesRoundTripBidiStream() throws Throwable {
     int serverPort = testServer.getGrpcServerPort();
     ImmutableList<String> args = ImmutableList.<String>builder()
-        .addAll(makeArgs(serverPort, TEST_BIDI_METHOD))
         .add(makeArgument("output_file_path", responseFilePath.toString()))
         .add(makeArgument("use_reflection", "false"))
+        .addAll(makeArgs(serverPort, TEST_BIDI_METHOD))
         .build();
     setStdinContents(MessageWriter.writeJsonStream(ImmutableList.of(REQUEST, REQUEST, REQUEST)));
 
@@ -184,8 +184,8 @@ public class ClientServerIntegrationTest {
   public void throwsErrorOnRpcTimeout() {
     int serverPort = testServer.getGrpcServerPort();
     ImmutableList<String> args = ImmutableList.<String>builder()
-        .addAll(makeArgs(serverPort, TEST_UNARY_METHOD))
         .add(makeArgument("output_file_path", responseFilePath.toString()))
+        .addAll(makeArgs(serverPort, TEST_UNARY_METHOD))
         .add(makeArgument("deadline_ms", "1"))  // Small enough to guarantee a timeout.
         .build();
     setStdinContents(MessageWriter.writeJsonStream(ImmutableList.of(REQUEST)));

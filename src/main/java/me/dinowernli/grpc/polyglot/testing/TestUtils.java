@@ -31,11 +31,11 @@ public class TestUtils {
 
   public static ImmutableList<String> makePolyglotCallArgs(String endpoint, String method) {
     return ImmutableList.<String>builder()
-        .add(makeArgument("command", "call"))
-        .add(makeArgument("endpoint", endpoint))
         .add(makeArgument("proto_discovery_root", TestUtils.TESTING_PROTO_ROOT.toString()))
-        .add(makeArgument("full_method", method))
         .add(makeArgument("add_protoc_includes", TestUtils.getWorkspaceRoot().toString()))
+        .add("call")
+        .add(makeArgument("endpoint", endpoint))
+        .add(makeArgument("full_method", method))
         .build();
   }
 
