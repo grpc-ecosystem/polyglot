@@ -9,8 +9,8 @@ if [ ! -f WORKSPACE ]; then
 fi
 
 bazel build ${POLYGLOT_PATH} && ${POLYGLOT_BIN}  \
-  --command=list_services \
   --proto_discovery_root=./src/main/proto \
   --add_protoc_includes=. \
+  list_services \
   --service_filter=HelloService \
   --with_message=true

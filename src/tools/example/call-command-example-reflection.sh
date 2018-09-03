@@ -10,9 +10,9 @@ fi
 
 bazel build ${POLYGLOT_PATH} && \
 cat src/tools/example/request.pb.ascii | ${POLYGLOT_BIN}  \
-  --command=call \
+  --config_set_path=config.pb.json \
+  call \
   --full_method=polyglot.HelloService/SayHello \
   --endpoint=localhost:12345 \
-  --config_set_path=config.pb.json \
   --deadline_ms=3000 \
   $@

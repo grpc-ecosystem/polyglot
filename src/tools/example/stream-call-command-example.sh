@@ -10,10 +10,10 @@ fi
 
 bazel build ${POLYGLOT_PATH} && \
 cat src/tools/example/requests_multi.pb.ascii | ${POLYGLOT_BIN}  \
-  --command=call \
-  --full_method=polyglot.HelloService/SayHelloBidi \
-  --endpoint=localhost:12345 \
   --proto_discovery_root=./src/main/proto \
   --add_protoc_includes=. \
   --config_set_path=config.pb.json \
+  call \
+  --full_method=polyglot.HelloService/SayHelloBidi \
+  --endpoint=localhost:12345 \
   --deadline_ms=3000
