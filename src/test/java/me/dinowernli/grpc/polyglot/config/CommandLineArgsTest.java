@@ -83,6 +83,21 @@ public class CommandLineArgsTest {
     assertThat(params.outputFilePath().isPresent()).isTrue();
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void parseOptionWithoutCommand() {
+    CommandLineArgs.parse(new String[]{"--endpoint=somehost:1234"});
+  }
+
+  @Test
+  public void usage() {
+    assertThat(CommandLineArgs.getUsage()).startsWith("Usage: java -jar polyglot.jar [options] [command] [command options]");
+  }
+
+  @Test
+  public void help() {
+    assertThat(CommandLineArgs.parse(new String[]{"--help"}).isHelp()).isTrue();
+  }
+
   private static CommandLineArgs parseArgs(ImmutableList<String> args) {
     ImmutableList<String> allArgs = ImmutableList.<String>builder()
         .addAll(args)
