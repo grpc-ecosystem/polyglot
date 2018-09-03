@@ -33,7 +33,7 @@ The "Hello World" of using Polyglot is to make an rpc call. This can be done usi
 
 ```
 $ echo <json-request> | java -jar polyglot.jar \
-    --command=call \
+    call \
     --endpoint=<host>:<port> \
     --full_method=<some.package.Service/doSomething> \
     --proto_discovery_root=<path>
@@ -43,7 +43,7 @@ For stream requests double newlines `\n\n` are used to separate your json reques
 
 ```
 $ echo '<json-request-1> \n\n <json-request-2> ... \n\n <json-request-n>' | java -jar polyglot.jar \
-    --command=call \
+    call \
     --endpoint=<host>:<port> \
     --full_method=<some.package.Service/doSomething> \
     --proto_discovery_root=<path>
@@ -57,7 +57,7 @@ If the remote server has reflection enabled, there is no need to pass the proto 
 
 ```
 $ echo <json-request> | java -jar polyglot.jar \
-    --command=call \
+    call \
     --endpoint=<host>:<port> \
     --full_method=<some.package.Service/doSomething>
 ```
@@ -138,7 +138,7 @@ Polyglot supports printing a list of all the discovered services using the `list
 
 ```
 $ java -jar polyglot.jar \
-    --command=list_services \
+    list_services \
     --proto_discovery_root=<path> \
 ```
 
