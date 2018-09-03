@@ -168,6 +168,11 @@ maven_jar(
 )
 
 maven_jar(
+    name = "jcommander_artifact",
+    artifact = "com.beust:jcommander:1.72",
+)
+
+maven_jar(
     name = "google_oauth_client_artifact",
     artifact = "com.google.oauth-client:google-oauth-client:1.20.0",
 )
