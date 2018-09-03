@@ -163,11 +163,6 @@ maven_jar(
 )
 
 maven_jar(
-    name = "args4j_artifact",
-    artifact = "args4j:args4j:2.32",
-)
-
-maven_jar(
     name = "jcommander_artifact",
     artifact = "com.beust:jcommander:1.72",
 )

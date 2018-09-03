@@ -6,7 +6,6 @@ java_library(
     deps = [
         "//src/main/java/me/dinowernli/grpc/polyglot/protobuf",
         "//src/main/proto:config_proto",
-        "//third_party/args4j",
         "//third_party/jcommander",
         "//third_party/grpc",
         "//third_party/guava",
