@@ -39,22 +39,15 @@ public class Main {
       return;
     }
 
-    ConfigurationLoader configLoader = arguments.configSetPath().isPresent()
-        ? ConfigurationLoader.forFile(arguments.configSetPath().get())
-        : ConfigurationLoader.forDefaultConfigSet();
-    configLoader = configLoader.withOverrides(arguments);
-    Configuration config = arguments.configName().isPresent()
-        ? configLoader.getNamedConfiguration(arguments.configName().get())
-        : configLoader.getDefaultConfiguration();
-    logger.info("Loaded configuration: " + config.getName());
+    // Check for command
+    String command = arguments.command().orElseThrow(() -> new RuntimeException("Missing command"));
 
-    String command;
-    if (arguments.command().isPresent()) {
-      command = arguments.command().get();
-    } else {
-      logger.warn("Missing command - defaulting to 'call' (but please update your args)");
-      command = CommandLineArgs.CALL_COMMAND;
-    }
+    final ConfigurationLoader configLoader = arguments.configSetPath()
+      .map(ConfigurationLoader::forFile).orElseGet(() -> ConfigurationLoader.forDefaultConfigSet())
+      .withOverrides(arguments);
+    Configuration config = arguments.configName()
+      .map(configLoader::getNamedConfiguration).orElseGet(() -> configLoader.getDefaultConfiguration());
+    logger.info("Loaded configuration: " + config.getName());
 
     try(Output commandLineOutput = Output.forConfiguration(config.getOutputConfig())) {
       switch (command) {
