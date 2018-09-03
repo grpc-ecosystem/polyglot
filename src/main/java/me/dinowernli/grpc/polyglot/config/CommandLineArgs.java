@@ -27,21 +27,21 @@ public class CommandLineArgs {
 
   // Options
 
-  @Parameter(names = "--help", help = true)
-  private boolean help;
-  @Parameter(names = "--config_set_path", description ="<path/to/config.pb.json>")
+  @Parameter(names = "--config_set_path", description ="<path/to/config.pb.json>", order = 0)
   private String configSetPathArg;
-  @Parameter(names = "--config_name", description ="<config-name>")
+  @Parameter(names = "--config_name", description ="<config-name>", order = 0)
   private String configNameArg;
   // The flags below represent overrides for the configuration used at runtime.
-  @Parameter(names = "--output_file_path", description ="<path>")
+  @Parameter(names = "--output_file_path", description ="<path>", order = 0)
   private String outputFilePathArg;
-  @Parameter(names = "--add_protoc_includes", description ="<path1>,<path2>")
+  @Parameter(names = "--add_protoc_includes", description ="<path1>,<path2>", order = 0)
   private String addProtocIncludesArg;
-  @Parameter(names = "--proto_discovery_root", description ="<path>")
+  @Parameter(names = "--proto_discovery_root", description ="<path>", order = 0)
   private String protoDiscoveryRootArg;
-  @Parameter(names = "--use_reflection", description ="true|false")
+  @Parameter(names = "--use_reflection", description ="true|false", order = 0)
   private String useReflection;
+ @Parameter(names = "--help", help = true, order = 1)
+  private boolean help;
 
   // Commands
 
@@ -57,9 +57,9 @@ public class CommandLineArgs {
 
   @Parameters(separators = "=", commandDescription = "Make a GRPC call to an endpoint")
   private class CallCommand {
-    @Parameter(names = "--full_method", description ="<some.package.Service/doSomething>")
+    @Parameter(names = "--full_method", required = true, description ="<some.package.Service/doSomething>")
     private String fullMethodArg;
-    @Parameter(names = "--endpoint", description ="<host>:<port>")
+    @Parameter(names = "--endpoint", required = true, description ="<host>:<port>")
     private String endpointArg;
     // The flags below represent overrides for the configuration used at runtime.
     @Parameter(names = "--use_tls", description ="true|false")
@@ -82,7 +82,7 @@ public class CommandLineArgs {
   private class ListServicesCommand {
     @Parameter(names = "--service_filter", description = "Filters service names containing this string e.g. --service_filter TestService")
     private String serviceFilterArg;
-    @Parameter(names = "--method_filter", description = "Filters service methods to those containing this string e.g. --method_name List")
+    @Parameter(names = "--method_filter", description = "Filters service methods to those containing this string e.g. --method_filter List")
     private String methodFilterArg;
     @Parameter(names = "--with_message", description = "If true, then the message specification for the method is rendered")
     private String withMessageArg;
