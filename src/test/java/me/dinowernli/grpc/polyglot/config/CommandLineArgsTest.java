@@ -9,6 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.Collections;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -34,20 +36,22 @@ public class CommandLineArgsTest {
   @Test
   public void parsesAdditionalIncludesSingle() {
     CommandLineArgs params = parseArgs(ImmutableList.of(
-        String.format("--add_protoc_includes=%s,%s", tempFile1.toString(), tempFile2.toString())));
+        String.format("--add_protoc_includes=%s,%s", tempFile1.toString(), tempFile2.toString())),
+      Collections.emptyList());
     assertThat(params.additionalProtocIncludes()).hasSize(2);
   }
 
   @Test
   public void parsesAdditionalIncludesMulti() {
     CommandLineArgs params = parseArgs(ImmutableList.of(
-        String.format("--add_protoc_includes=%s", tempFile1.toString())));
+        String.format("--add_protoc_includes=%s", tempFile1.toString())),
+      Collections.emptyList());
     assertThat(params.additionalProtocIncludes()).hasSize(1);
   }
 
   @Test
   public void parseMetadata() {
-    CommandLineArgs params = parseArgs(ImmutableList.of(
+    CommandLineArgs params = parseArgs(Collections.emptyList(), ImmutableList.of(
         String.format("--metadata=%s:%s,%s:%s,%s:%s",
             "key1", "value1", "key1", "value2", "key2", "value2")));
 
@@ -58,7 +62,7 @@ public class CommandLineArgsTest {
 
   @Test
   public void parseMetadataWithSpaces() {
-    CommandLineArgs params = parseArgs(ImmutableList.of(
+    CommandLineArgs params = parseArgs(Collections.emptyList(), ImmutableList.of(
         String.format("--metadata=%s:%s,%s:%s,%s:%s",
             "key1", "value1 ", "key2", " value2", "key3", "value 3")));
 
@@ -69,7 +73,7 @@ public class CommandLineArgsTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void parseMetadataWithKeyWithoutValue() {
-    CommandLineArgs params = parseArgs(ImmutableList.of(
+    CommandLineArgs params = parseArgs(Collections.emptyList(), ImmutableList.of(
         String.format("--metadata=%s:%s,%s", "key1", "value1", "key2")));
 
     params.metadata();
@@ -79,7 +83,8 @@ public class CommandLineArgsTest {
   public void parseOutputFileEvenIfAbsent() {
     Path filePath = Paths.get(tempFolder.getRoot().getAbsolutePath(), "some-file.txt");
     CommandLineArgs params = parseArgs(ImmutableList.of(
-        "--output_file_path=" + filePath.toAbsolutePath().toString()));
+        "--output_file_path=" + filePath.toAbsolutePath().toString()),
+      Collections.emptyList());
     assertThat(params.outputFilePath().isPresent()).isTrue();
   }
 
@@ -98,13 +103,15 @@ public class CommandLineArgsTest {
     assertThat(CommandLineArgs.parse(new String[]{"--help"}).isHelp()).isTrue();
   }
 
-  private static CommandLineArgs parseArgs(ImmutableList<String> args) {
+  private static CommandLineArgs parseArgs(List<String> args, List<String> callArgs) {
     ImmutableList<String> allArgs = ImmutableList.<String>builder()
         .addAll(args)
-        .add("--endpoint=somehost:1234")
-        .add("--full_method=some.package/Method")
         .add("--proto_discovery_root=.")
         .add("--use_reflection=true")
+        .add("call")
+        .addAll(callArgs)
+        .add("--endpoint=somehost:1234")
+        .add("--full_method=some.package/Method")
         .build();
     return CommandLineArgs.parse(allArgs.toArray(new String[0]));
   }

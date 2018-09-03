@@ -35,7 +35,7 @@ public class Main {
 
     // Catch the help case.
     if (arguments.isHelp()) {
-      logger.info("Usage: " + CommandLineArgs.getUsage());
+      logger.info(CommandLineArgs.getUsage());
       return;
     }
 
@@ -52,7 +52,7 @@ public class Main {
     if (arguments.command().isPresent()) {
       command = arguments.command().get();
     } else {
-      logger.warn("Missing --command flag - defaulting to 'call' (but please update your args)");
+      logger.warn("Missing command - defaulting to 'call' (but please update your args)");
       command = CommandLineArgs.CALL_COMMAND;
     }
 
