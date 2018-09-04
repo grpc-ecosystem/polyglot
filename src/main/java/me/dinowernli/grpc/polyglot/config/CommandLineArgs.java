@@ -180,12 +180,12 @@ public class CommandLineArgs {
   // *************************************
 
   /** Returns the endpoint string */
-  public Optional<String >endpoint() {
+  public Optional<String> endpoint() {
     return Optional.ofNullable(callCommand.endpointArg);
   }
 
   /** Returns the endpoint method */
-  public Optional<String >fullMethod() {
+  public Optional<String> fullMethod() {
     return Optional.ofNullable(callCommand.fullMethodArg);
   }
 
