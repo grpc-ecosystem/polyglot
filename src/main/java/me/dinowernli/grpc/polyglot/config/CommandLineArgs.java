@@ -95,13 +95,7 @@ public class CommandLineArgs {
   public static CommandLineArgs parse(String[] args) {
     CommandLineArgs result = new CommandLineArgs();
     try {
-      JCommander jc = JCommander.newBuilder()
-        .programName("java -jar polyglot.jar")
-        .addObject(result)
-        .addCommand(CALL_COMMAND, result.callCommand)
-        .addCommand(LIST_SERVICES_COMMAND, result.listServicesCommand)
-        .build();
-
+      JCommander jc = result.asCommander();
       jc.parse(args);
       result.commandArg = jc.getParsedCommand();
     } catch (ParameterException e) {
@@ -113,14 +107,7 @@ public class CommandLineArgs {
 
   /** Returns a single-line usage string explaining how to pass the command line arguments. */
   public static String getUsage() {
-    CommandLineArgs result = new CommandLineArgs();
-    JCommander jc = JCommander.newBuilder()
-      .programName("java -jar polyglot.jar")
-      .addObject(result)
-      .addCommand(CALL_COMMAND, result.callCommand)
-      .addCommand(LIST_SERVICES_COMMAND, result.listServicesCommand)
-      .build();
-
+    JCommander jc = new CommandLineArgs().asCommander();
     StringBuilder out = new StringBuilder();
     jc.usage(out);
 
@@ -128,6 +115,15 @@ public class CommandLineArgs {
   }
 
   private CommandLineArgs() {
+  }
+
+  private JCommander asCommander() {
+    return JCommander.newBuilder()
+      .programName("java -jar polyglot.jar")
+      .addObject(this)
+      .addCommand(CALL_COMMAND, callCommand)
+      .addCommand(LIST_SERVICES_COMMAND, listServicesCommand)
+      .build();
   }
 
   public boolean isHelp() {
