@@ -22,7 +22,7 @@ import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 
 /** Provides easy access to the arguments passed on the command line. */
-@Parameters(separators = "=")
+@Parameters(separators = "= ")
 public class CommandLineArgs {
 
   // Options
@@ -55,7 +55,7 @@ public class CommandLineArgs {
   private final CallCommand callCommand = new CallCommand();
   private final ListServicesCommand listServicesCommand = new ListServicesCommand();
 
-  @Parameters(separators = "=", commandDescription = "Make a GRPC call to an endpoint")
+  @Parameters(separators = "= ", commandDescription = "Make a GRPC call to an endpoint")
   private class CallCommand {
     @Parameter(names = "--full_method", required = true, description ="<some.package.Service/doSomething>")
     private String fullMethodArg;
@@ -78,7 +78,7 @@ public class CommandLineArgs {
     private String metadataArg;
   }
 
-  @Parameters(separators = "=", commandDescription = "List all known services defined in the proto files")
+  @Parameters(separators = "= ", commandDescription = "List all known services defined in the proto files")
   private class ListServicesCommand {
     @Parameter(names = "--service_filter", description = "Filters service names containing this string e.g. --service_filter TestService")
     private String serviceFilterArg;

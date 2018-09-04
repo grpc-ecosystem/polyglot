@@ -36,15 +36,31 @@ public class CommandLineArgsTest {
   @Test
   public void parsesAdditionalIncludesSingle() {
     CommandLineArgs params = parseArgs(ImmutableList.of(
-        String.format("--add_protoc_includes=%s,%s", tempFile1.toString(), tempFile2.toString())),
+        makeArg("add_protoc_includes", String.format("%s,%s", tempFile1.toString(), tempFile2.toString()))),
       Collections.emptyList());
+    assertThat(params.additionalProtocIncludes()).hasSize(2);
+  }
+
+  @Test
+  public void parsesAdditionalIncludesSingle_usingSpaceSeparator() {
+    CommandLineArgs params = parseArgs(ImmutableList.of(
+        makeArg("add_protoc_includes", ' ', String.format("%s,%s", tempFile1.toString(), tempFile2.toString()))),
+      Collections.emptyList(), ' ');
+    assertThat(params.additionalProtocIncludes()).hasSize(2);
+  }
+
+  @Test
+  public void parsesAdditionalIncludesSingle_usingMixedSeparators() {
+    CommandLineArgs params = parseArgs(ImmutableList.of(
+        makeArg("add_protoc_includes", '=', String.format("%s,%s", tempFile1.toString(), tempFile2.toString()))),
+      Collections.emptyList(), ' ');
     assertThat(params.additionalProtocIncludes()).hasSize(2);
   }
 
   @Test
   public void parsesAdditionalIncludesMulti() {
     CommandLineArgs params = parseArgs(ImmutableList.of(
-        String.format("--add_protoc_includes=%s", tempFile1.toString())),
+        makeArg("add_protoc_includes", tempFile1.toString())),
       Collections.emptyList());
     assertThat(params.additionalProtocIncludes()).hasSize(1);
   }
@@ -52,29 +68,51 @@ public class CommandLineArgsTest {
   @Test
   public void parseMetadata() {
     CommandLineArgs params = parseArgs(Collections.emptyList(), ImmutableList.of(
-        String.format("--metadata=%s:%s,%s:%s,%s:%s",
-            "key1", "value1", "key1", "value2", "key2", "value2")));
+        makeArg("metadata", String.format("%s:%s,%s:%s,%s:%s",
+            "key1", "value1", "key1", "value2", "key2", "value2"))));
 
     ImmutableMultimap<Object, Object> expectedResult =
-        ImmutableMultimap.of("key1", "value1", "key1", "value2", "key2", "value2");
+      ImmutableMultimap.of("key1", "value1", "key1", "value2", "key2", "value2");
+    assertThat(params.metadata()).isEqualTo(Optional.of(expectedResult));
+  }
+
+  @Test
+  public void parseMetadata_usingSpaceSeparator() {
+    CommandLineArgs params = parseArgs(Collections.emptyList(), ImmutableList.of(
+        makeArg("metadata", ' ', String.format("%s:%s,%s:%s,%s:%s",
+            "key1", "value1", "key1", "value2", "key2", "value2"))), ' ');
+
+    ImmutableMultimap<Object, Object> expectedResult =
+      ImmutableMultimap.of("key1", "value1", "key1", "value2", "key2", "value2");
     assertThat(params.metadata()).isEqualTo(Optional.of(expectedResult));
   }
 
   @Test
   public void parseMetadataWithSpaces() {
     CommandLineArgs params = parseArgs(Collections.emptyList(), ImmutableList.of(
-        String.format("--metadata=%s:%s,%s:%s,%s:%s",
-            "key1", "value1 ", "key2", " value2", "key3", "value 3")));
+        makeArg("metadata", String.format("%s:%s,%s:%s,%s:%s",
+            "key1", "value1 ", "key2", " value2", "key3", "value 3"))));
 
     ImmutableMultimap<Object, Object> expectedResult =
-        ImmutableMultimap.of("key1", "value1 ", "key2", " value2", "key3", "value 3");
+      ImmutableMultimap.of("key1", "value1 ", "key2", " value2", "key3", "value 3");
+    assertThat(params.metadata()).isEqualTo(Optional.of(expectedResult));
+  }
+
+  @Test
+  public void parseMetadataWithSpaces_usingSpaceSeparator() {
+    CommandLineArgs params = parseArgs(Collections.emptyList(), ImmutableList.of(
+        makeArg("metadata", ' ', String.format("%s:%s,%s:%s,%s:%s",
+            "key1", "value1 ", "key2", " value2", "key3", "value 3"))), ' ');
+
+    ImmutableMultimap<Object, Object> expectedResult =
+      ImmutableMultimap.of("key1", "value1 ", "key2", " value2", "key3", "value 3");
     assertThat(params.metadata()).isEqualTo(Optional.of(expectedResult));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void parseMetadataWithKeyWithoutValue() {
     CommandLineArgs params = parseArgs(Collections.emptyList(), ImmutableList.of(
-        String.format("--metadata=%s:%s,%s", "key1", "value1", "key2")));
+        makeArg("metadata", String.format("%s:%s,%s", "key1", "value1", "key2"))));
 
     params.metadata();
   }
@@ -83,14 +121,14 @@ public class CommandLineArgsTest {
   public void parseOutputFileEvenIfAbsent() {
     Path filePath = Paths.get(tempFolder.getRoot().getAbsolutePath(), "some-file.txt");
     CommandLineArgs params = parseArgs(ImmutableList.of(
-        "--output_file_path=" + filePath.toAbsolutePath().toString()),
+        makeArg("output_file_path", filePath.toAbsolutePath().toString())),
       Collections.emptyList());
     assertThat(params.outputFilePath().isPresent()).isTrue();
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void parseOptionWithoutCommand() {
-    CommandLineArgs.parse(new String[]{"--endpoint=somehost:1234"});
+    CommandLineArgs.parse(new String[]{makeArg("endpoint", "somehost:1234")});
   }
 
   @Test
@@ -104,15 +142,28 @@ public class CommandLineArgsTest {
   }
 
   private static CommandLineArgs parseArgs(List<String> args, List<String> callArgs) {
+    return parseArgs(args, callArgs, '=');
+  }
+
+  private static CommandLineArgs parseArgs(List<String> args, List<String> callArgs, char separator) {
     ImmutableList<String> allArgs = ImmutableList.<String>builder()
-        .addAll(args)
-        .add("--proto_discovery_root=.")
-        .add("--use_reflection=true")
-        .add("call")
-        .addAll(callArgs)
-        .add("--endpoint=somehost:1234")
-        .add("--full_method=some.package/Method")
-        .build();
+      .addAll(args)
+      .add(makeArg("proto_discovery_root", separator, "."))
+      .add(makeArg("use_reflection", separator, "true"))
+      .add("call")
+      .addAll(callArgs)
+      .add(makeArg("endpoint", separator, "somehost:1234"))
+      .add(makeArg("full_method", separator, "some.package/Method"))
+      .build();
     return CommandLineArgs.parse(allArgs.toArray(new String[0]));
   }
+
+  private static String makeArg(String option, String value) {
+    return makeArg(option, '=', value);
+  }
+
+  private static String makeArg(String option, char separator, String value) {
+    return String.format("--%s%c%s", option, separator, value);
+  }
+
 }
