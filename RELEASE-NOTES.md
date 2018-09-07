@@ -6,10 +6,10 @@ Quick links:
 
 ## Upcoming release
 
-* Overhauled Polyglot's command line options by using a different underlying library. This allows us to
-** distinguish between commands (`list`) and options (`--add_protoc_includes`).
-** distinguish between general options (applicable to all commands), and command specific options.
-** have options with values that contain spaces.
+ Overhauled Polyglot's command line options by using a different underlying library. This allows us to
+* distinguish between commands (`list`) and options (`--add_protoc_includes`).
+* distinguish between general options (applicable to all commands), and command specific options.
+* have options with values that contain spaces.
 
 Invoking Polyglot takes the following form now:
 
