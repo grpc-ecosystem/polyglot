@@ -6,7 +6,18 @@ Quick links:
 
 ## Upcoming release
 
-* New notes go here
+* Overhauled Polyglot's command line options by using a different underlying library. This allows us to
+** distinguish between commands (`list`) and options (`--add_protoc_includes`).
+** distinguish between general options (applicable to all commands), and command specific options.
+** have options with values that contain spaces.
+
+Invoking Polyglot takes the following form now:
+
+`java -jar polyglot.jar [options] [command] [command specific options]`
+
+Both `=` and spaces are allowed to separate options from values (`--add_protoc_includes=.` or `--add_protoc_includes .`).
+
+Please note that this change will break existing scripts after updating to the new version. Use the `--help` output to find out which option goes where on the command line.
 
 ## 1.6.0
 
