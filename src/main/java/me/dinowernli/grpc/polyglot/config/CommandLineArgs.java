@@ -27,21 +27,40 @@ public class CommandLineArgs {
 
   // Options
 
-  @Parameter(names = "--config_set_path", description ="<path/to/config.pb.json>", order = 0)
-  private String configSetPathArg;
-  @Parameter(names = "--config_name", description ="<config-name>", order = 0)
-  private String configNameArg;
-  // The flags below represent overrides for the configuration used at runtime.
-  @Parameter(names = "--output_file_path", description ="<path>", order = 0)
-  private String outputFilePathArg;
-  @Parameter(names = "--add_protoc_includes", description ="<path1>,<path2>", order = 0)
-  private String addProtocIncludesArg;
-  @Parameter(names = "--proto_discovery_root", description ="<path>", order = 0)
-  private String protoDiscoveryRootArg;
-  @Parameter(names = "--use_reflection", description ="true|false", order = 0)
-  private String useReflection;
- @Parameter(names = "--help", help = true, order = 1)
+  @Parameter(names = "--help", help = true, order = 99)
   private boolean help;
+
+  @Parameter(names = "--config_set_path",
+    description ="Overrides the default location for the config file 'config.pb.json'",
+    order = 0)
+  private String configSetPathArg;
+
+  @Parameter(names = "--config_name",
+    description ="Overrides the name of the configuration to use from the set (default: use the first one)",
+    order = 1)
+  private String configNameArg;
+
+  // The flags below represent overrides for the configuration used at runtime.
+
+  @Parameter(names = "--proto_discovery_root",
+    description ="Root directory to scan for proto files",
+    order = 2)
+  private String protoDiscoveryRootArg;
+
+  @Parameter(names = "--add_protoc_includes",
+    description ="Adds to the protoc include paths",
+    order = 3)
+  private String addProtocIncludesArg;
+
+  @Parameter(names = "--output_file_path",
+    description ="File to use for output when destination is set to write to file",
+    order = 4)
+  private String outputFilePathArg;
+
+  @Parameter(names = "--use_reflection",
+    description ="Try to use reflection first to resolve protos (default: true)",
+    order = 5)
+  private String useReflection;
 
   // Commands
 
@@ -57,34 +76,64 @@ public class CommandLineArgs {
 
   @Parameters(separators = "= ", commandDescription = "Make a GRPC call to an endpoint")
   private class CallCommand {
-    @Parameter(names = "--full_method", required = true, description ="<some.package.Service/doSomething>")
+    @Parameter(names = "--full_method", required = true,
+      description ="Full name of the method to call: <some.package.Service/doSomething>",
+      order = 0)
     private String fullMethodArg;
-    @Parameter(names = "--endpoint", required = true, description ="<host>:<port>")
+
+    @Parameter(names = "--endpoint", required = true,
+      description ="Service endpoint to call: <host>:<port>",
+      order = 1)
     private String endpointArg;
+
     // The flags below represent overrides for the configuration used at runtime.
-    @Parameter(names = "--use_tls", description ="true|false")
-    private String useTlsArg;
-    @Parameter(names = "--deadline_ms", description ="<number>")
+
+    @Parameter(names = "--deadline_ms",
+      description ="How long to wait for a call to complete (see gRPC doc)",
+      order = 2)
     private Integer deadlineMs;
-    @Parameter(names = "--tls_ca_cert_path", description ="<path>")
-    private String tlsCaCertPath;
-    @Parameter(names = "--tls_client_cert_path", description ="<path>")
-    private String tlsClientCertPath;
-    @Parameter(names = "--tls_client_key_path", description ="<path>")
-    private String tlsClientKeyPath;
-    @Parameter(names = "--tls_client_override_authority", description ="<host>")
-    private String tlsClientOverrideAuthority;
-    @Parameter(names = "--metadata", description = "k1:v1,k2:v2,...")
+
+    @Parameter(names = "--metadata",
+      description = "Metadata for this call in the form of key-value pairs: k1:v1,k2:v2,...",
+      order = 3)
     private String metadataArg;
+
+    @Parameter(names = "--use_tls",
+      description ="Whether to use a secure TLS connection (see gRPC doc)",
+      order = 4)
+    private String useTlsArg;
+
+    @Parameter(names = "--tls_ca_cert_path",
+      description ="File to use as a root certificate for calls using TLS",
+      order = 5)
+    private String tlsCaCertPath;
+
+    @Parameter(names = "--tls_client_cert_path",
+      description ="If set, will use client certs for calls using TLS")
+    private String tlsClientCertPath;
+
+    @Parameter(names = "--tls_client_key_path",
+      description ="<path>")
+    private String tlsClientKeyPath;
+
+    @Parameter(names = "--tls_client_override_authority",
+      description ="<host>")
+    private String tlsClientOverrideAuthority;
+
   }
 
   @Parameters(separators = "= ", commandDescription = "List all known services defined in the proto files")
   private class ListServicesCommand {
-    @Parameter(names = "--service_filter", description = "Filters service names containing this string e.g. --service_filter TestService")
+    @Parameter(names = "--service_filter",
+      description = "Filters service names containing this string")
     private String serviceFilterArg;
-    @Parameter(names = "--method_filter", description = "Filters service methods to those containing this string e.g. --method_filter List")
+
+    @Parameter(names = "--method_filter",
+      description = "Filters service methods to those containing this string")
     private String methodFilterArg;
-    @Parameter(names = "--with_message", description = "If true, then the message specification for the method is rendered")
+
+    @Parameter(names = "--with_message",
+      description = "If true, then the message specification for the method is rendered")
     private String withMessageArg;
   }
 
