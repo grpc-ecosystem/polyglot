@@ -6,6 +6,8 @@ Quick links:
 
 ## Upcoming release
 
+* Notes go here.
+
 ## 2.0.0
 
  Overhauled Polyglot's command line options by using a different underlying library. This allows us to
