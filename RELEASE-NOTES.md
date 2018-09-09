@@ -6,6 +6,8 @@ Quick links:
 
 ## Upcoming release
 
+## 2.0.0
+
  Overhauled Polyglot's command line options by using a different underlying library. This allows us to
 * distinguish between commands (`list`) and options (`--add_protoc_includes`).
 * distinguish between general options (applicable to all commands), and command specific options.
