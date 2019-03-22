@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/grpc-ecosystem/polyglot.svg?branch=master)](https://travis-ci.org/grpc-ecosystem/polyglot)
 
 Polyglot is a grpc client which can talk to any grpc server. In order to make a call, the following are required:
-* A compiled Polyglot binary, 
+* A compiled Polyglot binary,
 * the .proto files for the service *or* grpc reflection enabled on the remote server,
 * and a request proto instance in text format.
 
@@ -33,20 +33,20 @@ The "Hello World" of using Polyglot is to make an rpc call. This can be done usi
 
 ```
 $ echo <json-request> | java -jar polyglot.jar \
+    --proto_discovery_root=<path> \
     call \
     --endpoint=<host>:<port> \
-    --full_method=<some.package.Service/doSomething> \
-    --proto_discovery_root=<path>
+    --full_method=<some.package.Service/doSomething>
 ```
 
 For stream requests double newlines `\n\n` are used to separate your json requests as follows:
 
 ```
 $ echo '<json-request-1> \n\n <json-request-2> ... \n\n <json-request-n>' | java -jar polyglot.jar \
+    --proto_discovery_root=<path> \
     call \
     --endpoint=<host>:<port> \
-    --full_method=<some.package.Service/doSomething> \
-    --proto_discovery_root=<path>
+    --full_method=<some.package.Service/doSomething>  
 ```
 
 For more invocation examples, see the [examples](https://github.com/grpc-ecosystem/polyglot/tree/master/src/tools/example) directory.
@@ -138,8 +138,8 @@ Polyglot supports printing a list of all the discovered services using the `list
 
 ```
 $ java -jar polyglot.jar \
-    list_services \
     --proto_discovery_root=<path> \
+    list_services
 ```
 
 The printed services can be filtered using `--service_filter=<service_name>` or `--method_filter=<method_name>`, and the `--with_message` flag can be used to also print the exact format of the requests.
