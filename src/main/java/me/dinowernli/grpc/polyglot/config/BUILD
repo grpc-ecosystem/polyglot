@@ -5,7 +5,7 @@ java_library(
     srcs = glob(["*.java"]),
     deps = [
         "//src/main/java/me/dinowernli/grpc/polyglot/protobuf",
-        "//src/main/proto:config_proto",
+        "//src/main/proto:config_java_proto",
         "//third_party/grpc",
         "//third_party/guava",
         "//third_party/jcommander",

@@ -6,6 +6,7 @@ auto_java_test(
     srcs = glob(["*.java"]),
     deps = [
         "//src/main/java/me/dinowernli/grpc/polyglot/oauth2",
+        "//src/main/proto:config_java_proto",
         "//src/main/proto:config_proto",
         "//third_party/google-oauth",
         "//third_party/grpc",
