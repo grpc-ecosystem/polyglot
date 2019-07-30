@@ -1,20 +1,22 @@
+workspace(name = "polyglot")
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
 # GRPC
+
 http_archive(
-    name = "grpc_java",
-    strip_prefix = "grpc-java-1.5.0",
-    # We are using 1.4.0 below, but v1.5.0 is the first release of grpc that has the convenient import scripts.
-    urls = ["https://github.com/grpc/grpc-java/archive/v1.5.0.zip"],
+    name = "io_grpc_grpc_java",
+    sha256 = "9d23d9fec84e24bd3962f5ef9d1fd61ce939d3f649a22bcab0f19e8167fae8ef",
+    strip_prefix = "grpc-java-1.20.0",
+    urls = ["https://github.com/grpc/grpc-java/archive/v1.20.0.zip"],
 )
 
-load("@grpc_java//:repositories.bzl", "grpc_java_repositories")
+load("@io_grpc_grpc_java//:repositories.bzl", "grpc_java_repositories")
 
-grpc_java_repositories(
-    omit_com_google_code_findbugs_jsr305 = True,
-    omit_com_google_errorprone_error_prone_annotations = True,
-    omit_com_google_protobuf = True,
-)
+grpc_java_repositories()
 
 # Autotest
+
 http_archive(
     name = "autotest",
     strip_prefix = "bazel-junit-autotest-0.0.1",
@@ -28,98 +30,47 @@ autotest_junit_repo(
     junit_jar = "//third_party/testing",
 )
 
-# Proto rules
-http_archive(
-    name = "org_pubref_rules_protobuf",
-    strip_prefix = "rules_protobuf-0.8.1",
-    urls = ["https://github.com/pubref/rules_protobuf/archive/v0.8.1.zip"],
-)
-
-load("@org_pubref_rules_protobuf//java:rules.bzl", "java_proto_repositories")
-
-java_proto_repositories()
-
 # Buildifier
+
 http_archive(
     name = "io_bazel_rules_go",
-    sha256 = "d322432e804dfa7936c1f38c24b00f1fb71a0be090a1273d7100a1b4ce281ee7",
-    strip_prefix = "rules_go-a390e7f7eac912f6e67dc54acf67aa974d05f9c3",
+    sha256 = "9fb16af4d4836c8222142e54c9efa0bb5fc562ffc893ce2abeac3e25daead144",
     urls = [
-        "http://bazel-mirror.storage.googleapis.com/github.com/bazelbuild/rules_go/archive/a390e7f7eac912f6e67dc54acf67aa974d05f9c3.tar.gz",
-        "https://github.com/bazelbuild/rules_go/archive/a390e7f7eac912f6e67dc54acf67aa974d05f9c3.tar.gz",
+        "https://storage.googleapis.com/bazel-mirror/github.com/bazelbuild/rules_go/releases/download/0.19.0/rules_go-0.19.0.tar.gz",
+        "https://github.com/bazelbuild/rules_go/releases/download/0.19.0/rules_go-0.19.0.tar.gz",
     ],
 )
 
-load("@io_bazel_rules_go//go:def.bzl", "go_repositories", "new_go_repository")
+load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
 
-go_repositories()
+go_rules_dependencies()
 
-new_go_repository(
-    name = "org_golang_x_tools",
-    commit = "3d92dd60033c312e3ae7cac319c792271cf67e37",
-    importpath = "golang.org/x/tools",
+go_register_toolchains()
+
+http_archive(
+    name = "bazel_gazelle",
+    sha256 = "be9296bfd64882e3c08e3283c58fcb461fa6dd3c171764fcc4cf322f60615a9b",
+    urls = [
+        "https://storage.googleapis.com/bazel-mirror/github.com/bazelbuild/bazel-gazelle/releases/download/0.18.1/bazel-gazelle-0.18.1.tar.gz",
+        "https://github.com/bazelbuild/bazel-gazelle/releases/download/0.18.1/bazel-gazelle-0.18.1.tar.gz",
+    ],
+)
+
+load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
+
+gazelle_dependencies()
+
+http_archive(
+    name = "com_github_bazelbuild_buildtools",
+    strip_prefix = "buildtools-master",
+    url = "https://github.com/bazelbuild/buildtools/archive/master.zip",
 )
 
 # Direct java deps
 
 maven_jar(
-    name = "grpc_auth_artifact",
-    artifact = "io.grpc:grpc-auth:1.4.0",
-)
-
-maven_jar(
-    name = "grpc_benchmarks_artifact",
-    artifact = "io.grpc:grpc-benchmarks:1.4.0",
-)
-
-maven_jar(
-    name = "grpc_context_artifact",
-    artifact = "io.grpc:grpc-context:1.4.0",
-)
-
-maven_jar(
-    name = "grpc_core_artifact",
-    artifact = "io.grpc:grpc-core:1.4.0",
-)
-
-maven_jar(
-    name = "grpc_netty_artifact",
-    artifact = "io.grpc:grpc-netty:1.4.0",
-)
-
-maven_jar(
-    name = "grpc_protobuf_artifact",
-    artifact = "io.grpc:grpc-protobuf:1.4.0",
-)
-
-maven_jar(
-    name = "grpc_protobuf_lite_artifact",
-    artifact = "io.grpc:grpc-protobuf-lite:1.4.0",
-)
-
-maven_jar(
-    name = "grpc_services_artifact",
-    artifact = "io.grpc:grpc-services:1.4.0",
-)
-
-maven_jar(
-    name = "grpc_stub_artifact",
-    artifact = "io.grpc:grpc-stub:1.4.0",
-)
-
-maven_jar(
-    name = "grpc_testing_artifact",
-    artifact = "io.grpc:grpc-testing:1.4.0",
-)
-
-maven_jar(
     name = "junit_artifact",
-    artifact = "junit:junit:4.10",
-)
-
-maven_jar(
-    name = "netty_artifact",
-    artifact = "io.netty:netty-all:4.1.13.Final",
+    artifact = "junit:junit:4.12",
 )
 
 maven_jar(

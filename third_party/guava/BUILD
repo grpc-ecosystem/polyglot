@@ -4,6 +4,6 @@ java_library(
     name = "guava",
     licenses = ["permissive"],
     exports = [
-        "@com_google_guava//jar",
+        "@com_google_guava_guava//jar",
     ],
 )

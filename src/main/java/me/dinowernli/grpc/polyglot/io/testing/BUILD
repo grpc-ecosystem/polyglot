@@ -5,7 +5,7 @@ java_library(
     testonly = 1,
     srcs = glob(["*.java"]),
     deps = [
-        "//src/main/proto/testing:test_service_proto",
+        "//src/main/proto/testing:test_service_java_proto",
         "//third_party/guava",
         "//third_party/protobuf",
     ],

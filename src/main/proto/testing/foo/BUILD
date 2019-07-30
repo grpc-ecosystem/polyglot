@@ -1,10 +1,13 @@
-load("@org_pubref_rules_protobuf//java:rules.bzl", "java_proto_library")
-
 package(default_visibility = ["//visibility:public"])
 
-java_proto_library(
+proto_library(
     name = "foo_proto",
-    protos = ["foo.proto"],
+    srcs = ["foo.proto"],
+)
+
+java_proto_library(
+    name = "foo_java_proto",
+    deps = [":foo_proto"],
 )
 
 filegroup(

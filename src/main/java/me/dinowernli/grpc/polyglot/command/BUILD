@@ -8,7 +8,7 @@ java_library(
         "//src/main/java/me/dinowernli/grpc/polyglot/io",
         "//src/main/java/me/dinowernli/grpc/polyglot/oauth2",
         "//src/main/java/me/dinowernli/grpc/polyglot/protobuf",
-        "//src/main/proto:config_proto",
+        "//src/main/proto:config_java_proto",
         "//third_party/google-oauth",
         "//third_party/grpc",
         "//third_party/guava",
