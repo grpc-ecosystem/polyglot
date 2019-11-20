@@ -118,6 +118,18 @@ public class CommandLineArgsTest {
   }
 
   @Test
+  public void parseMetadataWithColons() {
+    CommandLineArgs params = parseArgs(Collections.emptyList(), ImmutableList.of(
+        makeArg("metadata", String.format("%s:%s,%s:%s,%s:%s",
+            "key1", "value:1", "key2", "value:2", "key3", "value:3"))));
+
+    ImmutableMultimap<Object, Object> expectedResult =
+      ImmutableMultimap.of("key1", "value:1", "key2", "value:2", "key3", "value:3");
+    assertThat(params.metadata()).isEqualTo(Optional.of(expectedResult));
+
+  }
+
+  @Test
   public void parseOutputFileEvenIfAbsent() {
     Path filePath = Paths.get(tempFolder.getRoot().getAbsolutePath(), "some-file.txt");
     CommandLineArgs params = parseArgs(ImmutableList.of(
