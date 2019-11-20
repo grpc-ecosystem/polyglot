@@ -267,7 +267,7 @@ public class CommandLineArgs {
       .splitToList(callCommand.metadataArg)
       .stream()
       .map(s -> {
-        String[] keyValue = s.split(":");
+        String[] keyValue = s.split(":", 2);
 
         Preconditions.checkArgument(keyValue.length == 2,
             "Metadata entry must be defined in key:value format: " + callCommand.metadataArg);
