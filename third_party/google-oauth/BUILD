@@ -4,10 +4,10 @@ java_library(
     name = "google-oauth",
     licenses = ["permissive"],
     exports = [
-        "@google_auth_credentials_artifact//jar",
-        "@google_http_client_artifact//jar",
-        "@google_http_jackson2_artifact//jar",
-        "@google_oauth2_http_artifact//jar",
-        "@google_oauth_client_artifact//jar",
+        "@maven//:google_auth_credentials",
+        "@maven//:google_http_client",
+        "@maven//:google_http_jackson2",
+        "@maven//:google_oauth2_http",
+        "@maven//:google_oauth_client",
     ],
 )

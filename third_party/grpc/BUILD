@@ -15,24 +15,18 @@ java_library(
     name = "grpc",
     licenses = ["permissive"],
     exports = [
-        ":_reflection_java_grpc",
-        "@io_grpc_grpc_java//auth",
-        "@io_grpc_grpc_java//context",
+        "@io_grpc_grpc_java//api",
         "@io_grpc_grpc_java//core",
         "@io_grpc_grpc_java//netty",
-        "@io_grpc_grpc_java//protobuf",
-        "@io_grpc_grpc_java//services:reflection",
         "@io_grpc_grpc_java//stub",
-        "@io_grpc_grpc_proto//:reflection_java_proto",
-        "@io_grpc_grpc_proto//:reflection_java_proto_deprecated",
     ],
 )
 
 java_library(
-    name = "testing",
+    name = "grpc_testing",
     testonly = 1,
     licenses = ["permissive"],
     exports = [
-        "@grpc_testing_artifact//jar",
+        "@io_grpc_grpc_java//testing",
     ],
 )
