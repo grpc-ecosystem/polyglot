@@ -44,7 +44,7 @@ public class OauthCredentialsFactory {
         readFile(Paths.get(accessTokenCreds.getAccessTokenPath())), null);
 
     logger.info("Using access token credentials");
-    return new OAuth2Credentials(accessToken);
+    return OAuth2Credentials.create(accessToken);
   }
 
   private Credentials createRefreshTokenCredentials(

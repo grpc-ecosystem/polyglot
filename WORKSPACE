@@ -87,6 +87,7 @@ MAVEN_ARTIFACTS = [
     "org.slf4j:jul-to-slf4j:1.7.13",
     "org.slf4j:slf4j-api:1.7.13",
     "org.slf4j:slf4j-simple:1.7.13",
+    "com.google.oauth-client:google-oauth-client:1.30.1",
 ]
 
 maven_install(
