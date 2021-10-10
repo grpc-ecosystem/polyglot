@@ -4,6 +4,6 @@ java_library(
     name = "jcommander",
     licenses = ["permissive"],
     exports = [
-        "@maven//:jcommander",
+        "@maven//:com_beust_jcommander",
     ],
 )

@@ -4,6 +4,6 @@ java_library(
     name = "jackson-core",
     licenses = ["permissive"],
     exports = [
-        "@maven//:jackson_core",
+        "@maven//:com_fasterxml_jackson_core_jackson_core",
     ],
 )

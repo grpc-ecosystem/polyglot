@@ -4,6 +4,6 @@ java_library(
     name = "protoc-jar",
     licenses = ["permissive"],
     exports = [
-        "@maven//:protoc_jar",
+        "@maven//:com_github_os72_protoc_jar",
     ],
 )

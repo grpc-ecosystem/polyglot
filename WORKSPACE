@@ -18,11 +18,12 @@ load("@rules_jvm_external//:defs.bzl", "maven_install")
 
 http_archive(
     name = "io_grpc_grpc_java",
-    sha256 = "9d23d9fec84e24bd3962f5ef9d1fd61ce939d3f649a22bcab0f19e8167fae8ef",
-    strip_prefix = "grpc-java-1.20.0",
-    urls = ["https://github.com/grpc/grpc-java/archive/v1.20.0.zip"],
+    sha256 = "446ad7a2e85bbd05406dbf95232c7c49ed90de83b3b60cb2048b0c4c9f254d29",
+    strip_prefix = "grpc-java-1.29.0",
+    url = "https://github.com/grpc/grpc-java/archive/v1.29.0.zip",
 )
-
+load("@io_grpc_grpc_java//:repositories.bzl", "IO_GRPC_GRPC_JAVA_ARTIFACTS")
+load("@io_grpc_grpc_java//:repositories.bzl", "IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS")
 load("@io_grpc_grpc_java//:repositories.bzl", "grpc_java_repositories")
 
 grpc_java_repositories()
@@ -84,13 +85,13 @@ MAVEN_ARTIFACTS = [
     "com.beust:jcommander:1.72",
     "com.fasterxml.jackson.core:jackson-core:2.6.3",
     "com.github.os72:protoc-jar:3.2.0",
-    "com.google.auth:google-auth-library-credentials:0.3.1",
-    "com.google.auth:google-auth-library-oauth2-http:0.3.1",
-    "com.google.http-client:google-http-client-jackson2:1.20.0",
-    "com.google.http-client:google-http-client:1.20.0",
-    "com.google.oauth-client:google-oauth-client:1.20.0",
-    "com.google.protobuf:protobuf-java-util:3.2.0",
-    "com.google.protobuf:protobuf-java:3.2.0",
+    # "com.google.auth:google-auth-library-credentials:0.3.1",
+    # "com.google.auth:google-auth-library-oauth2-http:0.3.1",
+    # "com.google.http-client:google-http-client-jackson2:1.20.0",
+    # "com.google.http-client:google-http-client:1.20.0",
+    # "com.google.oauth-client:google-oauth-client:1.20.0",
+    # "com.google.protobuf:protobuf-java-util:3.2.0",
+    # "com.google.protobuf:protobuf-java:3.2.0",
     "com.google.truth:truth:0.28",
     "junit:junit:4.12",
     "org.mockito:mockito-all:1.10.19",
@@ -100,9 +101,10 @@ MAVEN_ARTIFACTS = [
 ]
 
 maven_install(
-    artifacts = MAVEN_ARTIFACTS,
+    artifacts = MAVEN_ARTIFACTS + IO_GRPC_GRPC_JAVA_ARTIFACTS,
+    override_targets = IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS,
     generate_compat_repositories = True,
-    maven_install_json = "//:maven_install.json",
+    #maven_install_json = "//:maven_install.json",
     repositories = [
         "https://jcenter.bintray.com/",
         "https://maven.google.com",
@@ -110,4 +112,7 @@ maven_install(
     ],
 )
 
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+
+protobuf_deps()
 

@@ -4,9 +4,8 @@ java_library(
     name = "protobuf",
     licenses = ["permissive"],
     exports = [
-        "@maven//:com_google_code_gson_gsonr",
+        "@maven//:com_google_code_gson_gson",
         "@com_google_protobuf//:protobuf_java",
-        "@maven//:protobuf_java",
-        "@maven//:protobuf_java_util",
+        "@com_google_protobuf//:protobuf_java_util",
     ],
 )
