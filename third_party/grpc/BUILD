@@ -19,6 +19,10 @@ java_library(
         "@io_grpc_grpc_java//core",
         "@io_grpc_grpc_java//netty",
         "@io_grpc_grpc_java//stub",
+        "@io_grpc_grpc_java//auth",
+        "@io_grpc_grpc_java//services:reflection",
+        "@io_grpc_grpc_proto//:reflection_proto_deprecated",
+        ":_reflection_java_grpc",
     ],
 )
 

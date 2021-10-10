@@ -13,5 +13,8 @@ java_library(
         "//third_party/logging:logging-api",
         "//third_party/netty",
         "//third_party/protobuf",
+        "@io_grpc_grpc_proto//:reflection_java_proto_deprecated",
+        "@io_grpc_grpc_java//services:reflection",
+        "@com_google_protobuf//:protobuf_java_util",
     ],
 )
