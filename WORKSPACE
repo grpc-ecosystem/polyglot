@@ -55,9 +55,7 @@ http_archive(
 )
 
 load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
-
 go_rules_dependencies()
-
 go_register_toolchains()
 
 http_archive(
@@ -68,9 +66,7 @@ http_archive(
         "https://github.com/bazelbuild/bazel-gazelle/releases/download/0.18.1/bazel-gazelle-0.18.1.tar.gz",
     ],
 )
-
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
-
 gazelle_dependencies()
 
 http_archive(
@@ -85,13 +81,6 @@ MAVEN_ARTIFACTS = [
     "com.beust:jcommander:1.72",
     "com.fasterxml.jackson.core:jackson-core:2.6.3",
     "com.github.os72:protoc-jar:3.2.0",
-    # "com.google.auth:google-auth-library-credentials:0.3.1",
-    # "com.google.auth:google-auth-library-oauth2-http:0.3.1",
-    # "com.google.http-client:google-http-client-jackson2:1.20.0",
-    # "com.google.http-client:google-http-client:1.20.0",
-    # "com.google.oauth-client:google-oauth-client:1.20.0",
-    # "com.google.protobuf:protobuf-java-util:3.2.0",
-    # "com.google.protobuf:protobuf-java:3.2.0",
     "com.google.truth:truth:0.28",
     "junit:junit:4.12",
     "org.mockito:mockito-all:1.10.19",
@@ -104,7 +93,6 @@ maven_install(
     artifacts = MAVEN_ARTIFACTS + IO_GRPC_GRPC_JAVA_ARTIFACTS,
     override_targets = IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS,
     generate_compat_repositories = True,
-    #maven_install_json = "//:maven_install.json",
     repositories = [
         "https://jcenter.bintray.com/",
         "https://maven.google.com",
@@ -113,6 +101,5 @@ maven_install(
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
-
 protobuf_deps()
 
