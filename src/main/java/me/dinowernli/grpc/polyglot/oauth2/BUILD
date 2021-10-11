@@ -6,8 +6,6 @@ java_library(
     deps = [
         "//src/main/proto:config_java_proto",
         "//third_party/google-oauth",
-        "@maven//:com_google_oauth_client_google_oauth_client",
-        "@maven//:com_google_http_client_google_http_client",
         "//third_party/guava",
         "//third_party/jackson-core",
         "//third_party/logging:logging-api",
