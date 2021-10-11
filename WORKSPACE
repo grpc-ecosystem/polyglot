@@ -32,8 +32,8 @@ grpc_java_repositories()
 
 http_archive(
     name = "autotest",
-    strip_prefix = "bazel-junit-autotest-0.0.1",
-    urls = ["https://github.com/dinowernli/bazel-junit-autotest/archive/v0.0.1.zip"],
+    strip_prefix = "bazel-junit-autotest-0.0.2",
+    urls = ["https://github.com/dinowernli/bazel-junit-autotest/archive/v0.0.2.zip"],
 )
 
 load("@autotest//bzl:autotest.bzl", "autotest_junit_repo")
