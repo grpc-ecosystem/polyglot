@@ -2,15 +2,28 @@ workspace(name = "polyglot")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+# JVM
+
+RULES_JVM_EXTERNAL_TAG = "3.0"
+RULES_JVM_EXTERNAL_SHA = "62133c125bf4109dfd9d2af64830208356ce4ef8b165a6ef15bbff7460b35c3a"
+http_archive(
+    name = "rules_jvm_external",
+    sha256 = RULES_JVM_EXTERNAL_SHA,
+    strip_prefix = "rules_jvm_external-%s" % RULES_JVM_EXTERNAL_TAG,
+    url = "https://github.com/bazelbuild/rules_jvm_external/archive/%s.zip" % RULES_JVM_EXTERNAL_TAG,
+)
+load("@rules_jvm_external//:defs.bzl", "maven_install")
+
 # GRPC
 
 http_archive(
     name = "io_grpc_grpc_java",
-    sha256 = "9d23d9fec84e24bd3962f5ef9d1fd61ce939d3f649a22bcab0f19e8167fae8ef",
-    strip_prefix = "grpc-java-1.20.0",
-    urls = ["https://github.com/grpc/grpc-java/archive/v1.20.0.zip"],
+    sha256 = "446ad7a2e85bbd05406dbf95232c7c49ed90de83b3b60cb2048b0c4c9f254d29",
+    strip_prefix = "grpc-java-1.29.0",
+    url = "https://github.com/grpc/grpc-java/archive/v1.29.0.zip",
 )
-
+load("@io_grpc_grpc_java//:repositories.bzl", "IO_GRPC_GRPC_JAVA_ARTIFACTS")
+load("@io_grpc_grpc_java//:repositories.bzl", "IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS")
 load("@io_grpc_grpc_java//:repositories.bzl", "grpc_java_repositories")
 
 grpc_java_repositories()
@@ -19,8 +32,8 @@ grpc_java_repositories()
 
 http_archive(
     name = "autotest",
-    strip_prefix = "bazel-junit-autotest-0.0.1",
-    urls = ["https://github.com/dinowernli/bazel-junit-autotest/archive/v0.0.1.zip"],
+    strip_prefix = "bazel-junit-autotest-0.0.2",
+    urls = ["https://github.com/dinowernli/bazel-junit-autotest/archive/v0.0.2.zip"],
 )
 
 load("@autotest//bzl:autotest.bzl", "autotest_junit_repo")
@@ -42,9 +55,7 @@ http_archive(
 )
 
 load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
-
 go_rules_dependencies()
-
 go_register_toolchains()
 
 http_archive(
@@ -55,9 +66,7 @@ http_archive(
         "https://github.com/bazelbuild/bazel-gazelle/releases/download/0.18.1/bazel-gazelle-0.18.1.tar.gz",
     ],
 )
-
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
-
 gazelle_dependencies()
 
 http_archive(
@@ -68,82 +77,30 @@ http_archive(
 
 # Direct java deps
 
-maven_jar(
-    name = "junit_artifact",
-    artifact = "junit:junit:4.12",
+MAVEN_ARTIFACTS = [
+    "com.beust:jcommander:1.72",
+    "com.fasterxml.jackson.core:jackson-core:2.6.3",
+    "com.github.os72:protoc-jar:3.2.0",
+    "com.google.truth:truth:0.28",
+    "junit:junit:4.12",
+    "org.mockito:mockito-all:1.10.19",
+    "org.slf4j:jul-to-slf4j:1.7.13",
+    "org.slf4j:slf4j-api:1.7.13",
+    "org.slf4j:slf4j-simple:1.7.13",
+    "com.google.oauth-client:google-oauth-client:1.30.1",
+]
+
+maven_install(
+    artifacts = MAVEN_ARTIFACTS + IO_GRPC_GRPC_JAVA_ARTIFACTS,
+    override_targets = IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS,
+    generate_compat_repositories = True,
+    repositories = [
+        "https://jcenter.bintray.com/",
+        "https://maven.google.com",
+        "https://repo1.maven.org/maven2",
+    ],
 )
 
-maven_jar(
-    name = "protobuf_java_artifact",
-    artifact = "com.google.protobuf:protobuf-java:3.2.0",
-)
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+protobuf_deps()
 
-maven_jar(
-    name = "protobuf_java_util_artifact",
-    artifact = "com.google.protobuf:protobuf-java-util:3.2.0",
-)
-
-maven_jar(
-    name = "slf4j_api_artifact",
-    artifact = "org.slf4j:slf4j-api:1.7.13",
-)
-
-maven_jar(
-    name = "slf4j_simple_artifact",
-    artifact = "org.slf4j:slf4j-simple:1.7.13",
-)
-
-maven_jar(
-    name = "jul_to_slf4j_artifact",
-    artifact = "org.slf4j:jul-to-slf4j:1.7.13",
-)
-
-maven_jar(
-    name = "mockito_artifact",
-    artifact = "org.mockito:mockito-all:1.10.19",
-)
-
-maven_jar(
-    name = "truth_artifact",
-    artifact = "com.google.truth:truth:0.28",
-)
-
-maven_jar(
-    name = "protoc_jar_artifact",
-    artifact = "com.github.os72:protoc-jar:3.2.0",
-)
-
-maven_jar(
-    name = "jcommander_artifact",
-    artifact = "com.beust:jcommander:1.72",
-)
-
-maven_jar(
-    name = "google_oauth_client_artifact",
-    artifact = "com.google.oauth-client:google-oauth-client:1.20.0",
-)
-
-maven_jar(
-    name = "google_oauth2_http_artifact",
-    artifact = "com.google.auth:google-auth-library-oauth2-http:0.3.1",
-)
-
-maven_jar(
-    name = "google_auth_credentials_artifact",
-    artifact = "com.google.auth:google-auth-library-credentials:0.3.1",
-)
-
-maven_jar(
-    name = "google_http_client_artifact",
-    artifact = "com.google.http-client:google-http-client:1.20.0",
-)
-
-maven_jar(
-    name = "google_http_jackson2_artifact",
-    artifact = "com.google.http-client:google-http-client-jackson2:1.20.0",
-)
-
-maven_jar(
-    name = "jackson_core_artifact",
-    artifact = "com.fasterxml.jackson.core:jackson-core:2.6.3",
-)

@@ -4,6 +4,7 @@ directories:
   src/main
   src/test
   src/tools
+  third_party
 
 targets:
   # Add targets that reach the source code that you want to resolve here

@@ -13,6 +13,7 @@ out/
 .idea
 .settings
 project.iml
+.ijwb
 
 // Phabricator stuff.
 .arcconfig

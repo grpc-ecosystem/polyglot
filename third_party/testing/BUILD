@@ -4,8 +4,8 @@ java_library(
     name = "testing",
     licenses = ["permissive"],
     exports = [
-        "@junit_artifact//jar",
-        "@mockito_artifact//jar",
-        "@truth_artifact//jar",
+        "@maven//:com_google_truth_truth",
+        "@maven//:junit_junit",
+        "@maven//:org_mockito_mockito_all",
     ],
 )
