@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import me.dinowernli.grpc.polyglot.io.MessageWriter;
 import me.dinowernli.grpc.polyglot.testing.TestServer;
@@ -40,12 +41,26 @@ public class TlsIntegrationTest {
   private TestServer testServer;
   private InputStream storedStdin;
   private Path responseFilePath;
+
   private String storedHomeProperty;
+  private String storedSecurityProperty;
+
+  private static final String PROPERTY_HOME = "user.home";
+  private static final String PROPERTY_SECURITY_CA = "jdk.security.allowNonCaAnchor";
 
   @Before
   public void setUp() throws Throwable {
-    storedHomeProperty = System.getProperty("user.home");
-    System.setProperty("user.home", tempDirectory.getRoot().getAbsolutePath());
+    storedHomeProperty = System.getProperty(PROPERTY_HOME);
+    System.setProperty(PROPERTY_HOME, tempDirectory.getRoot().getAbsolutePath());
+
+    // A check for specific certificate extensions was added to the JDK as part of "Oracle
+    // Security-in-Depth Fix 8230318: Better trust store usage". The certificates we use for
+    // testing are valid enough to test the end-to-end flow, but happen to not have this particular
+    // extension. Until we generate new certs with the right extension, we need to disable this one
+    // check.
+    // TODO(dino): Remove this once we have updated the certificates used for TLS testing.
+    storedSecurityProperty = System.getProperty(PROPERTY_SECURITY_CA);
+    System.setProperty(PROPERTY_SECURITY_CA, "true");
 
     responseFilePath = Files.createTempFile("response", "pb.ascii");
     storedStdin = System.in;
@@ -53,7 +68,17 @@ public class TlsIntegrationTest {
 
   @After
   public void tearDown() throws Throwable {
-    System.setProperty("user.home", storedHomeProperty);
+    if (storedSecurityProperty == null) {
+      System.clearProperty(PROPERTY_SECURITY_CA);
+    } else {
+      System.setProperty(PROPERTY_SECURITY_CA, storedSecurityProperty);
+    }
+
+    if (storedHomeProperty == null) {
+      System.clearProperty(PROPERTY_HOME);
+    } else {
+      System.setProperty(PROPERTY_HOME, storedHomeProperty);
+    }
 
     testServer.blockingShutdown();
     System.setIn(storedStdin);

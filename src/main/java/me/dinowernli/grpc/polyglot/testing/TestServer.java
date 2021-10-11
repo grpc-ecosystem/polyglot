@@ -15,6 +15,7 @@ import polyglot.test.TestProto.TestResponse;
 import polyglot.test.TestProto.TunnelMessage;
 import polyglot.test.TestServiceGrpc.TestServiceImplBase;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Random;
