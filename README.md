@@ -1,6 +1,6 @@
 # Polyglot - a universal grpc command line client
 
-[![Build Status](https://travis-ci.org/grpc-ecosystem/polyglot.svg?branch=master)](https://travis-ci.org/grpc-ecosystem/polyglot)
+![Build Status](https://github.com/grpc-ecosystem/polyglot/actions/workflows/bazel_test.yaml/badge.svg)
 
 Polyglot is a grpc client which can talk to any grpc server. In order to make a call, the following are required:
 * A compiled Polyglot binary,
