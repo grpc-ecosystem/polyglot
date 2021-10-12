@@ -1,0 +1,12 @@
+---
+name: Install
+runs:
+  using: composite
+  steps:
+    - name: Install Bazel (linux)
+      run: |
+        wget 'https://github.com/bazelbuild/bazel/releases/download/4.2.1/bazel_4.2.1-linux-x86_64.deb'
+        chmod +x bazel_4.2.1-linux-x86_64.deb
+        sudo dpkg -i bazel_4.2.1-linux-x86_64.deb
+      shell: bash
+
