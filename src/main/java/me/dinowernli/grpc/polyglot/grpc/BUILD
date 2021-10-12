@@ -12,6 +12,6 @@ java_library(
         "//third_party/guava",
         "//third_party/logging:logging-api",
         "//third_party/netty",
-        "//third_party/protobuf",\
+        "//third_party/protobuf",
     ],
 )
