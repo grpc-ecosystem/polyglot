@@ -7,4 +7,3 @@ java_library(
         "@maven//:com_google_guava_guava",
     ],
 )
-
