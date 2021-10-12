@@ -1,0 +1,23 @@
+---
+name: Bazel Test
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Bazel cache
+        uses: actions/cache@v2
+        with:
+          path: "~/.cache/bazel"
+          key: bazel
+
+      - name: Install Bazel
+        uses: ./.github/actions/install
+
+      - name: Run tests
+        run: bazel test //src/...
