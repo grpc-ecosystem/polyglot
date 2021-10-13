@@ -5,7 +5,10 @@ on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
 
     steps:
       - uses: actions/checkout@v2
@@ -13,8 +16,10 @@ jobs:
       - name: Setup Bazel cache
         uses: actions/cache@v2
         with:
-          path: "~/.cache/bazel"
-          key: bazel
+          path: |
+            ~/.cache/bazel/_bazel_runner
+            /private/var/tmp/_bazel_runner
+          key: bazel-${{ matrix.os }}
 
       - name: Install Bazel
         uses: ./.github/actions/install
