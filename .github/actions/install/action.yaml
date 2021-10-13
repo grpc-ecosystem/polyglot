@@ -5,8 +5,16 @@ runs:
   steps:
     - name: Install Bazel (linux)
       run: |
-        wget 'https://github.com/bazelbuild/bazel/releases/download/4.2.1/bazel_4.2.1-linux-x86_64.deb'
-        chmod +x bazel_4.2.1-linux-x86_64.deb
-        sudo dpkg -i bazel_4.2.1-linux-x86_64.deb
+        if [ "$RUNNER_OS" == "macOS" ]; then
+          curl -L -O "https://github.com/bazelbuild/bazel/releases/download/4.2.1/bazel-4.2.1-installer-darwin-x86_64.sh"
+          chmod a+x ./bazel-4.2.1-installer-darwin-x86_64.sh
+          ./bazel-4.2.1-installer-darwin-x86_64.sh
+        elif [ "$RUNNER_OS" == "Linux" ]; then
+          wget 'https://github.com/bazelbuild/bazel/releases/download/4.2.1/bazel_4.2.1-linux-x86_64.deb'
+          chmod +x bazel_4.2.1-linux-x86_64.deb
+          sudo dpkg -i bazel_4.2.1-linux-x86_64.deb
+        else
+          echo 'Unrecognized OS'
+        fi
       shell: bash
 
