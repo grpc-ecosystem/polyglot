@@ -20,16 +20,14 @@ load("@rules_jvm_external//:defs.bzl", "maven_install")
 
 http_archive(
     name = "io_grpc_grpc_java",
-    sha256 = "446ad7a2e85bbd05406dbf95232c7c49ed90de83b3b60cb2048b0c4c9f254d29",
-    strip_prefix = "grpc-java-1.29.0",
-    url = "https://github.com/grpc/grpc-java/archive/v1.29.0.zip",
+    sha256 = "a61a678f995f1d612bb23d5fb721d83b6960508cc1e0b0dc3c164d6d8d8d24e0",
+    strip_prefix = "grpc-java-1.41.0",
+    url = "https://github.com/grpc/grpc-java/archive/v1.41.0.zip",
 )
 
 load("@io_grpc_grpc_java//:repositories.bzl", "IO_GRPC_GRPC_JAVA_ARTIFACTS")
 load("@io_grpc_grpc_java//:repositories.bzl", "IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS")
-load("@io_grpc_grpc_java//:repositories.bzl", "grpc_java_repositories")
 
-grpc_java_repositories()
 
 # Autotest
 
@@ -45,6 +43,47 @@ autotest_junit_repo(
     autotest_workspace = "@autotest",
     junit_jar = "//third_party/testing",
 )
+
+# Direct java deps
+
+MAVEN_ARTIFACTS = [
+    "com.beust:jcommander:1.72",
+    "com.fasterxml.jackson.core:jackson-core:2.6.3",
+    "com.github.os72:protoc-jar:3.2.0",
+    "com.google.truth:truth:0.28",
+    "com.google.guava:guava:30.1-jre",
+    "junit:junit:4.12",
+    "org.mockito:mockito-all:1.10.19",
+    "org.slf4j:jul-to-slf4j:1.7.13",
+    "org.slf4j:slf4j-api:1.7.13",
+    "org.slf4j:slf4j-simple:1.7.13",
+    "com.google.oauth-client:google-oauth-client:1.30.1",
+]
+
+maven_install(
+    artifacts = MAVEN_ARTIFACTS + IO_GRPC_GRPC_JAVA_ARTIFACTS,
+    generate_compat_repositories = True,
+    override_targets = IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS,
+    repositories = [
+        "https://jcenter.bintray.com/",
+        "https://maven.google.com",
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+load("@maven//:compat.bzl", "compat_repositories")
+
+compat_repositories()
+
+load("@io_grpc_grpc_java//:repositories.bzl", "grpc_java_repositories")
+
+grpc_java_repositories()
+
+# Protobuf
+
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+
+protobuf_deps()
 
 # Buildifier
 
@@ -81,33 +120,3 @@ http_archive(
     strip_prefix = "buildtools-master",
     url = "https://github.com/bazelbuild/buildtools/archive/master.zip",
 )
-
-# Direct java deps
-
-MAVEN_ARTIFACTS = [
-    "com.beust:jcommander:1.72",
-    "com.fasterxml.jackson.core:jackson-core:2.6.3",
-    "com.github.os72:protoc-jar:3.2.0",
-    "com.google.truth:truth:0.28",
-    "junit:junit:4.12",
-    "org.mockito:mockito-all:1.10.19",
-    "org.slf4j:jul-to-slf4j:1.7.13",
-    "org.slf4j:slf4j-api:1.7.13",
-    "org.slf4j:slf4j-simple:1.7.13",
-    "com.google.oauth-client:google-oauth-client:1.30.1",
-]
-
-maven_install(
-    artifacts = MAVEN_ARTIFACTS + IO_GRPC_GRPC_JAVA_ARTIFACTS,
-    generate_compat_repositories = True,
-    override_targets = IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS,
-    repositories = [
-        "https://jcenter.bintray.com/",
-        "https://maven.google.com",
-        "https://repo1.maven.org/maven2",
-    ],
-)
-
-load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
-
-protobuf_deps()
