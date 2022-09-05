@@ -62,7 +62,7 @@ $ echo <json-request> | java -jar polyglot.jar \
     --full_method=<some.package.Service/doSomething>
 ```
 
-Bu default, Polyglot always tries to use reflection before compiling local protos. Reflection can be turned off explicitly by setting the flag `--use_reflection=false`.
+By default, Polyglot always tries to use reflection before compiling local protos. Reflection can be turned off explicitly by setting the flag `--use_reflection=false`.
 
 ### Configuration (optional)
 
